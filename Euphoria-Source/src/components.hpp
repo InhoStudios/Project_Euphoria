@@ -10,6 +10,22 @@ struct Player
 
 };
 
+struct Mob {
+
+};
+
+struct Physics {
+
+};
+
+struct Collider {
+
+};
+
+struct Solid {
+
+};
+
 // Eagles have a hard shell
 struct Deadly
 {
