@@ -1,7 +1,7 @@
 #include "world_init.hpp"
 #include "tiny_ecs_registry.hpp"
 
-Entity createChicken(RenderSystem* renderer, vec2 pos)
+Entity createPlayer(RenderSystem* renderer, vec2 pos)
 {
 	auto entity = Entity();
 
@@ -9,21 +9,22 @@ Entity createChicken(RenderSystem* renderer, vec2 pos)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::CHICKEN);
 	registry.meshPtrs.emplace(entity, &mesh);
 
+	registry.inputs.emplace(entity);
+
 	// Setting initial motion values
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
-	motion.scale = mesh.original_size * 300.f;
-	motion.scale.y *= -1; // point front to the right
+	motion.scale = { 32., 32. };
 
 	// Create and (empty) Chicken component to be able to refer to all eagles
 	registry.players.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::TEXTURE_COUNT, // TEXTURE_COUNT indicates that no txture is needed
-			EFFECT_ASSET_ID::CHICKEN,
-			GEOMETRY_BUFFER_ID::CHICKEN });
+		{ TEXTURE_ASSET_ID::PLAYER, // TEXTURE_COUNT indicates that no txture is needed
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
@@ -78,7 +79,7 @@ Entity createEagle(RenderSystem* renderer, vec2 position)
 	registry.deadlys.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::EAGLE,
+		{ TEXTURE_ASSET_ID::PLAYER,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 

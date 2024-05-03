@@ -35,6 +35,8 @@ public:
 	// Check for collisions
 	void handle_collisions();
 
+	void clear_keys();
+
 	// Should the game be over ?
 	bool is_over()const;
 private:
@@ -56,7 +58,7 @@ private:
 	float current_speed;
 	float next_eagle_spawn;
 	float next_bug_spawn;
-	Entity player_chicken;
+	Entity player;
 
 	// music references
 	Mix_Music* background_music;

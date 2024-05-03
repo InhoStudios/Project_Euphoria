@@ -154,7 +154,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		// Reset timer
 		next_eagle_spawn = (EAGLE_DELAY_MS / 2) + uniform_dist(rng) * (EAGLE_DELAY_MS / 2);
 		// Create eagle with random initial position
-        createEagle(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 100.f));
+        createEagle(renderer, vec2(144.f, 0.f));
 	}
 
 	// Spawning new bug
@@ -215,8 +215,7 @@ void WorldSystem::restart_game() {
 	registry.list_all_components();
 
 	// Create a new chicken
-	player_chicken = createChicken(renderer, { window_width_px/2, window_height_px - 200 });
-	registry.colors.insert(player_chicken, {1, 0.8f, 0.8f});
+	player = createPlayer(renderer, { screen_width_px/2, screen_height_px - 64 });
 
 	// !! TODO A2: Enable static eggs on the ground, for reference
 	// Create eggs on the floor, use this for reference
@@ -288,6 +287,34 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+	// update Input component
+	Input& playerInput = registry.inputs.get(player);
+	if (action == GLFW_PRESS) {
+		for (std::map<INPUT_KEY, int>::iterator it = playerInput.key_mapping.begin();
+			it != playerInput.key_mapping.end();
+			++it) {
+
+			if (key == it->second) {
+				playerInput.key[it->first] = true;
+				playerInput.key_press[it->first] = true;
+			}
+
+		}
+	}
+
+	if (action == GLFW_RELEASE) {
+		for (std::map<INPUT_KEY, int>::iterator it = playerInput.key_mapping.begin(); 
+			it != playerInput.key_mapping.end(); 
+			++it) {
+
+			if (key == it->second) {
+				playerInput.key[it->first] = false;
+				playerInput.key_release[it->first] = true;
+			}
+
+		}
+	}
+
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
 		int w, h;
@@ -324,4 +351,37 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	(vec2)mouse_position; // dummy to avoid compiler warning
+}
+
+void WorldSystem::clear_keys() {
+	Input& i = registry.inputs.get(player);
+
+	i.key_press = {
+		{INPUT_KEY::KEY_RIGHT, false},
+		{INPUT_KEY::KEY_LEFT, false},
+		{INPUT_KEY::KEY_UP, false},
+		{INPUT_KEY::KEY_DOWN, false},
+
+		{INPUT_KEY::KEY_JUMP, false},
+
+		{INPUT_KEY::KEY_A1, false},
+		{INPUT_KEY::KEY_A2, false},
+		{INPUT_KEY::KEY_A3, false},
+		{INPUT_KEY::KEY_A4, false},
+		{INPUT_KEY::KEY_MOD, false},
+	};
+	i.key_release = {
+		{INPUT_KEY::KEY_RIGHT, false},
+		{INPUT_KEY::KEY_LEFT, false},
+		{INPUT_KEY::KEY_UP, false},
+		{INPUT_KEY::KEY_DOWN, false},
+
+		{INPUT_KEY::KEY_JUMP, false},
+
+		{INPUT_KEY::KEY_A1, false},
+		{INPUT_KEY::KEY_A2, false},
+		{INPUT_KEY::KEY_A3, false},
+		{INPUT_KEY::KEY_A4, false},
+		{INPUT_KEY::KEY_MOD, false},
+	};
 }

@@ -2,6 +2,7 @@
 #include "common.hpp"
 #include <vector>
 #include <unordered_map>
+#include <map>
 #include "../ext/stb_image/stb_image.h"
 
 // Player component
@@ -36,6 +37,101 @@ struct Deadly
 struct Eatable
 {
 
+};
+
+enum class INPUT_KEY {
+	KEY_RIGHT = 0,
+	KEY_LEFT = KEY_RIGHT + 1,
+	KEY_UP = KEY_LEFT + 1,
+	KEY_DOWN = KEY_UP + 1,
+
+	KEY_JUMP = KEY_DOWN + 1,
+
+	KEY_A1 = KEY_JUMP + 1, // i or z
+	KEY_A2 = KEY_UP + 1, // j or x
+	KEY_A3 = KEY_UP + 1, // k or c
+	KEY_A4 = KEY_UP + 1, // l or v
+	KEY_MOD = KEY_UP + 1, // shift or enter
+	
+};
+
+const std::map<INPUT_KEY, int> WASD_MAPPING = {
+		{INPUT_KEY::KEY_RIGHT, GLFW_KEY_D},
+		{INPUT_KEY::KEY_LEFT, GLFW_KEY_A},
+		{INPUT_KEY::KEY_UP, GLFW_KEY_W},
+		{INPUT_KEY::KEY_DOWN, GLFW_KEY_S},
+
+		{INPUT_KEY::KEY_JUMP, GLFW_KEY_SPACE},
+
+		{INPUT_KEY::KEY_A1, GLFW_KEY_I},
+		{INPUT_KEY::KEY_A2, GLFW_KEY_J},
+		{INPUT_KEY::KEY_A3, GLFW_KEY_K},
+		{INPUT_KEY::KEY_A4, GLFW_KEY_L},
+		{INPUT_KEY::KEY_MOD, GLFW_KEY_ENTER}
+};
+
+const std::map<INPUT_KEY, int> ARROW_MAPPING = {
+		{INPUT_KEY::KEY_RIGHT, GLFW_KEY_RIGHT},
+		{INPUT_KEY::KEY_LEFT, GLFW_KEY_LEFT},
+		{INPUT_KEY::KEY_UP, GLFW_KEY_UP},
+		{INPUT_KEY::KEY_DOWN, GLFW_KEY_DOWN},
+
+		{INPUT_KEY::KEY_JUMP, GLFW_KEY_SPACE},
+
+		{INPUT_KEY::KEY_A1, GLFW_KEY_Z},
+		{INPUT_KEY::KEY_A2, GLFW_KEY_X},
+		{INPUT_KEY::KEY_A3, GLFW_KEY_C},
+		{INPUT_KEY::KEY_A4, GLFW_KEY_V},
+		{INPUT_KEY::KEY_MOD, GLFW_KEY_LEFT_SHIFT}
+};
+
+struct Input {
+	// map of input_key to GLFW keys
+	std::map<INPUT_KEY, int> key_mapping = WASD_MAPPING;
+	std::map<INPUT_KEY, bool> key = {
+		{INPUT_KEY::KEY_RIGHT, false},
+		{INPUT_KEY::KEY_LEFT, false},
+		{INPUT_KEY::KEY_UP, false},
+		{INPUT_KEY::KEY_DOWN, false},
+
+		{INPUT_KEY::KEY_JUMP, false},
+
+		{INPUT_KEY::KEY_A1, false},
+		{INPUT_KEY::KEY_A2, false},
+		{INPUT_KEY::KEY_A3, false},
+		{INPUT_KEY::KEY_A4, false},
+		{INPUT_KEY::KEY_MOD, false},
+	};
+
+	std::map<INPUT_KEY, bool> key_press = {
+		{INPUT_KEY::KEY_RIGHT, false},
+		{INPUT_KEY::KEY_LEFT, false},
+		{INPUT_KEY::KEY_UP, false},
+		{INPUT_KEY::KEY_DOWN, false},
+
+		{INPUT_KEY::KEY_JUMP, false},
+
+		{INPUT_KEY::KEY_A1, false},
+		{INPUT_KEY::KEY_A2, false},
+		{INPUT_KEY::KEY_A3, false},
+		{INPUT_KEY::KEY_A4, false},
+		{INPUT_KEY::KEY_MOD, false},
+	};
+
+	std::map<INPUT_KEY, bool> key_release = {
+		{INPUT_KEY::KEY_RIGHT, false},
+		{INPUT_KEY::KEY_LEFT, false},
+		{INPUT_KEY::KEY_UP, false},
+		{INPUT_KEY::KEY_DOWN, false},
+
+		{INPUT_KEY::KEY_JUMP, false},
+
+		{INPUT_KEY::KEY_A1, false},
+		{INPUT_KEY::KEY_A2, false},
+		{INPUT_KEY::KEY_A3, false},
+		{INPUT_KEY::KEY_A4, false},
+		{INPUT_KEY::KEY_MOD, false},
+	};
 };
 
 // All data relevant to the shape and motion of entities
@@ -129,7 +225,8 @@ struct Mesh
 enum class TEXTURE_ASSET_ID {
 	BUG = 0,
 	EAGLE = BUG + 1,
-	TEXTURE_COUNT = EAGLE + 1
+	PLAYER = EAGLE + 1,
+	TEXTURE_COUNT = PLAYER + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

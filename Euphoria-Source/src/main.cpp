@@ -49,6 +49,8 @@ int main()
 		physics.step(elapsed_ms);
 		world.handle_collisions();
 
+		world.clear_keys();
+
 		renderer.draw();
 	}
 
