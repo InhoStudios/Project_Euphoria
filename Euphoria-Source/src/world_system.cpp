@@ -116,7 +116,7 @@ GLFWwindow* WorldSystem::create_window() {
 void WorldSystem::init(RenderSystem* renderer_arg) {
 	this->renderer = renderer_arg;
 	// Playing background music indefinitely
-	Mix_PlayMusic(background_music, -1);
+	// Mix_PlayMusic(background_music, -1);
 	fprintf(stderr, "Loaded music\n");
 
 	// Set all states to default
@@ -200,7 +200,23 @@ void WorldSystem::restart_game() {
 	registry.list_all_components();
 
 	// Create a new chicken
-	player = createPlayer(renderer, { screen_width_px/2, screen_height_px - 64 });
+	player = createPlayer(renderer, { screen_width_px/2, screen_height_px - 128 });
+
+	createSolid(renderer, 
+		{ screen_width_px / 2, screen_height_px - TILE_SIZE / 2 }, 
+		{ screen_width_px, TILE_SIZE });
+
+	createSolid(renderer,
+		{ TILE_SIZE / 2, screen_height_px/ 2 },
+		{ TILE_SIZE, screen_height_px });
+
+	createSolid(renderer,
+		{ screen_width_px - TILE_SIZE / 2, screen_height_px / 2 },
+		{ TILE_SIZE, screen_height_px });
+
+	createSolid(renderer,
+		{ 32, screen_height_px - 16 },
+		{ TILE_SIZE, TILE_SIZE });
 
 	// !! TODO A2: Enable static eggs on the ground, for reference
 	// Create eggs on the floor, use this for reference

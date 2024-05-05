@@ -26,6 +26,33 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	return false;
 }
 
+bool collides_at(Entity entity, Entity collidesWith, vec2 offsetPos) {
+
+	Motion& entityMotion = registry.motions.get(entity);
+	Motion& otherMotion = registry.motions.get(collidesWith);
+
+	vec2 m1_pos = entityMotion.position, m2_pos = otherMotion.position;
+	vec2 m1_bb = get_bounding_box(entityMotion), m2_bb = get_bounding_box(otherMotion);
+
+	// idea: for both bounding boxes, check if any corner is within any of the other bounding boxes
+	int m1_minx = m1_pos[0] + offsetPos[0] - m1_bb[0] / 2;
+	int m1_miny = m1_pos[1] + offsetPos[1] - m1_bb[1] / 2;
+	int m1_maxx = m1_pos[0] + offsetPos[0] + m1_bb[0] / 2;
+	int m1_maxy = m1_pos[1] + offsetPos[1] + m1_bb[1] / 2;
+
+	int m2_minx = m2_pos[0] - m2_bb[0] / 2;
+	int m2_miny = m2_pos[1] - m2_bb[1] / 2;
+	int m2_maxx = m2_pos[0] + m2_bb[0] / 2;
+	int m2_maxy = m2_pos[1] + m2_bb[1] / 2;
+
+	return (
+		m1_minx < m2_maxx &&
+		m1_maxx > m2_minx &&
+		m1_miny < m2_maxy &&
+		m1_maxy > m2_miny
+		);
+}
+
 void PhysicsSystem::step(float elapsed_ms)
 {
 	// Move bug based on how much time has passed, this is to (partially) avoid
@@ -94,9 +121,8 @@ void PhysicsSystem::doPlayerInput(float elapsed_ms) {
 			physics.velocity.y = physics.targetVelocity.y;
 		}
 
-		if (input.key_release[KEY::JUMP] && physics.inAir) {
+		if (input.key_release[KEY::JUMP] && physics.velocity.y < 0) {
 			physics.targetVelocity.y = 0;
-			physics.velocity.y = 0;
 		}
 	}
 }
@@ -126,8 +152,9 @@ void PhysicsSystem::doGravity(float elapsed_ms) {
 void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 
 	auto& physics_registry = registry.physEntities;
-
 	auto& motion_registry = registry.motions;
+	auto& mob_registry = registry.mobs;
+	auto& collider_registry = registry.colliders;
 
 	float step_seconds = elapsed_ms / 1000.f;
 
@@ -139,7 +166,69 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 		physComp.velocity += (physComp.targetVelocity - physComp.velocity) * physComp.drag;
 
 		Motion& motion = motion_registry.get(entity);
-		motion.position += step_seconds * physComp.velocity;
+
+		vec2 startPos = motion.position;
+
+		vec2 msp = step_seconds * physComp.velocity;
+		int hsp = msp[0], vsp = msp[1];
+		int shsp = (hsp > 0) - (hsp < 0), svsp = (vsp > 0) - (vsp < 0);
+
+		physComp.inAir = true;
+
+		if (!registry.solids.has(entity) && registry.colliders.has(entity)) {
+			for (uint j = 0; j < collider_registry.size(); j++) {
+				Entity otherEntity = collider_registry.entities[j];
+				Motion otherMotion = motion_registry.get(otherEntity);
+
+				if (registry.solids.has(otherEntity)) {
+					Solid& solid = registry.solids.get(otherEntity);
+
+					// COLLISION CODE
+					if (collides_at(entity, otherEntity, { 0., 2. }) && vsp >= 0) {
+						physComp.inAir = false;
+					}
+
+					if (collides_at(entity, otherEntity, { 0., vsp })) {
+						motion.position = startPos;
+						physComp.targetVelocity.y = -(physComp.elasticity * physComp.targetVelocity.y);
+						physComp.velocity.y = -(physComp.elasticity * physComp.velocity.y);
+
+						for (i = 0; i < 2 * abs(vsp); ++i) {
+							if (collides_at(entity, otherEntity, { 0., svsp })) break;
+							motion.position.y += svsp;
+						}
+						vsp = 0;
+					}
+
+					if (collides_at(entity, otherEntity, { hsp, 0. })) {
+						int yplus = 0;
+
+						while (collides_at(entity, otherEntity, { hsp, -yplus }) && yplus <= abs(physComp.rampSpeed * hsp)) {
+							yplus++;
+						}
+
+						if (collides_at(entity, otherEntity, { hsp, -yplus })) {
+							motion.position.x = startPos.x;
+
+							physComp.targetVelocity.x = -(physComp.elasticity * physComp.targetVelocity.x);
+							physComp.velocity.x = -(physComp.elasticity * physComp.velocity.x);
+
+							for (int i = 0; i < 2 * abs(hsp); i++) {
+								if (collides_at(entity, otherEntity, { shsp, 0. })) break;
+								motion.position.x += shsp;
+							}
+							hsp = 0;
+						}
+						else {
+							motion.position.y -= yplus;
+						}
+					}
+
+				}
+			}
+		}
+
+		motion.position += vec2({ hsp, vsp });
 	}
 }
 

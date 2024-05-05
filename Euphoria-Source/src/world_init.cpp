@@ -16,7 +16,7 @@ Entity createPlayer(RenderSystem* renderer, vec2 pos)
 	registry.gravEntities.emplace(entity);
 
 	Mob& mob = registry.mobs.emplace(entity);
-	mob.moveSpeed = 500.f;
+	mob.moveSpeed = 350.f;
 	mob.jumpSpeed = 700.f;
 	mob.knockbackSpeed = 300.f;
 
@@ -26,7 +26,6 @@ Entity createPlayer(RenderSystem* renderer, vec2 pos)
 	motion.angle = 0.f;
 	motion.scale = { 32., 32. };
 
-	// Create and (empty) Chicken component to be able to refer to all eagles
 	registry.players.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
@@ -39,6 +38,23 @@ Entity createPlayer(RenderSystem* renderer, vec2 pos)
 
 Entity createSolid(RenderSystem* renderer, vec2 pos, vec2 scale) {
 	auto entity = Entity(); 
+
+	registry.colliders.emplace(entity);
+	registry.solids.emplace(entity);
+
+	registry.physEntities.emplace(entity);
+
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.scale = scale;
+	motion.angle = 0.f;
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::SOLID, // TEXTURE_COUNT indicates that no txture is needed
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }

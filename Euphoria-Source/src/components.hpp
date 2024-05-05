@@ -20,7 +20,7 @@ struct GameManager {
 // Player component
 struct Player
 {
-
+	// put enhancements in player component? or in game manager?
 };
 
 struct Mob {
@@ -38,13 +38,13 @@ struct Physics {
 	vec2 targetVelocity = { 0.f, 0.f };
 	bool inAir = false;
 	float elasticity = 0.0;
-	float drag = 0.2;
+	float drag = 0.15;
 	float rampSpeed = 1.0;
 };
 
 struct Gravity {
-	float grav = 40.f * TILE_SIZE;
-	float terminalVelocity = 2400.f;
+	float grav = 100.f * TILE_SIZE;
+	float terminalVelocity = 1000.f;
 };
 
 struct Collider {
@@ -178,6 +178,14 @@ struct Collision
 	Collision(Entity& other) { this->other = other; };
 };
 
+// LEVEL COMPONENTS
+
+struct LevelElement {
+
+};
+
+// END LEVEL COMPONENTS
+
 // Data structure for toggling debug mode
 struct Debug {
 	bool in_debug_mode = 0;
@@ -251,10 +259,9 @@ struct Mesh
  */
 
 enum class TEXTURE_ASSET_ID {
-	BUG = 0,
-	EAGLE = BUG + 1,
-	PLAYER = EAGLE + 1,
-	TEXTURE_COUNT = PLAYER + 1
+	PLAYER = 0,
+	SOLID = PLAYER + 1,
+	TEXTURE_COUNT = SOLID + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
