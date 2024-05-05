@@ -171,6 +171,7 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 
 		vec2 msp = step_seconds * physComp.velocity;
 		int hsp = msp[0], vsp = msp[1];
+		int targHsp = step_seconds * physComp.targetVelocity.x;
 		int shsp = (hsp > 0) - (hsp < 0), svsp = (vsp > 0) - (vsp < 0);
 
 		physComp.inAir = true;
@@ -203,7 +204,8 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 					if (collides_at(entity, otherEntity, { hsp, 0. })) {
 						int yplus = 0;
 
-						while (collides_at(entity, otherEntity, { hsp, -yplus }) && yplus <= abs(physComp.rampSpeed * hsp)) {
+						while (collides_at(entity, otherEntity, { hsp, -yplus }) && 
+							yplus <= (physComp.rampSpeed * TILE_SIZE / 2)) {
 							yplus++;
 						}
 

@@ -215,7 +215,15 @@ void WorldSystem::restart_game() {
 		{ TILE_SIZE, screen_height_px });
 
 	createSolid(renderer,
-		{ 32, screen_height_px - 16 },
+		{ 48, screen_height_px - 16 },
+		{ TILE_SIZE, TILE_SIZE });
+
+	createSolid(renderer,
+		{ 32, screen_height_px - 24 },
+		{ TILE_SIZE, TILE_SIZE });
+
+	createSolid(renderer,
+		{ 512, screen_height_px - 24 },
 		{ TILE_SIZE, TILE_SIZE });
 
 	// !! TODO A2: Enable static eggs on the ground, for reference
