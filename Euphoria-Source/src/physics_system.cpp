@@ -26,25 +26,13 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	return false;
 }
 
-void PhysicsSystem::doPlayerInput(float elapsed_ms) {
-
-}
-
 void PhysicsSystem::step(float elapsed_ms)
 {
 	// Move bug based on how much time has passed, this is to (partially) avoid
 	// having entities move at different speed based on the machine.
 	doPlayerInput(elapsed_ms);
-
-	auto& motion_registry = registry.motions;
-	for(uint i = 0; i< motion_registry.size(); i++)
-	{
-		// !!! TODO A1: update motion.position based on step_seconds and motion.velocity
-		//Motion& motion = motion_registry.components[i];
-		//Entity entity = motion_registry.entities[i];
-		//float step_seconds = elapsed_ms / 1000.f;
-		(void)elapsed_ms; // placeholder to silence unused warning until implemented
-	}
+	doGravity(elapsed_ms);
+	doPhysicsCollisions(elapsed_ms);
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// TODO A2: HANDLE EGG UPDATES HERE
@@ -52,6 +40,7 @@ void PhysicsSystem::step(float elapsed_ms)
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	// Check for collisions between all moving entities
+	/*
     ComponentContainer<Motion> &motion_container = registry.motions;
 	for(uint i = 0; i<motion_container.components.size(); i++)
 	{
@@ -72,9 +61,85 @@ void PhysicsSystem::step(float elapsed_ms)
 			}
 		}
 	}
+	*/
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// TODO A2: HANDLE EGG collisions HERE
 	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
+
+void PhysicsSystem::doPlayerInput(float elapsed_ms) {
+	// iterate through players
+	auto& player_registry = registry.players;
+	for (uint i = 0; i < player_registry.size(); i++) {
+		Entity playerEntity = player_registry.entities[i];
+		Player& player = player_registry.get(playerEntity);
+		Motion& playerMotion = registry.motions.get(playerEntity);
+		Physics& physics = registry.physEntities.get(playerEntity);
+		Mob& mob = registry.mobs.get(playerEntity);
+
+		Input& input = registry.inputs.get(playerEntity);
+
+		int hdir = input.key[KEY::RIGHT] - input.key[KEY::LEFT];
+
+		if (hdir) {
+			playerMotion.scale.x = hdir * abs(playerMotion.scale.x);
+		}
+
+		physics.targetVelocity.x = hdir * mob.moveSpeed;
+
+		if (input.key_press[KEY::JUMP] && !physics.inAir) {
+			physics.targetVelocity.y = -mob.jumpSpeed;
+			physics.velocity.y = physics.targetVelocity.y;
+		}
+
+		if (input.key_release[KEY::JUMP] && physics.inAir) {
+			physics.targetVelocity.y = 0;
+			physics.velocity.y = 0;
+		}
+	}
+}
+
+void PhysicsSystem::doGravity(float elapsed_ms) {
+
+	auto& motion_registry = registry.motions;
+	auto& gravity_registry = registry.gravEntities;
+	auto& physics_registry = registry.physEntities;
+	auto& mob_registry = registry.mobs;
+
+	for (uint i = 0; i < gravity_registry.size(); i++) {
+		float step_seconds = elapsed_ms / 1000.f;
+		Entity entity = gravity_registry.entities[i];
+
+		Gravity& gravity = gravity_registry.components[i];
+		Physics& physics = physics_registry.get(entity);
+
+		if (abs(physics.targetVelocity.y) <= gravity.terminalVelocity &&
+			abs(physics.velocity.y) <= gravity.terminalVelocity) {
+			physics.targetVelocity.y += step_seconds * gravity.grav;
+			physics.velocity.y += step_seconds * gravity.grav;
+		}
+	}
+}
+
+void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
+
+	auto& physics_registry = registry.physEntities;
+
+	auto& motion_registry = registry.motions;
+
+	float step_seconds = elapsed_ms / 1000.f;
+
+	for (uint i = 0; i < physics_registry.size(); i++) {
+
+		Physics& physComp = physics_registry.components[i];
+		Entity entity = physics_registry.entities[i];
+
+		physComp.velocity += (physComp.targetVelocity - physComp.velocity) * physComp.drag;
+
+		Motion& motion = motion_registry.get(entity);
+		motion.position += step_seconds * physComp.velocity;
+	}
+}
+

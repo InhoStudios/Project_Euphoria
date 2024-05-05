@@ -13,6 +13,9 @@ public:
 
 	void doPlayerInput(float elapsed_ms);
 
+	void doPhysicsCollisions(float elapsed_ms);
+	void doGravity(float elapsed_ms);
+
 	PhysicsSystem()
 	{
 	}

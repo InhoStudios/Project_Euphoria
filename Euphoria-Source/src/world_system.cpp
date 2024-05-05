@@ -6,6 +6,8 @@
 #include <cassert>
 #include <sstream>
 
+#include <iostream>
+
 #include "physics_system.hpp"
 
 // Game configuration
@@ -16,9 +18,7 @@ const size_t BUG_DELAY_MS = 5000 * 3;
 
 // Create the bug world
 WorldSystem::WorldSystem()
-	: points(0)
-	, next_eagle_spawn(0.f)
-	, next_bug_spawn(0.f) {
+	: points(0) {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
 }
@@ -148,21 +148,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-	// Spawning new eagles
-	next_eagle_spawn -= elapsed_ms_since_last_update * current_speed;
-	if (registry.deadlys.components.size() <= MAX_EAGLES && next_eagle_spawn < 0.f) {
-		// Reset timer
-		next_eagle_spawn = (EAGLE_DELAY_MS / 2) + uniform_dist(rng) * (EAGLE_DELAY_MS / 2);
-		// Create eagle with random initial position
-        createEagle(renderer, vec2(144.f, 0.f));
-	}
-
-	// Spawning new bug
-	next_bug_spawn -= elapsed_ms_since_last_update * current_speed;
-	if (registry.eatables.components.size() <= MAX_BUG && next_bug_spawn < 0.f) {
-		// !!!  TODO A1: Create new bug with createBug({0,0}), as for the Eagles above
-	}
-
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// TODO A2: HANDLE EGG SPAWN HERE
 	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
@@ -245,6 +230,7 @@ void WorldSystem::handle_collisions() {
 		if (registry.players.has(entity)) {
 			//Player& player = registry.players.get(entity);
 
+			/*
 			// Checking Player - Deadly collisions
 			if (registry.deadlys.has(entity_other)) {
 				// initiate death unless already dying
@@ -267,6 +253,7 @@ void WorldSystem::handle_collisions() {
 					// !!! TODO A1: create a new struct called LightUp in components.hpp and add an instance to the chicken entity by modifying the ECS registry
 				}
 			}
+			*/
 		}
 	}
 
@@ -290,7 +277,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	// update Input component
 	Input& playerInput = registry.inputs.get(player);
 	if (action == GLFW_PRESS) {
-		for (std::map<INPUT_KEY, int>::iterator it = playerInput.key_mapping.begin();
+		for (std::map<KEY, int>::iterator it = playerInput.key_mapping.begin();
 			it != playerInput.key_mapping.end();
 			++it) {
 
@@ -303,7 +290,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	if (action == GLFW_RELEASE) {
-		for (std::map<INPUT_KEY, int>::iterator it = playerInput.key_mapping.begin(); 
+		for (std::map<KEY, int>::iterator it = playerInput.key_mapping.begin(); 
 			it != playerInput.key_mapping.end(); 
 			++it) {
 
@@ -357,31 +344,31 @@ void WorldSystem::clear_keys() {
 	Input& i = registry.inputs.get(player);
 
 	i.key_press = {
-		{INPUT_KEY::KEY_RIGHT, false},
-		{INPUT_KEY::KEY_LEFT, false},
-		{INPUT_KEY::KEY_UP, false},
-		{INPUT_KEY::KEY_DOWN, false},
+		{KEY::RIGHT, false},
+		{KEY::LEFT, false},
+		{KEY::UP, false},
+		{KEY::DOWN, false},
 
-		{INPUT_KEY::KEY_JUMP, false},
+		{KEY::JUMP, false},
 
-		{INPUT_KEY::KEY_A1, false},
-		{INPUT_KEY::KEY_A2, false},
-		{INPUT_KEY::KEY_A3, false},
-		{INPUT_KEY::KEY_A4, false},
-		{INPUT_KEY::KEY_MOD, false},
+		{KEY::BASIC, false},
+		{KEY::SPECIAL, false},
+		{KEY::GRAB, false},
+		{KEY::ENHANCE, false},
+		{KEY::DASH, false},
 	};
 	i.key_release = {
-		{INPUT_KEY::KEY_RIGHT, false},
-		{INPUT_KEY::KEY_LEFT, false},
-		{INPUT_KEY::KEY_UP, false},
-		{INPUT_KEY::KEY_DOWN, false},
+		{KEY::RIGHT, false},
+		{KEY::LEFT, false},
+		{KEY::UP, false},
+		{KEY::DOWN, false},
 
-		{INPUT_KEY::KEY_JUMP, false},
+		{KEY::JUMP, false},
 
-		{INPUT_KEY::KEY_A1, false},
-		{INPUT_KEY::KEY_A2, false},
-		{INPUT_KEY::KEY_A3, false},
-		{INPUT_KEY::KEY_A4, false},
-		{INPUT_KEY::KEY_MOD, false},
+		{KEY::BASIC, false},
+		{KEY::SPECIAL, false},
+		{KEY::GRAB, false},
+		{KEY::ENHANCE, false},
+		{KEY::DASH, false},
 	};
 }

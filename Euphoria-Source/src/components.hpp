@@ -5,6 +5,18 @@
 #include <map>
 #include "../ext/stb_image/stb_image.h"
 
+enum class GAME_STATE {
+	MENU = 0,
+	PLAY = MENU + 1,
+	PAUSE = PLAY + 1,
+
+	//
+};
+
+struct GameManager {
+
+};
+
 // Player component
 struct Player
 {
@@ -12,125 +24,142 @@ struct Player
 };
 
 struct Mob {
+	float moveSpeed;
+	float jumpSpeed;
+	float knockbackSpeed;
+};
 
+struct Health {
+	int hp = 10;
 };
 
 struct Physics {
+	vec2 velocity = { 0.f, 0.f };
+	vec2 targetVelocity = { 0.f, 0.f };
+	bool inAir = false;
+	float elasticity = 0.0;
+	float drag = 0.2;
+	float rampSpeed = 1.0;
+};
 
+struct Gravity {
+	float grav = 40.f * TILE_SIZE;
+	float terminalVelocity = 2400.f;
 };
 
 struct Collider {
-
+	std::vector<vec2> hull;
 };
 
 struct Solid {
 
 };
 
-// Eagles have a hard shell
-struct Deadly
-{
+struct Camera {
+	vec2 targetPosition = { 0.f, 0.f };
+	vec2 position = { 0.f, 0.f };
+	vec2 dims = { 640., 360. };
 
+	float defaultZoom = 1.0;
+	float zoom = defaultZoom;
+	float interpSpeed = 0.6;
+	float offsetDist = 64.f;
+
+	vec2 bounds; // dynamically set
 };
 
-// Bug and Chicken have a soft shell
-struct Eatable
-{
+enum class KEY {
+	RIGHT = 0,
+	LEFT = RIGHT + 1,
+	UP = LEFT + 1,
+	DOWN = UP + 1,
 
-};
+	JUMP = DOWN + 1,
 
-enum class INPUT_KEY {
-	KEY_RIGHT = 0,
-	KEY_LEFT = KEY_RIGHT + 1,
-	KEY_UP = KEY_LEFT + 1,
-	KEY_DOWN = KEY_UP + 1,
-
-	KEY_JUMP = KEY_DOWN + 1,
-
-	KEY_A1 = KEY_JUMP + 1, // i or z
-	KEY_A2 = KEY_UP + 1, // j or x
-	KEY_A3 = KEY_UP + 1, // k or c
-	KEY_A4 = KEY_UP + 1, // l or v
-	KEY_MOD = KEY_UP + 1, // shift or enter
+	BASIC = JUMP + 1, // i or z
+	SPECIAL = BASIC + 1, // j or x
+	GRAB = SPECIAL + 1, // k or c
+	ENHANCE = GRAB + 1, // l or v
+	DASH = ENHANCE + 1, // shift
 	
 };
 
-const std::map<INPUT_KEY, int> WASD_MAPPING = {
-		{INPUT_KEY::KEY_RIGHT, GLFW_KEY_D},
-		{INPUT_KEY::KEY_LEFT, GLFW_KEY_A},
-		{INPUT_KEY::KEY_UP, GLFW_KEY_W},
-		{INPUT_KEY::KEY_DOWN, GLFW_KEY_S},
+const std::map<KEY, int> WASD_MAPPING = {
+		{KEY::RIGHT, GLFW_KEY_D},
+		{KEY::LEFT, GLFW_KEY_A},
+		{KEY::UP, GLFW_KEY_W},
+		{KEY::DOWN, GLFW_KEY_S},
 
-		{INPUT_KEY::KEY_JUMP, GLFW_KEY_SPACE},
+		{KEY::JUMP, GLFW_KEY_SPACE},
 
-		{INPUT_KEY::KEY_A1, GLFW_KEY_I},
-		{INPUT_KEY::KEY_A2, GLFW_KEY_J},
-		{INPUT_KEY::KEY_A3, GLFW_KEY_K},
-		{INPUT_KEY::KEY_A4, GLFW_KEY_L},
-		{INPUT_KEY::KEY_MOD, GLFW_KEY_ENTER}
+		{KEY::BASIC, GLFW_KEY_J},
+		{KEY::SPECIAL, GLFW_KEY_K},
+		{KEY::GRAB, GLFW_KEY_I},
+		{KEY::ENHANCE, GLFW_KEY_L},
+		{KEY::DASH, GLFW_KEY_LEFT_SHIFT}
 };
 
-const std::map<INPUT_KEY, int> ARROW_MAPPING = {
-		{INPUT_KEY::KEY_RIGHT, GLFW_KEY_RIGHT},
-		{INPUT_KEY::KEY_LEFT, GLFW_KEY_LEFT},
-		{INPUT_KEY::KEY_UP, GLFW_KEY_UP},
-		{INPUT_KEY::KEY_DOWN, GLFW_KEY_DOWN},
+const std::map<KEY, int> ARROW_MAPPING = {
+		{KEY::RIGHT, GLFW_KEY_RIGHT},
+		{KEY::LEFT, GLFW_KEY_LEFT},
+		{KEY::UP, GLFW_KEY_UP},
+		{KEY::DOWN, GLFW_KEY_DOWN},
 
-		{INPUT_KEY::KEY_JUMP, GLFW_KEY_SPACE},
+		{KEY::JUMP, GLFW_KEY_SPACE},
 
-		{INPUT_KEY::KEY_A1, GLFW_KEY_Z},
-		{INPUT_KEY::KEY_A2, GLFW_KEY_X},
-		{INPUT_KEY::KEY_A3, GLFW_KEY_C},
-		{INPUT_KEY::KEY_A4, GLFW_KEY_V},
-		{INPUT_KEY::KEY_MOD, GLFW_KEY_LEFT_SHIFT}
+		{KEY::BASIC, GLFW_KEY_Z},
+		{KEY::SPECIAL, GLFW_KEY_X},
+		{KEY::GRAB, GLFW_KEY_C},
+		{KEY::ENHANCE, GLFW_KEY_V},
+		{KEY::DASH, GLFW_KEY_LEFT_SHIFT}
 };
 
 struct Input {
-	// map of input_key to GLFW keys
-	std::map<INPUT_KEY, int> key_mapping = WASD_MAPPING;
-	std::map<INPUT_KEY, bool> key = {
-		{INPUT_KEY::KEY_RIGHT, false},
-		{INPUT_KEY::KEY_LEFT, false},
-		{INPUT_KEY::KEY_UP, false},
-		{INPUT_KEY::KEY_DOWN, false},
+	// map of KEY to GLFW keys
+	std::map<KEY, int> key_mapping = WASD_MAPPING;
+	std::map<KEY, bool> key = {
+		{KEY::RIGHT, false},
+		{KEY::LEFT, false},
+		{KEY::UP, false},
+		{KEY::DOWN, false},
 
-		{INPUT_KEY::KEY_JUMP, false},
+		{KEY::JUMP, false},
 
-		{INPUT_KEY::KEY_A1, false},
-		{INPUT_KEY::KEY_A2, false},
-		{INPUT_KEY::KEY_A3, false},
-		{INPUT_KEY::KEY_A4, false},
-		{INPUT_KEY::KEY_MOD, false},
+		{KEY::BASIC, false},
+		{KEY::SPECIAL, false},
+		{KEY::GRAB, false},
+		{KEY::ENHANCE, false},
+		{KEY::DASH, false},
 	};
 
-	std::map<INPUT_KEY, bool> key_press = {
-		{INPUT_KEY::KEY_RIGHT, false},
-		{INPUT_KEY::KEY_LEFT, false},
-		{INPUT_KEY::KEY_UP, false},
-		{INPUT_KEY::KEY_DOWN, false},
+	std::map<KEY, bool> key_press = {
+		{KEY::RIGHT, false},
+		{KEY::LEFT, false},
+		{KEY::UP, false},
+		{KEY::DOWN, false},
 
-		{INPUT_KEY::KEY_JUMP, false},
+		{KEY::JUMP, false},
 
-		{INPUT_KEY::KEY_A1, false},
-		{INPUT_KEY::KEY_A2, false},
-		{INPUT_KEY::KEY_A3, false},
-		{INPUT_KEY::KEY_A4, false},
-		{INPUT_KEY::KEY_MOD, false},
+		{KEY::BASIC, false},
+		{KEY::SPECIAL, false},
+		{KEY::GRAB, false},
+		{KEY::ENHANCE, false},
+		{KEY::DASH, false},
 	};
 
-	std::map<INPUT_KEY, bool> key_release = {
-		{INPUT_KEY::KEY_RIGHT, false},
-		{INPUT_KEY::KEY_LEFT, false},
-		{INPUT_KEY::KEY_UP, false},
-		{INPUT_KEY::KEY_DOWN, false},
+	std::map<KEY, bool> key_release = {
+		{KEY::RIGHT, false},
+		{KEY::LEFT, false},
+		{KEY::UP, false},
+		{KEY::DOWN, false},
 
-		{INPUT_KEY::KEY_JUMP, false},
+		{KEY::JUMP, false},
 
-		{INPUT_KEY::KEY_A1, false},
-		{INPUT_KEY::KEY_A2, false},
-		{INPUT_KEY::KEY_A3, false},
-		{INPUT_KEY::KEY_A4, false},
-		{INPUT_KEY::KEY_MOD, false},
+		{KEY::BASIC, false},
+		{KEY::SPECIAL, false},
+		{KEY::GRAB, false},
+		{KEY::ENHANCE, false},
+		{KEY::DASH, false},
 	};
 };
 
@@ -138,7 +167,6 @@ struct Input {
 struct Motion {
 	vec2 position = { 0, 0 };
 	float angle = 0;
-	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
 };
 
