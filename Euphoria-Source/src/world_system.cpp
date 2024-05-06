@@ -206,6 +206,14 @@ void WorldSystem::restart_game() {
 		{ screen_width_px / 2, screen_height_px - TILE_SIZE / 2 }, 
 		{ screen_width_px, TILE_SIZE });
 
+	createSolid(renderer, 
+		{ screen_width_px / 4, screen_height_px / 2 }, 
+		{ screen_width_px / 2, TILE_SIZE });
+
+	createSolid(renderer, 
+		{ 560, 300 }, 
+		{ 128, 128 });
+
 	createSolid(renderer,
 		{ TILE_SIZE / 2, screen_height_px/ 2 },
 		{ TILE_SIZE, screen_height_px });

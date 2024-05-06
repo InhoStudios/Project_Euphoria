@@ -21,12 +21,16 @@ struct GameManager {
 struct Player
 {
 	// put enhancements in player component? or in game manager?
+	uint coyoteMS = 0;
+	uint maxCoyoteMS = 60;
+	bool checkedFrame = false;
 };
 
 struct Mob {
 	float moveSpeed;
 	float jumpSpeed;
 	float knockbackSpeed;
+	int numJumps;
 };
 
 struct Health {

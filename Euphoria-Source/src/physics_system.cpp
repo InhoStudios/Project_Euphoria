@@ -1,6 +1,7 @@
 // internal
 #include "physics_system.hpp"
 #include "world_init.hpp"
+#include <iostream>
 
 // Returns the local bounding coordinates scaled by the current size of the entity
 vec2 get_bounding_box(const Motion& motion)
@@ -175,6 +176,9 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 		int shsp = (hsp > 0) - (hsp < 0), svsp = (vsp > 0) - (vsp < 0);
 
 		physComp.inAir = true;
+		
+		if (registry.players.has(entity))
+			registry.players.get(entity).checkedFrame = false;
 
 		if (!registry.solids.has(entity) && registry.colliders.has(entity)) {
 			for (uint j = 0; j < collider_registry.size(); j++) {
@@ -187,6 +191,16 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 					// COLLISION CODE
 					if (collides_at(entity, otherEntity, { 0., 2. }) && vsp >= 0) {
 						physComp.inAir = false;
+						if (registry.players.has(entity))
+							registry.players.get(entity).coyoteMS = 0;
+					} else if (registry.players.has(entity)) {
+						Player& p = registry.players.get(entity);
+						if (p.coyoteMS < p.maxCoyoteMS && !p.checkedFrame) {
+							std::cout << "Coyote time" << std::endl;
+							p.coyoteMS += elapsed_ms;
+							physComp.inAir = false;
+							p.checkedFrame = true;
+						}
 					}
 
 					if (collides_at(entity, otherEntity, { 0., vsp })) {
