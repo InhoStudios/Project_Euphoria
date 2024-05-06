@@ -291,3 +291,20 @@ struct RenderRequest {
 	GEOMETRY_BUFFER_ID used_geometry = GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 };
 
+struct Animation
+{
+	TEXTURE_ASSET_ID sheet;
+	uint numFrames;
+	uint index;
+	float frameRate;
+
+	Animation(TEXTURE_ASSET_ID sheet,
+		uint numFrames,
+		float frameRate) :
+		sheet(sheet),
+		numFrames(numFrames),
+		index(0),
+		frameRate(frameRate) {
+
+	}
+};
