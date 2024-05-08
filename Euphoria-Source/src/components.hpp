@@ -23,6 +23,10 @@ struct Player
 	// put enhancements in player component? or in game manager?
 	uint coyoteMS = 0;
 	uint maxCoyoteMS = 60;
+	uint airJumps = 0;
+	uint maxAirJumps = 2;
+	uint wallJumps = 0;
+	uint maxWallJumps = 3;
 	bool checkedFrame = false;
 };
 
@@ -41,6 +45,7 @@ struct Physics {
 	vec2 velocity = { 0.f, 0.f };
 	vec2 targetVelocity = { 0.f, 0.f };
 	bool inAir = false;
+	bool onWall = false;
 	float elasticity = 0.0;
 	float drag = 0.15;
 	float rampSpeed = 1.0;

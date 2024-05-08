@@ -117,9 +117,18 @@ void PhysicsSystem::doPlayerInput(float elapsed_ms) {
 
 		physics.targetVelocity.x = hdir * mob.moveSpeed;
 
-		if (input.key_press[KEY::JUMP] && !physics.inAir) {
-			physics.targetVelocity.y = -mob.jumpSpeed;
-			physics.velocity.y = physics.targetVelocity.y;
+		if (input.key_press[KEY::JUMP]) {
+			if (!physics.inAir || player.airJumps < player.maxAirJumps) {
+				physics.targetVelocity.y = -mob.jumpSpeed;
+				physics.velocity.y = physics.targetVelocity.y;
+				player.airJumps++;
+			}else if (physics.onWall && player.wallJumps <= player.maxWallJumps) {
+				physics.velocity.x = -hdir * mob.jumpSpeed;
+				physics.targetVelocity.y = -mob.jumpSpeed;
+				physics.velocity.y = physics.targetVelocity.y;
+				player.wallJumps++;
+
+			}
 		}
 
 		if (input.key_release[KEY::JUMP] && physics.velocity.y < 0) {
@@ -176,6 +185,7 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 		int shsp = (hsp > 0) - (hsp < 0), svsp = (vsp > 0) - (vsp < 0);
 
 		physComp.inAir = true;
+		physComp.onWall = false;
 		
 		if (registry.players.has(entity))
 			registry.players.get(entity).checkedFrame = false;
@@ -188,21 +198,39 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 				if (registry.solids.has(otherEntity)) {
 					Solid& solid = registry.solids.get(otherEntity);
 
-					// COLLISION CODE
+					// IN AIR CHECKS
 					if (collides_at(entity, otherEntity, { 0., 2. }) && vsp >= 0) {
 						physComp.inAir = false;
-						if (registry.players.has(entity))
-							registry.players.get(entity).coyoteMS = 0;
+						if (registry.players.has(entity)) {
+							// on ground: jump reset
+							Player& p = registry.players.get(entity);
+							p.airJumps = 0;
+							p.wallJumps = 0;
+							p.coyoteMS = 0;
+						}
 					} else if (registry.players.has(entity)) {
 						Player& p = registry.players.get(entity);
 						if (p.coyoteMS < p.maxCoyoteMS && !p.checkedFrame) {
-							std::cout << "Coyote time" << std::endl;
 							p.coyoteMS += elapsed_ms;
 							physComp.inAir = false;
 							p.checkedFrame = true;
 						}
 					}
-
+					if (collides_at(entity, otherEntity, { targHsp, 0. }) && 
+							physComp.inAir && 
+							registry.players.has(entity)) {
+						Player& p = registry.players.get(entity);
+						if (p.wallJumps < p.maxWallJumps) {
+							if (vsp > 1)  {
+								vsp = 1;
+								physComp.targetVelocity.y = (float) vsp / step_seconds;
+								physComp.velocity.y = (float) vsp / step_seconds;
+							}
+							physComp.onWall = true;
+						}
+					}
+					
+					// COLLISION CODE
 					if (collides_at(entity, otherEntity, { 0., vsp })) {
 						motion.position = startPos;
 						physComp.targetVelocity.y = -(physComp.elasticity * physComp.targetVelocity.y);
