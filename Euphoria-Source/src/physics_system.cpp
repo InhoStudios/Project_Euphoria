@@ -114,20 +114,24 @@ void PhysicsSystem::doPlayerInput(float elapsed_ms) {
 		if (hdir) {
 			playerMotion.scale.x = hdir * abs(playerMotion.scale.x);
 		}
-
+		
 		physics.targetVelocity.x = hdir * mob.moveSpeed;
 
 		if (input.key_press[KEY::JUMP]) {
-			if (!physics.inAir || player.airJumps < player.maxAirJumps) {
-				physics.targetVelocity.y = -mob.jumpSpeed;
-				physics.velocity.y = physics.targetVelocity.y;
-				player.airJumps++;
-			}else if (physics.onWall && player.wallJumps <= player.maxWallJumps) {
-				physics.velocity.x = -hdir * mob.jumpSpeed;
+			if (physics.onWall && player.wallJumps < player.maxWallJumps) {
+				int facing = (playerMotion.scale.x > 0) - (playerMotion.scale.x < 0);
+				
+				physics.targetVelocity.x = -facing * 3 * mob.moveSpeed;
+				physics.velocity.x = physics.targetVelocity.x;
+
 				physics.targetVelocity.y = -mob.jumpSpeed;
 				physics.velocity.y = physics.targetVelocity.y;
 				player.wallJumps++;
 
+			} else if (!physics.inAir || player.airJumps < player.maxAirJumps) {
+				physics.targetVelocity.y = -mob.jumpSpeed;
+				physics.velocity.y = physics.targetVelocity.y;
+				player.airJumps++;
 			}
 		}
 
@@ -216,18 +220,21 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 							p.checkedFrame = true;
 						}
 					}
-					if (collides_at(entity, otherEntity, { targHsp, 0. }) && 
+					if ( 
+							(
+								collides_at(entity, otherEntity, { 1, 0 }) ||
+								collides_at(entity, otherEntity, { -1, 0 })
+					 		) && 
 							physComp.inAir && 
-							registry.players.has(entity)) {
+							registry.players.has(entity)
+						) {
 						Player& p = registry.players.get(entity);
-						if (p.wallJumps < p.maxWallJumps) {
-							if (vsp > 1)  {
-								vsp = 1;
-								physComp.targetVelocity.y = (float) vsp / step_seconds;
-								physComp.velocity.y = (float) vsp / step_seconds;
-							}
-							physComp.onWall = true;
+						if (vsp > 1)  {
+							vsp = 1;
+							physComp.targetVelocity.y = (float) vsp / step_seconds;
+							physComp.velocity.y = (float) vsp / step_seconds;
 						}
+						physComp.onWall = true;
 					}
 					
 					// COLLISION CODE
