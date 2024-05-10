@@ -32,7 +32,7 @@ class RenderSystem {
 	const std::array<std::string, texture_count> texture_paths = {
 			textures_path("spr_player.png"),
 			textures_path("spr_solid.png"),
-			textures_path("sheet_test.png"),
+			textures_path("spr_sheet_test.png"),
 	};
 
 	std::array<GLuint, effect_count> effects;

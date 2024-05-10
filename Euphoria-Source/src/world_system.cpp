@@ -338,13 +338,15 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		}
 	}
 
+	/* TEMP */
 	if (key == GLFW_KEY_P) {
 		if (action == GLFW_PRESS) {
-			setAnimation(player, TEXTURE_ASSET_ID::TEST_ANIM, 6, 12);
+			setAnimation(player, TEXTURE_ASSET_ID::TEST_ANIM, 9, 12);
 		} else if (action == GLFW_RELEASE) {
 			clearAnimation(player);
 		}
 	}
+	/* TEMP */
 
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
