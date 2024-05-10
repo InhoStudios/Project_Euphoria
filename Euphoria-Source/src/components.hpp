@@ -308,20 +308,7 @@ struct Animation
 	uint index;
 	float frameRate;
 	float msCounter = 0.f;
-	
-	// std::vector<GLuint> texture_gl_handles;
-	// ivec2 dimensions;
 
 	std::vector<GLuint> vertex_buffers;
 	GLuint indexBuffer; // we only need one index buffer for each frame i think?
-
-	// Animation(TEXTURE_ASSET_ID sheet,
-	// 	uint numFrames,
-	// 	float frameRate) :
-	// 	sheet(sheet),
-	// 	numFrames(numFrames),
-	// 	index(0),
-	// 	frameRate(frameRate) {
-
-	// }
 };
