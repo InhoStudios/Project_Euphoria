@@ -24,7 +24,7 @@ struct Player
 	uint coyoteMS = 0;
 	uint maxCoyoteMS = 60;
 	uint airJumps = 0;
-	uint maxAirJumps = 2;
+	uint maxAirJumps = 1;
 	uint wallJumps = 0;
 	uint maxWallJumps = 3;
 	bool checkedFrame = false;
@@ -270,7 +270,8 @@ struct Mesh
 enum class TEXTURE_ASSET_ID {
 	PLAYER = 0,
 	SOLID = PLAYER + 1,
-	TEXTURE_COUNT = SOLID + 1
+	TEST_ANIM = SOLID + 1,
+	TEXTURE_COUNT = TEST_ANIM + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -306,14 +307,21 @@ struct Animation
 	uint numFrames;
 	uint index;
 	float frameRate;
+	float msCounter = 0.f;
+	
+	// std::vector<GLuint> texture_gl_handles;
+	// ivec2 dimensions;
 
-	Animation(TEXTURE_ASSET_ID sheet,
-		uint numFrames,
-		float frameRate) :
-		sheet(sheet),
-		numFrames(numFrames),
-		index(0),
-		frameRate(frameRate) {
+	std::vector<GLuint> vertex_buffers;
+	GLuint indexBuffer; // we only need one index buffer for each frame i think?
 
-	}
+	// Animation(TEXTURE_ASSET_ID sheet,
+	// 	uint numFrames,
+	// 	float frameRate) :
+	// 	sheet(sheet),
+	// 	numFrames(numFrames),
+	// 	index(0),
+	// 	frameRate(frameRate) {
+
+	// }
 };

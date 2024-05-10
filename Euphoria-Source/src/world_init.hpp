@@ -13,6 +13,9 @@ const float EAGLE_BB_HEIGHT = 32.f;
 // the player
 Entity createPlayer(RenderSystem* renderer, vec2 pos);
 
+Entity setAnimation(Entity e, TEXTURE_ASSET_ID sheet, uint numFrames, float frameRate);
+void clearAnimation(Entity e);
+
 Entity createSolid(RenderSystem* renderer, vec2 pos, vec2 scale);
 // a red line for debugging purposes
 Entity createLine(vec2 position, vec2 size);

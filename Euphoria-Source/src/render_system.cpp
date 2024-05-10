@@ -30,8 +30,20 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	gl_has_errors();
 
 	assert(render_request.used_geometry != GEOMETRY_BUFFER_ID::GEOMETRY_COUNT);
-	const GLuint vbo = vertex_buffers[(GLuint)render_request.used_geometry];
-	const GLuint ibo = index_buffers[(GLuint)render_request.used_geometry];
+	GLuint vbo, ibo;
+	// const GLuint vbo = vertex_buffers[(GLuint)render_request.used_geometry];
+	// const GLuint ibo = index_buffers[(GLuint)render_request.used_geometry];
+
+	// check animation
+	if (registry.animations.has(entity)) {
+		Animation& anim = registry.animations.get(entity);
+
+		vbo = anim.vertex_buffers[anim.index];
+		ibo = anim.indexBuffer;
+	} else {
+		vbo = vertex_buffers[(GLuint)render_request.used_geometry];
+		ibo = index_buffers[(GLuint)render_request.used_geometry];
+	}
 
 	// Setting vertex and index buffers
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -62,8 +74,16 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		gl_has_errors();
 
 		assert(registry.renderRequests.has(entity));
-		GLuint texture_id =
-			texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
+
+		GLuint texture_id;
+
+		if (registry.animations.has(entity)) {
+			texture_id = 
+				texture_gl_handles[(GLuint)registry.animations.get(entity).sheet];
+		} else {
+			texture_id =
+				texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
+		}
 
 		glBindTexture(GL_TEXTURE_2D, texture_id);
 		gl_has_errors();

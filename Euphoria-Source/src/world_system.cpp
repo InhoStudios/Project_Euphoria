@@ -120,7 +120,11 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 	fprintf(stderr, "Loaded music\n");
 
 	// Set all states to default
+	init_game();
     restart_game();
+}
+
+void WorldSystem::init_game() {
 }
 
 // Update our game world
@@ -331,6 +335,14 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 				playerInput.key_release[it->first] = true;
 			}
 
+		}
+	}
+
+	if (key == GLFW_KEY_P) {
+		if (action == GLFW_PRESS) {
+			setAnimation(player, TEXTURE_ASSET_ID::TEST_ANIM, 6, 12);
+		} else if (action == GLFW_RELEASE) {
+			clearAnimation(player);
 		}
 	}
 

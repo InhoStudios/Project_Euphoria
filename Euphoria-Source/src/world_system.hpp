@@ -26,6 +26,8 @@ public:
 	// starts the game
 	void init(RenderSystem* renderer);
 
+	void init_game();
+
 	// Releases all associated resources
 	~WorldSystem();
 
@@ -58,6 +60,7 @@ private:
 	float current_speed;
 
 	Entity player;
+	Entity gameManager;
 
 	// music references
 	Mix_Music* background_music;
