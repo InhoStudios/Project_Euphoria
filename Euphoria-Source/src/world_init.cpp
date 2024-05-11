@@ -1,6 +1,15 @@
 #include "world_init.hpp"
 #include "tiny_ecs_registry.hpp"
 
+Entity createGameManager() {
+	auto entity = Entity();
+
+	registry.gameManagers.emplace(entity);
+	registry.cameras.emplace(entity);
+
+	return entity;
+}
+
 Entity createPlayer(RenderSystem* renderer, vec2 pos)
 {
 	auto entity = Entity();

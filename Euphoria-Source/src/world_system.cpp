@@ -206,6 +206,8 @@ void WorldSystem::restart_game() {
 	// Create a new chicken
 	player = createPlayer(renderer, { screen_width_px/2, screen_height_px - 128 });
 
+	gameManager = createGameManager();
+
 	createSolid(renderer, 
 		{ screen_width_px / 2, screen_height_px - TILE_SIZE / 2 }, 
 		{ screen_width_px, TILE_SIZE });

@@ -10,6 +10,7 @@ const float BUG_BB_HEIGHT = 300.f;
 const float EAGLE_BB_WIDTH = 32.f;
 const float EAGLE_BB_HEIGHT = 32.f;
 
+Entity createGameManager();
 // the player
 Entity createPlayer(RenderSystem* renderer, vec2 pos);
 

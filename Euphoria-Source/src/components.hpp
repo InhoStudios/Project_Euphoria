@@ -71,8 +71,8 @@ struct Camera {
 
 	float defaultZoom = 1.0;
 	float zoom = defaultZoom;
-	float interpSpeed = 0.6;
-	float offsetDist = 64.f;
+	float interpSpeed = 0.3;
+	vec2 offset = { 16.f, 64.f };
 
 	vec2 bounds; // dynamically set
 };

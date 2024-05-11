@@ -249,13 +249,31 @@ void RenderSystem::draw()
 
 mat3 RenderSystem::createProjectionMatrix()
 {
+	Entity player = registry.players.entities[0];
+	auto& playerMotion = registry.motions.get(player);
+	Camera& camera = registry.cameras.components[0];
+
+	camera.targetPosition = playerMotion.position;
+
+	if (camera.zoom != camera.defaultZoom) {
+		camera.zoom += 0.05 * (camera.defaultZoom - camera.zoom);
+	}
+	int xdir = (playerMotion.scale.x > 0) - (playerMotion.scale.x < 0);
+	camera.targetPosition.x += xdir * camera.offset.x;
+	
+	camera.targetPosition[1] -= camera.offset.y;
+
+	camera.position += camera.interpSpeed * (camera.targetPosition - camera.position);
+
+
+	int halfWidth = camera.zoom * camera.dims.x / 2, halfHeight = camera.zoom * camera.dims.y / 2;
 	// Fake projection matrix, scales with respect to window coordinates
-	float left = 0.f;
-	float top = 0.f;
+	float left = camera.position[0] - halfWidth;
+	float top = camera.position[1] - halfHeight;
 
 	gl_has_errors();
-	float right = (float) screen_width_px;
-	float bottom = (float) screen_height_px;
+	float right = (float) camera.position[0] + halfWidth;
+	float bottom = (float) camera.position[1] + halfHeight;
 
 	float sx = 2.f / (right - left);
 	float sy = 2.f / (top - bottom);

@@ -9,8 +9,6 @@
 class AnimationSystem
 {
 public:
-	AnimationSystem() {
-		
-	}
+	AnimationSystem() {}
 	void step(float elapsed_ms);
 };
