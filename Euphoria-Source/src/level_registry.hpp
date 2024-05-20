@@ -2,10 +2,11 @@
 
 #include "tiny_ecs_registry.hpp"
 #include "common.hpp"
+#include "world_init.hpp"
 
-void loadLevel() {
+void loadLevel();
 
-}
+void loadGeometryFile(RenderSystem* renderer, std::string file_path);
 
 class LevelRegistry
 {

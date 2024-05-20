@@ -1,6 +1,7 @@
 // Header
 #include "world_system.hpp"
 #include "world_init.hpp"
+#include "level_registry.hpp"
 
 // stlib
 #include <cassert>
@@ -204,10 +205,13 @@ void WorldSystem::restart_game() {
 	registry.list_all_components();
 
 	// Create a new chicken
-	player = createPlayer(renderer, { screen_width_px/2, screen_height_px - 128 });
+	player = createPlayer(renderer, { screen_width_px/2 + 32, screen_height_px / 2 });
 
 	gameManager = createGameManager();
 
+	loadGeometryFile(renderer, level_path("test_level.png"));
+
+	/*
 	createSolid(renderer, 
 		{ screen_width_px / 2, screen_height_px - TILE_SIZE / 2 }, 
 		{ screen_width_px, TILE_SIZE });
@@ -239,6 +243,7 @@ void WorldSystem::restart_game() {
 	createSolid(renderer,
 		{ 512, screen_height_px - 24 },
 		{ TILE_SIZE, TILE_SIZE });
+	*/
 
 	// !! TODO A2: Enable static eggs on the ground, for reference
 	// Create eggs on the floor, use this for reference

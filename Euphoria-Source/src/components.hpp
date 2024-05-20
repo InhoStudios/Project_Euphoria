@@ -24,7 +24,7 @@ struct Player
 	uint coyoteMS = 0;
 	uint maxCoyoteMS = 60;
 	uint airJumps = 0;
-	uint maxAirJumps = 1;
+	uint maxAirJumps = 0;
 	uint wallJumps = 0;
 	uint maxWallJumps = 3;
 	bool checkedFrame = false;

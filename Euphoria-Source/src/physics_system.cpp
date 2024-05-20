@@ -128,7 +128,13 @@ void PhysicsSystem::doPlayerInput(float elapsed_ms) {
 				physics.velocity.y = physics.targetVelocity.y;
 				player.wallJumps++;
 
-			} else if (!physics.inAir || player.airJumps < player.maxAirJumps) {
+			// air jumps
+			} else if (!physics.inAir || 
+					player.coyoteMS < player.maxCoyoteMS) {
+				physics.targetVelocity.y = -mob.jumpSpeed;
+				physics.velocity.y = physics.targetVelocity.y;
+			}
+			else if (player.airJumps < player.maxAirJumps) {
 				physics.targetVelocity.y = -mob.jumpSpeed;
 				physics.velocity.y = physics.targetVelocity.y;
 				player.airJumps++;
@@ -212,29 +218,29 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 							p.wallJumps = 0;
 							p.coyoteMS = 0;
 						}
-					} else if (registry.players.has(entity)) {
+					}
+					else if (registry.players.has(entity)) {
 						Player& p = registry.players.get(entity);
 						if (p.coyoteMS < p.maxCoyoteMS && !p.checkedFrame) {
 							p.coyoteMS += elapsed_ms;
-							physComp.inAir = false;
 							p.checkedFrame = true;
 						}
 					}
-					if ( 
-							(
-								collides_at(entity, otherEntity, { 1, 0 }) ||
-								collides_at(entity, otherEntity, { -1, 0 })
-					 		) && 
-							physComp.inAir && 
-							registry.players.has(entity)
-						) {
+					// ON WALL CHECKS
+					if (registry.players.has(entity)) {
 						Player& p = registry.players.get(entity);
-						if (vsp > 1)  {
-							vsp = 1;
-							physComp.targetVelocity.y = (float) vsp / step_seconds;
-							physComp.velocity.y = (float) vsp / step_seconds;
+						Input& input = registry.inputs.get(entity);
+
+						int inputDir = input.key[KEY::RIGHT] - input.key[KEY::LEFT];
+
+						if (collides_at(entity, otherEntity, { inputDir, 0 }) && physComp.inAir) {
+							if (vsp > 1) {
+								vsp = 1;
+								physComp.targetVelocity.y = (float)vsp / step_seconds;
+								physComp.velocity.y = (float)vsp / step_seconds;
+							}
+							physComp.onWall = true;
 						}
-						physComp.onWall = true;
 					}
 					
 					// COLLISION CODE
