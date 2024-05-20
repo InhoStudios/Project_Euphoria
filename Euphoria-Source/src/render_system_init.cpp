@@ -13,6 +13,47 @@
 #include <iostream>
 #include <sstream>
 
+const char* screenVertexShaderSource =
+"#version 330 core\n"
+"layout(location = 0) in vec4 vertex; // <vec2 pos, vec2 tex>\n"
+"out vec2 TexCoords; \n"
+"\n"
+"uniform mat4 projection; \n"
+"uniform mat4 transform;\n"
+"\n"
+"void main()\n"
+"{\n"
+"    gl_Position = projection * transform * vec4(vertex.xy, 0.0, 1.0); \n"
+"    TexCoords = vertex.zw; \n"
+"}\0";
+
+const char* fontFragmentShaderSource =
+"#version 330 core\n"
+"in vec2 TexCoords; \n"
+"out vec4 color; \n"
+"\n"
+"uniform sampler2D text; \n"
+"uniform vec3 textColor; \n"
+"\n"
+"void main()\n"
+"{\n"
+"    vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);\n"
+"    color = vec4(textColor, 1.0) * sampled;\n"
+"}\0";
+
+const char* screenFragmentShaderSource =
+"#version 330 core\n"
+"in vec2 TexCoords; \n"
+"out vec4 color; \n"
+"\n"
+"uniform sampler2D screenSprite; \n"
+"\n"
+"void main()\n"
+"{\n"
+"    vec4 sampled = vec4(texture(screenSprite, TexCoords).r, texture(screenSprite, TexCoords).g, texture(screenSprite, TexCoords).b, texture(screenSprite, TexCoords).a);\n"
+"    color = sampled;\n"
+"}\0";
+
 // World initialization
 bool RenderSystem::init(GLFWwindow* window_arg)
 {
@@ -50,7 +91,7 @@ bool RenderSystem::init(GLFWwindow* window_arg)
 
 	// We are not really using VAO's but without at least one bound we will crash in
 	// some systems.
-	GLuint vao;
+
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	gl_has_errors();
@@ -59,6 +100,9 @@ bool RenderSystem::init(GLFWwindow* window_arg)
     initializeGlTextures();
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
+
+	std::string font_filename = data_path() + "/fonts/game_over.ttf";
+	initFont(font_filename, 64);
 
 	return true;
 }
@@ -259,8 +303,8 @@ bool RenderSystem::initScreenTexture()
 	glGenTextures(1, &off_screen_render_buffer_color);
 	glBindTexture(GL_TEXTURE_2D, off_screen_render_buffer_color);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, framebuffer_width, framebuffer_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	gl_has_errors();
 
 	glGenRenderbuffers(1, &off_screen_render_buffer_depth);
@@ -377,3 +421,126 @@ bool loadEffectFromFile(
 	return true;
 }
 
+bool RenderSystem::initFont(const std::string& font_filename, unsigned int font_default_size) {
+
+	// font buffer setup
+	glGenVertexArrays(1, &m_font_VAO);
+	glGenBuffers(1, &m_font_VBO);
+
+	// font vertex shader
+	unsigned int font_vertexShader;
+	font_vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(font_vertexShader, 1, &screenVertexShaderSource, NULL);
+	glCompileShader(font_vertexShader);
+
+	// font fragement shader
+	unsigned int font_fragmentShader;
+	font_fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(font_fragmentShader, 1, &fontFragmentShaderSource, NULL);
+	glCompileShader(font_fragmentShader);
+
+	// font shader program
+	m_font_shaderProgram = glCreateProgram();
+	glAttachShader(m_font_shaderProgram, font_vertexShader);
+	glAttachShader(m_font_shaderProgram, font_fragmentShader);
+	glLinkProgram(m_font_shaderProgram);
+
+	// clean up shaders
+	glDeleteShader(font_vertexShader);
+	glDeleteShader(font_fragmentShader);
+
+	// use our new shader
+	glUseProgram(m_font_shaderProgram);
+
+	// apply projection matrix for font
+	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(window_width_px), 0.0f, static_cast<float>(window_height_px));
+	GLint project_location = glGetUniformLocation(m_font_shaderProgram, "projection");
+	assert(project_location > -1);
+	std::cout << "project_location: " << project_location << std::endl;
+	glUniformMatrix4fv(project_location, 1, GL_FALSE, glm::value_ptr(projection));
+
+	// init FreeType fonts
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft))
+	{
+		std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+		return false;
+	}
+
+	FT_Face face;
+	if (FT_New_Face(ft, font_filename.c_str(), 0, &face))
+	{
+		std::cerr << "ERROR::FREETYPE: Failed to load font: " << font_filename << std::endl;
+		return false;
+	}
+
+	// extract a default size
+	FT_Set_Pixel_Sizes(face, 0, font_default_size);
+
+	// disable byte-alignment restriction in OpenGL
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	// load each of the chars - note only first 128 ASCII chars
+	for (unsigned char c = 0; c < 128; c++)
+	{
+		// load character glyph 
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+		{
+			std::cerr << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+			continue;
+		}
+
+		// generate texture
+		unsigned int texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		// std::cout << "texture: " << c << " = " << texture << std::endl;
+
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RED,
+			face->glyph->bitmap.width,
+			face->glyph->bitmap.rows,
+			0,
+			GL_RED,
+			GL_UNSIGNED_BYTE,
+			face->glyph->bitmap.buffer
+		);
+
+		// set texture options
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		// now store character for later use
+		Character character = {
+			texture,
+			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+			static_cast<unsigned int>(face->glyph->advance.x),
+			c
+		};
+		m_ftCharacters.insert(std::pair<char, Character>(c, character));
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// clean up
+	FT_Done_Face(face);
+	FT_Done_FreeType(ft);
+
+	// bind buffers
+	glBindVertexArray(m_font_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_font_VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+
+	// release buffers
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	return true;
+}

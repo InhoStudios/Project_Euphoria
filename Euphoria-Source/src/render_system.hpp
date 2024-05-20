@@ -2,10 +2,28 @@
 
 #include <array>
 #include <utility>
+#include <iostream>
 
 #include "common.hpp"
 #include "components.hpp"
 #include "tiny_ecs.hpp"
+
+// fonts
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include <map>
+// matrices
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+struct Character {
+	unsigned int TextureID;  // ID handle of the glyph texture
+	glm::ivec2   Size;       // Size of glyph
+	glm::ivec2   Bearing;    // Offset from baseline to left/top of glyph
+	unsigned int Advance;    // Offset to advance to next glyph
+	char character;
+};
 
 // System responsible for setting up OpenGL and for rendering all the
 // visual entities in the game
@@ -76,6 +94,9 @@ public:
 
 	mat3 createProjectionMatrix();
 
+	bool initFont(const std::string& font_filename, unsigned int font_default_size);
+	void renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans);
+
 private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
@@ -90,6 +111,19 @@ private:
 	GLuint off_screen_render_buffer_depth;
 
 	Entity screen_state_entity;
+
+	//vao
+	GLuint vao;
+
+	// fonts
+	std::map<char, Character> m_ftCharacters;
+	GLuint m_font_shaderProgram;
+	GLuint m_font_VAO;
+	GLuint m_font_VBO;
+
+	GLuint m_screen_shaderProgram;
+	GLuint m_screen_VAO;
+	GLuint m_screen_VBO;
 };
 
 bool loadEffectFromFile(
