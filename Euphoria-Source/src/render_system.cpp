@@ -210,7 +210,7 @@ void RenderSystem::drawToScreen()
 
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
-void RenderSystem::draw()
+void RenderSystem::draw(float elapsed_ms)
 {
 	// Getting size of window
 	int w, h;
@@ -249,7 +249,10 @@ void RenderSystem::draw()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// RENDER TEXT HERE!!!!! because glfwSwapBuffers clears screen 
-	renderText("TEST - text blablabla", 0.0f, 0.0f, 1.0f, {1., 1., 1.}, glm::mat4(1.0f));
+	/*
+	int fps = (int)(1000.f / elapsed_ms);
+	renderText(std::to_string(fps), window_width_px - 128, window_height_px - 32, 1.0f, {1., 1., 1.}, glm::mat4(1.0f));
+	*/
 
 
 	// flicker-free display with a double buffer

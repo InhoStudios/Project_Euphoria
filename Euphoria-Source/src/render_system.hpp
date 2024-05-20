@@ -90,7 +90,7 @@ public:
 	~RenderSystem();
 
 	// Draw all entities
-	void draw();
+	void draw(float elapsed_ms);
 
 	mat3 createProjectionMatrix();
 

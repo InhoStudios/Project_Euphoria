@@ -47,17 +47,17 @@ int main()
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
 
-		elapsed_ms = min(elapsed_ms, 16.6666667f);
+		float clamped_ms = min(elapsed_ms, 16.6666667f);
 
-		world.step(elapsed_ms);
-		physics.step(elapsed_ms);
+		world.step(clamped_ms);
+		physics.step(clamped_ms);
 		world.handle_collisions();
 
 		world.clear_keys();
 
-		animations.step(elapsed_ms);
+		animations.step(clamped_ms);
 
-		renderer.draw();
+		renderer.draw(elapsed_ms);
 	}
 
 	return EXIT_SUCCESS;
