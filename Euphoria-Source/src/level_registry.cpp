@@ -15,15 +15,23 @@ void loadGeometryFile(RenderSystem* renderer, std::string file_path) {
 
     for (int yy = 0; yy < im_height; yy++) {
         for (int xx = 0; xx < im_width; xx++) {
-            uint8_t tile = imageData[num_channels * (yy * im_width + xx)];
+            Tiles tile = (Tiles) imageData[num_channels * (yy * im_width + xx)];
             uint8_t opacity = imageData[num_channels * (yy * im_width + xx) + 1];
             int xTo = xx * TILE_SIZE, yTo = yy * TILE_SIZE;
 
-            if (tile == (int) Tiles::SOLID && opacity == 255) {
-                createSolid(renderer, { xTo, yTo }, { TILE_SIZE, TILE_SIZE });
+            // create different tiles
+            switch (tile) {
+            case Tiles::SOLID:
+                if (opacity == 255) {
+                    createSolid(renderer, { xTo, yTo }, { TILE_SIZE, TILE_SIZE });
+                }
+                break;
+
             }
         }
     }
 
     stbi_image_free(imageData);
 }
+
+LevelRegistry levels;

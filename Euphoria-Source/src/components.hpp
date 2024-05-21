@@ -13,8 +13,13 @@ enum class GAME_STATE {
 	//
 };
 
-struct GameManager {
+enum class LEVEL_INDEX {
+	START = 0,
+};
 
+struct GameManager {
+	GAME_STATE current_state;
+	LEVEL_INDEX current_level;
 };
 
 // Player component
@@ -191,6 +196,15 @@ struct Collision
 
 struct LevelElement {
 
+};
+
+struct Level {
+	std::string directory;
+	vec2 mapPos;
+	vec2 startPos;
+	// backgrounds
+	// doors
+	// transitions
 };
 
 // END LEVEL COMPONENTS
