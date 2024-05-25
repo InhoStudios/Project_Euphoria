@@ -231,9 +231,12 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 						Player& p = registry.players.get(entity);
 						Input& input = registry.inputs.get(entity);
 
-						int inputDir = input.key[KEY::RIGHT] - input.key[KEY::LEFT];
-
-						if (collides_at(entity, otherEntity, { inputDir, 0 }) && physComp.inAir) {
+						if ((
+								collides_at(entity, otherEntity, { 1, 0 }) ||
+								collides_at(entity, otherEntity, { -1, 0 })
+							) &&
+							input.key[KEY::GRAB] &&
+							physComp.inAir) {
 							if (vsp > 1) {
 								vsp = 1;
 								physComp.targetVelocity.y = (float)vsp / step_seconds;

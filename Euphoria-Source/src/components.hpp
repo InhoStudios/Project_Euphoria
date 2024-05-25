@@ -40,7 +40,7 @@ struct Mob {
 	float jumpSpeed;
 	float knockbackSpeed;
 	int numJumps;
-};
+}; 
 
 struct Health {
 	int hp = 10;
@@ -192,7 +192,18 @@ struct Collision
 	Collision(Entity& other) { this->other = other; };
 };
 
+// INTERACTABLES
+struct Interactable
+{
+	//  Anything that can be collided with by the player and picked up
+	vec2 boundsScale = { 1.f, 1.f }; // scale of the hitbox to the size of the collider
+};
+
 // LEVEL COMPONENTS
+
+struct Transition {
+	// transitions need interactable
+};
 
 struct LevelElement {
 

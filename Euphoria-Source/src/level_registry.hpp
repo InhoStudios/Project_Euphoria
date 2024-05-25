@@ -11,7 +11,11 @@ void loadGeometryFile(RenderSystem* renderer, std::string file_path);
 class LevelRegistry
 {
 public:
-    LevelRegistry() {}
+
+    LevelRegistry() {
+
+    
+    }
     //
 private:
     //
