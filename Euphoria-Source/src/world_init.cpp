@@ -21,8 +21,11 @@ Entity createPlayer(RenderSystem* renderer, vec2 pos)
 	registry.inputs.emplace(entity);
 	registry.physEntities.emplace(entity);
 	registry.healths.emplace(entity);
-	registry.colliders.emplace(entity);
 	registry.gravEntities.emplace(entity);
+
+	Collider& collider = registry.colliders.emplace(entity);
+	collider.spr_scale = { 0.34f, 0.875f };
+	collider.offset = { 0.f, 2.f };
 
 	Mob& mob = registry.mobs.emplace(entity);
 	mob.moveSpeed = 350.f;

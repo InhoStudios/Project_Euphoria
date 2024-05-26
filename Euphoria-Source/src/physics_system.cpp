@@ -32,19 +32,24 @@ bool collides_at(Entity entity, Entity collidesWith, vec2 offsetPos) {
 	Motion& entityMotion = registry.motions.get(entity);
 	Motion& otherMotion = registry.motions.get(collidesWith);
 
-	vec2 m1_pos = entityMotion.position, m2_pos = otherMotion.position;
-	vec2 m1_bb = get_bounding_box(entityMotion), m2_bb = get_bounding_box(otherMotion);
+	Collider& ec = registry.colliders.get(entity);
+	Collider& oc = registry.colliders.get(collidesWith);
+
+	vec2 m1_pos = entityMotion.position + ec.offset, 
+		m2_pos = otherMotion.position + oc.offset;
+	vec2 m1_bb = get_bounding_box(entityMotion), 
+		m2_bb = get_bounding_box(otherMotion);
 
 	// idea: for both bounding boxes, check if any corner is within any of the other bounding boxes
-	int m1_minx = m1_pos[0] + offsetPos[0] - m1_bb[0] / 2;
-	int m1_miny = m1_pos[1] + offsetPos[1] - m1_bb[1] / 2;
-	int m1_maxx = m1_pos[0] + offsetPos[0] + m1_bb[0] / 2;
-	int m1_maxy = m1_pos[1] + offsetPos[1] + m1_bb[1] / 2;
+	int m1_minx = m1_pos[0] + offsetPos[0] - ec.spr_scale.x * m1_bb[0] / 2;
+	int m1_miny = m1_pos[1] + offsetPos[1] - ec.spr_scale.y * m1_bb[1] / 2;
+	int m1_maxx = m1_pos[0] + offsetPos[0] + ec.spr_scale.x * m1_bb[0] / 2;
+	int m1_maxy = m1_pos[1] + offsetPos[1] + ec.spr_scale.y * m1_bb[1] / 2;
 
-	int m2_minx = m2_pos[0] - m2_bb[0] / 2;
-	int m2_miny = m2_pos[1] - m2_bb[1] / 2;
-	int m2_maxx = m2_pos[0] + m2_bb[0] / 2;
-	int m2_maxy = m2_pos[1] + m2_bb[1] / 2;
+	int m2_minx = m2_pos[0] - oc.spr_scale.x * m2_bb[0] / 2;
+	int m2_miny = m2_pos[1] - oc.spr_scale.y * m2_bb[1] / 2;
+	int m2_maxx = m2_pos[0] + oc.spr_scale.x * m2_bb[0] / 2;
+	int m2_maxy = m2_pos[1] + oc.spr_scale.y * m2_bb[1] / 2;
 
 	return (
 		m1_minx < m2_maxx &&

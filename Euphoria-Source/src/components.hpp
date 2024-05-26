@@ -62,7 +62,8 @@ struct Gravity {
 };
 
 struct Collider {
-	std::vector<vec2> hull;
+	vec2 spr_scale = { 1.0f, 1.0f };
+	vec2 offset = { 0.f, 0.f };
 };
 
 struct Solid {
