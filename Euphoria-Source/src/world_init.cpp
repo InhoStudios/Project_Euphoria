@@ -117,6 +117,7 @@ Entity createSolid(RenderSystem* renderer, vec2 pos, vec2 scale) {
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE });
 
+	registry.levelElements.emplace(entity);
 	return entity;
 }
 
@@ -164,7 +165,6 @@ Entity createItem(RenderSystem* renderer, vec2 pos, vec2 im_scale, vec2 collider
 		}
 	);
 
-	return entity;
-
+	registry.levelElements.emplace(entity);
 	return entity;
 }

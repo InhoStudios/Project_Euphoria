@@ -7,7 +7,10 @@ enum class Tiles {
 };
 
 void loadLevel() {
-
+    // clear level elements
+    while (registry.levelElements.entities.size() > 0)
+        registry.remove_all_components_of(registry.levelElements.entities.back());
+    // load level data
 }
 
 void loadGeometryFile(RenderSystem* renderer, std::string file_path) {
@@ -36,6 +39,9 @@ void loadGeometryFile(RenderSystem* renderer, std::string file_path) {
             }
         }
     }
+
+    // camera bounds
+    registry.cameras.components[0].bounds = { TILE_SIZE * im_width, TILE_SIZE * im_height };
 
     stbi_image_free(imageData);
 }

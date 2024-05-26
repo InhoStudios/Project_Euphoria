@@ -13,13 +13,11 @@ enum class GAME_STATE {
 	//
 };
 
-enum class LEVEL_INDEX {
-	START = 0,
-};
+enum class LEVEL;
 
 struct GameManager {
 	GAME_STATE current_state;
-	LEVEL_INDEX current_level;
+	LEVEL current_level;
 };
 
 // Player component
@@ -78,24 +76,24 @@ struct Camera {
 	float defaultZoom = 1.0;
 	float zoom = defaultZoom;
 	float interpSpeed = 0.3;
-	vec2 offset = { 16.f, 64.f };
+	vec2 offset = { 16.f, 32.f };
 
 	vec2 bounds; // dynamically set
 };
 
 enum class KEY {
 	RIGHT = 0,
-	LEFT = RIGHT + 1,
-	UP = LEFT + 1,
-	DOWN = UP + 1,
+	LEFT,
+	UP,
+	DOWN,
 
-	JUMP = DOWN + 1,
+	JUMP,
 
-	BASIC = JUMP + 1, // i or z
-	SPECIAL = BASIC + 1, // j or x
-	GRAB = SPECIAL + 1, // k or c
-	ENHANCE = GRAB + 1, // l or v
-	DASH = ENHANCE + 1, // shift
+	BASIC, // i or z
+	SPECIAL, // j or x
+	GRAB, // k or c
+	ENHANCE, // l or v
+	DASH, // shift
 	
 };
 
@@ -205,13 +203,27 @@ struct Interactable
 
 struct Transition {
 	// transitions need interactable
-	LEVEL_INDEX targetLevel;
+	LEVEL targetLevel;
 	vec2 targetPosition;
 };
 
 struct LevelElement {
 
 };
+
+enum class LEVEL {
+	TUT_INT_1,
+	TUT_INT_2,
+	TUT_INT_3,
+	TUT_INT_4,
+	TUT_EXT_1,
+	TUT_EXT_2,
+
+
+
+	NUM_LEVELS,
+};
+const int num_levels = (int)LEVEL::NUM_LEVELS;
 
 struct Level {
 	std::string directory;
@@ -298,30 +310,30 @@ struct Mesh
 
 enum class TEXTURE_ASSET_ID {
 	DEFAULT = 0,
-	NO_SPRITE = DEFAULT + 1,
-	SOLID = NO_SPRITE + 1,
-	PLAYER = SOLID + 1,
-	TEXTURE_COUNT = PLAYER + 1
+	NO_SPRITE,
+	SOLID,
+	PLAYER,
+	TEXTURE_COUNT,
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
 enum class EFFECT_ASSET_ID {
 	COLOURED = 0,
-	EGG = COLOURED + 1,
-	CHICKEN = EGG + 1,
-	TEXTURED = CHICKEN + 1,
-	WIND = TEXTURED + 1,
-	EFFECT_COUNT = WIND + 1
+	EGG,
+	CHICKEN,
+	TEXTURED,
+	WIND,
+	EFFECT_COUNT
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
 enum class GEOMETRY_BUFFER_ID {
 	CHICKEN = 0,
-	SPRITE = CHICKEN + 1,
-	EGG = SPRITE + 1,
-	DEBUG_LINE = EGG + 1,
-	SCREEN_TRIANGLE = DEBUG_LINE + 1,
-	GEOMETRY_COUNT = SCREEN_TRIANGLE + 1
+	SPRITE,
+	EGG,
+	DEBUG_LINE,
+	SCREEN_TRIANGLE,
+	GEOMETRY_COUNT
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 
