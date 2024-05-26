@@ -21,4 +21,6 @@ Entity createSolid(RenderSystem* renderer, vec2 pos, vec2 scale);
 // a red line for debugging purposes
 Entity createLine(vec2 position, vec2 size);
 
+Entity createItem(RenderSystem* renderer, vec2 pos, vec2 im_scale, vec2 collider_scale, bool requiresInput);
+
 

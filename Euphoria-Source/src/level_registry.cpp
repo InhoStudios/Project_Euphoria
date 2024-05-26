@@ -3,6 +3,7 @@
 
 enum class Tiles {
     SOLID = 0,
+    INTERACTABLE = 1,
 };
 
 void loadLevel() {
@@ -24,6 +25,11 @@ void loadGeometryFile(RenderSystem* renderer, std::string file_path) {
             case Tiles::SOLID:
                 if (opacity == 255) {
                     createSolid(renderer, { xTo, yTo }, { TILE_SIZE, TILE_SIZE });
+                }
+                break;
+            case Tiles::INTERACTABLE:
+                if (opacity == 255) {
+                    createItem(renderer, { xTo, yTo }, { TILE_SIZE, TILE_SIZE }, { 1.f, 1.f, }, true);
                 }
                 break;
 

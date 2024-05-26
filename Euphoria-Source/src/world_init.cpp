@@ -137,3 +137,31 @@ Entity createLine(vec2 position, vec2 scale)
 	registry.debugComponents.emplace(entity);
 	return entity;
 }
+
+// TODO: ADD SPRITES OR TYPING
+Entity createItem(RenderSystem* renderer, vec2 pos, vec2 im_scale, vec2 collider_scale, bool requiresInput) {
+	Entity entity = Entity();
+
+	registry.colliders.emplace(entity);
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.scale = im_scale;
+
+	Interactable& i = registry.interactables.emplace(entity);
+	i.boundsScale = collider_scale;
+	i.requiresInput = requiresInput;
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::DEFAULT,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return entity;
+
+	return entity;
+}

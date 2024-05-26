@@ -36,7 +36,7 @@ int main()
 	// initialize the main systems
 	renderer.init(window);
 	world.init(&renderer);
-	interactables.init(world);
+	interactables.init();
 
 	// variable timestep loop
 	auto t = Clock::now();
