@@ -10,6 +10,7 @@
 #include "render_system.hpp"
 #include "world_system.hpp"
 #include "animation_system.hpp"
+#include "interactable_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -21,6 +22,7 @@ int main()
 	RenderSystem renderer;
 	PhysicsSystem physics;
 	AnimationSystem animations;
+	InteractableSystem interactables;
 
 	// Initializing window
 	GLFWwindow* window = world.create_window();
@@ -34,6 +36,7 @@ int main()
 	// initialize the main systems
 	renderer.init(window);
 	world.init(&renderer);
+	interactables.init(world);
 
 	// variable timestep loop
 	auto t = Clock::now();
@@ -51,7 +54,6 @@ int main()
 
 		world.step(clamped_ms);
 		physics.step(clamped_ms);
-		world.handle_collisions();
 
 		world.clear_keys();
 

@@ -210,54 +210,6 @@ void WorldSystem::restart_game() {
 	gameManager = createGameManager();
 
 	loadGeometryFile(renderer, level_path("test_level.png"));
-
-	/*
-	createSolid(renderer, 
-		{ screen_width_px / 2, screen_height_px - TILE_SIZE / 2 }, 
-		{ screen_width_px, TILE_SIZE });
-
-	createSolid(renderer, 
-		{ screen_width_px / 4, screen_height_px / 2 }, 
-		{ screen_width_px / 2, TILE_SIZE });
-
-	createSolid(renderer, 
-		{ 560, 300 }, 
-		{ 128, 128 });
-
-	createSolid(renderer,
-		{ TILE_SIZE / 2, screen_height_px/ 2 },
-		{ TILE_SIZE, screen_height_px });
-
-	createSolid(renderer,
-		{ screen_width_px - TILE_SIZE / 2, screen_height_px / 2 },
-		{ TILE_SIZE, screen_height_px });
-
-	createSolid(renderer,
-		{ 48, screen_height_px - 16 },
-		{ TILE_SIZE, TILE_SIZE });
-
-	createSolid(renderer,
-		{ 32, screen_height_px - 24 },
-		{ TILE_SIZE, TILE_SIZE });
-
-	createSolid(renderer,
-		{ 512, screen_height_px - 24 },
-		{ TILE_SIZE, TILE_SIZE });
-	*/
-
-	// !! TODO A2: Enable static eggs on the ground, for reference
-	// Create eggs on the floor, use this for reference
-	/*
-	for (uint i = 0; i < 20; i++) {
-		int w, h;
-		glfwGetWindowSize(window, &w, &h);
-		float radius = 30 * (uniform_dist(rng) + 0.3f); // range 0.3 .. 1.3
-		Entity egg = createEgg({ uniform_dist(rng) * w, h - uniform_dist(rng) * 20 },
-			         { radius, radius });
-		float brightness = uniform_dist(rng) * 0.5 + 0.5;
-		registry.colors.insert(egg, { brightness, brightness, brightness});
-	}
-	*/
 }
 
 // Compute collisions between entities
@@ -344,16 +296,6 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 		}
 	}
-
-	/* TEMP */
-	if (key == GLFW_KEY_P) {
-		if (action == GLFW_PRESS) {
-			setAnimation(player, TEXTURE_ASSET_ID::TEST_ANIM, 9, 12);
-		} else if (action == GLFW_RELEASE) {
-			clearAnimation(player);
-		}
-	}
-	/* TEMP */
 
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {

@@ -48,9 +48,10 @@ class RenderSystem {
 
 	// Make sure these paths remain in sync with the associated enumerators.
 	const std::array<std::string, texture_count> texture_paths = {
-			textures_path("spr_player.png"),
+			textures_path("spr_default_item.png"),
+			textures_path("spr_no_sprite.png"),
 			textures_path("spr_solid.png"),
-			textures_path("spr_sheet_test.png"),
+			textures_path("spr_player.png"),
 	};
 
 	std::array<GLuint, effect_count> effects;

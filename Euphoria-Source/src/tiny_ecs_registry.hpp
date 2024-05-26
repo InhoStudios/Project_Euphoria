@@ -25,6 +25,9 @@ public:
 	ComponentContainer<Collider> colliders;
 	ComponentContainer<Collision> collisions;
 
+	ComponentContainer<Interactable> interactables;
+	ComponentContainer<Transition> transitions;
+
 	ComponentContainer<Player> players;
 	ComponentContainer<Mob> mobs;
 	ComponentContainer<Health> healths;

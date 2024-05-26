@@ -197,12 +197,15 @@ struct Interactable
 {
 	//  Anything that can be collided with by the player and picked up
 	vec2 boundsScale = { 1.f, 1.f }; // scale of the hitbox to the size of the collider
+	bool requiresInput;
 };
 
 // LEVEL COMPONENTS
 
 struct Transition {
 	// transitions need interactable
+	LEVEL_INDEX targetLevel;
+	vec2 targetPosition;
 };
 
 struct LevelElement {
@@ -293,10 +296,11 @@ struct Mesh
  */
 
 enum class TEXTURE_ASSET_ID {
-	PLAYER = 0,
-	SOLID = PLAYER + 1,
-	TEST_ANIM = SOLID + 1,
-	TEXTURE_COUNT = TEST_ANIM + 1
+	DEFAULT = 0,
+	NO_SPRITE = DEFAULT + 1,
+	SOLID = NO_SPRITE + 1,
+	PLAYER = SOLID + 1,
+	TEXTURE_COUNT = PLAYER + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
