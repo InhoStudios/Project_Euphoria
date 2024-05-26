@@ -16,6 +16,6 @@ public:
 
 	void step();
 
-	void doInteract();
+	void doInteract(Entity e);
 private:
 };

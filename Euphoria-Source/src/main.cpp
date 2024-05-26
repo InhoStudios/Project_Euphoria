@@ -36,7 +36,6 @@ int main()
 	// initialize the main systems
 	renderer.init(window);
 	world.init(&renderer);
-	interactables.init();
 
 	// variable timestep loop
 	auto t = Clock::now();
@@ -55,10 +54,11 @@ int main()
 		world.step(clamped_ms);
 		physics.step(clamped_ms);
 
+		interactables.step();
+
 		world.clear_keys();
 
 		animations.step(clamped_ms);
-
 		renderer.draw(elapsed_ms);
 	}
 
