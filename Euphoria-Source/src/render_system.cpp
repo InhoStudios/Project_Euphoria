@@ -272,14 +272,20 @@ mat3 RenderSystem::createProjectionMatrix()
 		camera.zoom += 0.05 * (camera.defaultZoom - camera.zoom);
 	}
 	int xdir = (playerMotion.scale.x > 0) - (playerMotion.scale.x < 0);
+
+	int halfWidth = camera.zoom * camera.dims.x / 2, halfHeight = camera.zoom * camera.dims.y / 2;
+
 	camera.targetPosition.x += xdir * camera.offset.x;
 	
-	camera.targetPosition[1] -= camera.offset.y;
+	camera.targetPosition.y -= camera.offset.y;
+
+	camera.targetPosition[0] = fmin(camera.targetPosition[0], camera.bounds[0] - halfWidth);
+	camera.targetPosition[0] = fmax(camera.targetPosition[0], halfWidth - 8);
+	camera.targetPosition[1] = fmin(camera.targetPosition[1], camera.bounds[1] - halfHeight - 16);
+	camera.targetPosition[1] = fmax(camera.targetPosition[1], halfHeight + 8);
 
 	camera.position += camera.interpSpeed * (camera.targetPosition - camera.position);
 
-
-	int halfWidth = camera.zoom * camera.dims.x / 2, halfHeight = camera.zoom * camera.dims.y / 2;
 	// Fake projection matrix, scales with respect to window coordinates
 	float left = camera.position[0] - halfWidth;
 	float top = camera.position[1] - halfHeight;
