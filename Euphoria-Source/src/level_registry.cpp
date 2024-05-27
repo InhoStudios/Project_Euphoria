@@ -29,6 +29,9 @@ void transitionTo(Transition to) {
     registry.motions.get(p).position = targetPos;
 
     loadLevel(to.targetLevel);
+
+    GameManager& gm = registry.gameManagers.components[0];
+    gm.current_level = to.targetLevel;
 }
 
 void loadGeometryFile(std::string file_path) {
@@ -59,7 +62,7 @@ void loadGeometryFile(std::string file_path) {
     }
 
     // camera bounds
-    registry.cameras.components[0].bounds = { TILE_SIZE * im_width, TILE_SIZE * im_height };
+    registry.gameManagers.components[0].bounds = { TILE_SIZE * im_width, TILE_SIZE * im_height };
 
     stbi_image_free(imageData);
 }
