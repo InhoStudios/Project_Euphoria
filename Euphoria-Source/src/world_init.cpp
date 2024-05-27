@@ -67,7 +67,14 @@ Entity createPlayer(vec2 pos)
 	// Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	// registry.meshPtrs.emplace(entity, &mesh);
 
+	registry.players.emplace(entity);
 	registry.inputs.emplace(entity);
+
+	DashKit& d = registry.dashKits.emplace(entity);
+	d.enabled_dashes = d.enabled_dashes | MID_AIR_DASH;
+	d.enabled_dashes = d.enabled_dashes | CHAIN_DASH;
+	d.enabled_dashes = d.enabled_dashes | PARRY_DASH;
+
 	registry.physEntities.emplace(entity);
 	registry.healths.emplace(entity);
 	registry.gravEntities.emplace(entity);
@@ -87,7 +94,6 @@ Entity createPlayer(vec2 pos)
 	motion.angle = 0.f;
 	motion.scale = { 32., 32. };
 
-	registry.players.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::PLAYER, // TEXTURE_COUNT indicates that no txture is needed
