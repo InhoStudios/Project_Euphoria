@@ -30,6 +30,8 @@ public:
 	ComponentContainer<Interactable> interactables;
 	ComponentContainer<Transition> transitions;
 
+	ComponentContainer<DashKit> dashKits;
+
 	ComponentContainer<Player> players;
 	ComponentContainer<Mob> mobs;
 	ComponentContainer<Health> healths;
@@ -64,6 +66,8 @@ public:
 
 		registry_list.push_back(&interactables);
 		registry_list.push_back(&transitions);
+
+		registry_list.push_back(&dashKits);
 
 		registry_list.push_back(&players);
 		registry_list.push_back(&mobs);

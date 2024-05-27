@@ -23,10 +23,17 @@ struct GameManager {
 	vec2 bounds; // dynamically set
 };
 
+enum class PLAYER_STATE {
+	MOVE,
+	ATTACK,
+	DASH
+};
+
 // Player component
 struct Player
 {
 	// put enhancements in player component? or in game manager?
+	PLAYER_STATE state = PLAYER_STATE::MOVE;
 	uint coyoteMS = 0;
 	uint maxCoyoteMS = 60;
 	uint airJumps = 0;
@@ -34,6 +41,18 @@ struct Player
 	uint wallJumps = 0;
 	uint maxWallJumps = 3;
 	bool checkedFrame = false;
+};
+
+#define MID_AIR_DASH 0b00000001
+#define CHAIN_DASH 0b00000010
+#define PARRY_DASH 0b00000100
+
+struct DashKit
+{
+	int enabled_dashes = 0b00000000;
+	float dashSpeed = 2500.f;
+	float cd, cdTime = 600.f;
+	float ctMax = 350.f, ctMin = 250.f;
 };
 
 struct Mob {
@@ -130,7 +149,7 @@ const std::map<KEY, int> ARROW_MAPPING = {
 
 struct Input {
 	// map of KEY to GLFW keys
-	std::map<KEY, int> key_mapping = WASD_MAPPING;
+	std::map<KEY, int> key_mapping = ARROW_MAPPING;
 	std::map<KEY, bool> key = {
 		{KEY::RIGHT, false},
 		{KEY::LEFT, false},
@@ -258,6 +277,7 @@ struct Debug {
 	float redraw_slow = 500.f, redraw_fast = 42.f;
 	int fps, px, py;
 	float vx, vy;
+	float dashDuration = 0.f;
 };
 extern Debug debugging;
 

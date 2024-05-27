@@ -298,11 +298,16 @@ void RenderSystem::drawDebug(float elapsed_ms) {
 	std::stringstream vel_str;
 	vel_str << "Speed: " << std::fixed << std::setprecision(2) << debugging.vx << ", " << std::fixed << std::setprecision(2) << debugging.vy;
 
+	std::stringstream dash_str;
+	dash_str << "Dash duration: " << std::fixed << std::setprecision(2) << debugging.dashDuration << " ms";
+
 	renderText("FPS: " + std::to_string(debugging.fps), sx, sy, 0.8f, { 1., 1., 1. }, glm::mat4(1.0f));
 	sy -= 24.f;
 	renderText(pos_str.str(), sx, sy, 0.8f, { 1., 1., 1. }, glm::mat4(1.0f));
 	sy -= 24.f;
 	renderText(vel_str.str(), sx, sy, 0.8f, { 1., 1., 1. }, glm::mat4(1.0f));
+	sy -= 24.f;
+	renderText(dash_str.str(), sx, sy, 0.8f, { 1., 1., 1. }, glm::mat4(1.0f));
 
 }
 

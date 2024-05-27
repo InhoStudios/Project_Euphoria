@@ -102,6 +102,100 @@ void PhysicsSystem::step(float elapsed_ms)
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
+void doPlayerDash(Entity& p, float elapsed_ms) {
+	Player& player = registry.players.get(p);
+	Motion& playerMotion = registry.motions.get(p);
+	Physics& physics = registry.physEntities.get(p);
+	Mob& mob = registry.mobs.get(p);
+
+	Input& input = registry.inputs.get(p);
+
+	int hdir = input.key[KEY::RIGHT] - input.key[KEY::LEFT];
+
+	// get key input dir
+
+	if (registry.dashKits.has(p)) {
+		DashKit& d = registry.dashKits.get(p);
+
+		if (input.key_press[KEY::DASH]) {
+
+			if ((player.state != PLAYER_STATE::DASH && d.cd <= 0.1f) || 
+				(d.enabled_dashes & CHAIN_DASH && d.cd < d.ctMax && d.cd > d.ctMin)) {
+				if (!physics.inAir || d.enabled_dashes & MID_AIR_DASH) {
+					debugging.dashDuration = 0.f;
+
+					d.cd = d.cdTime;
+
+					player.state = PLAYER_STATE::DASH;
+					physics.velocity.x = hdir * d.dashSpeed;
+					physics.targetVelocity.x = 0;
+				}
+			}
+		}
+
+		if (player.state == PLAYER_STATE::DASH) {
+			if (physics.velocity.x < 250 && physics.velocity.x > -250) {
+				player.state = PLAYER_STATE::MOVE;
+			}
+		}
+
+		// DEBUGGING
+		if (debugging.in_debug_mode) {
+			switch (player.state) {
+			case PLAYER_STATE::DASH:
+				debugging.dashDuration += elapsed_ms;
+				break;
+			default:
+				break;
+			}
+		}
+
+		d.cd -= elapsed_ms;
+		d.cd = fmax(0.f, d.cd);
+	}
+}
+
+void doPlayerJump(Entity& p) {
+	Player& player = registry.players.get(p);
+	Motion& playerMotion = registry.motions.get(p);
+	Physics& physics = registry.physEntities.get(p);
+	Mob& mob = registry.mobs.get(p);
+
+	Input& input = registry.inputs.get(p);
+
+	int hdir = input.key[KEY::RIGHT] - input.key[KEY::LEFT];
+
+	if (input.key_press[KEY::JUMP]) {
+		if (physics.onWall && player.wallJumps < player.maxWallJumps) {
+			int facing = (playerMotion.scale.x > 0) - (playerMotion.scale.x < 0);
+
+			physics.targetVelocity.x = -facing * mob.jumpSpeed;
+			physics.velocity.x = physics.targetVelocity.x;
+
+			physics.targetVelocity.y = -mob.jumpSpeed;
+			physics.velocity.y = physics.targetVelocity.y;
+			player.wallJumps++;
+
+			// air jumps
+		}
+		else if (!physics.inAir ||
+			player.coyoteMS < player.maxCoyoteMS) {
+			physics.targetVelocity.y = -mob.jumpSpeed;
+			physics.velocity.y = physics.targetVelocity.y;
+		}
+		else if (player.airJumps < player.maxAirJumps) {
+			physics.targetVelocity.y = -mob.jumpSpeed;
+			physics.velocity.y = physics.targetVelocity.y;
+			player.airJumps++;
+		}
+	}
+
+	if (input.key_release[KEY::JUMP] && physics.velocity.y < 0) {
+		physics.targetVelocity.y = 0;
+	}
+
+}
+
 void PhysicsSystem::doPlayerInput(float elapsed_ms) {
 	// iterate through players
 	auto& player_registry = registry.players;
@@ -115,40 +209,17 @@ void PhysicsSystem::doPlayerInput(float elapsed_ms) {
 		Input& input = registry.inputs.get(playerEntity);
 
 		int hdir = input.key[KEY::RIGHT] - input.key[KEY::LEFT];
+		
+		if (player.state == PLAYER_STATE::MOVE) {
+			physics.targetVelocity.x = hdir * mob.moveSpeed;
+			doPlayerJump(playerEntity);
+		}
 
 		if (hdir) {
 			playerMotion.scale.x = hdir * abs(playerMotion.scale.x);
 		}
-		
-		physics.targetVelocity.x = hdir * mob.moveSpeed;
 
-		if (input.key_press[KEY::JUMP]) {
-			if (physics.onWall && player.wallJumps < player.maxWallJumps) {
-				int facing = (playerMotion.scale.x > 0) - (playerMotion.scale.x < 0);
-				
-				physics.targetVelocity.x = -facing * mob.jumpSpeed;
-				physics.velocity.x = physics.targetVelocity.x;
-
-				physics.targetVelocity.y = -mob.jumpSpeed;
-				physics.velocity.y = physics.targetVelocity.y;
-				player.wallJumps++;
-
-			// air jumps
-			} else if (!physics.inAir || 
-					player.coyoteMS < player.maxCoyoteMS) {
-				physics.targetVelocity.y = -mob.jumpSpeed;
-				physics.velocity.y = physics.targetVelocity.y;
-			}
-			else if (player.airJumps < player.maxAirJumps) {
-				physics.targetVelocity.y = -mob.jumpSpeed;
-				physics.velocity.y = physics.targetVelocity.y;
-				player.airJumps++;
-			}
-		}
-
-		if (input.key_release[KEY::JUMP] && physics.velocity.y < 0) {
-			physics.targetVelocity.y = 0;
-		}
+		doPlayerDash(playerEntity, elapsed_ms);
 	}
 }
 
@@ -165,6 +236,11 @@ void PhysicsSystem::doGravity(float elapsed_ms) {
 
 		Gravity& gravity = gravity_registry.components[i];
 		Physics& physics = physics_registry.get(entity);
+
+		// player check
+		if (registry.players.has(entity) && registry.players.get(entity).state != PLAYER_STATE::MOVE) {
+			continue;
+		}
 
 		if (abs(physics.targetVelocity.y) <= gravity.terminalVelocity &&
 			abs(physics.velocity.y) <= gravity.terminalVelocity) {
