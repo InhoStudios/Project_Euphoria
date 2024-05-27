@@ -122,10 +122,21 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 
 	// Set all states to default
 	init_game();
-    restart_game();
 }
 
 void WorldSystem::init_game() {
+	// Debugging for memory/component leaks
+	registry.list_all_components();
+
+	gameManager = createGameManager();
+	GameManager& gm = registry.gameManagers.get(gameManager);
+
+	gm.current_level = LEVEL::TUT_INT_1;
+
+	Level& l = levels.get(gm.current_level);
+	player = createPlayer(l.startPos);
+
+	loadLevel(gm.current_level);
 }
 
 // Update our game world
@@ -198,18 +209,16 @@ void WorldSystem::restart_game() {
 
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all bug, eagles, ... but that would be more cumbersome
-	while (registry.motions.entities.size() > 0)
-	    registry.remove_all_components_of(registry.motions.entities.back());
+	while (registry.levelElements.entities.size() > 0)
+	    registry.remove_all_components_of(registry.levelElements.entities.back());
 
-	// Debugging for memory/component leaks
-	registry.list_all_components();
+	GameManager& gm = registry.gameManagers.get(gameManager);
 
-	// Create a new chicken
-	player = createPlayer(renderer, { screen_width_px/2 + 32, screen_height_px / 2 });
+	loadLevel(gm.current_level);
 
-	gameManager = createGameManager();
-
-	loadGeometryFile(renderer, level_path("test_level.png"));
+	Entity& p = registry.players.entities[0];
+	Level& l = levels.get(gm.current_level);
+	registry.motions.get(p).position = l.startPos;
 }
 
 // Compute collisions between entities
@@ -308,9 +317,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	// Debugging
 	if (key == GLFW_KEY_F3) {
 		if (action == GLFW_RELEASE)
-			debugging.in_debug_mode = false;
-		else
-			debugging.in_debug_mode = true;
+			debugging.in_debug_mode = !debugging.in_debug_mode;
 	}
 
 	// Control the current speed with `<` `>`

@@ -32,19 +32,24 @@ bool collides_at(Entity entity, Entity collidesWith, vec2 offsetPos) {
 	Motion& entityMotion = registry.motions.get(entity);
 	Motion& otherMotion = registry.motions.get(collidesWith);
 
-	vec2 m1_pos = entityMotion.position, m2_pos = otherMotion.position;
-	vec2 m1_bb = get_bounding_box(entityMotion), m2_bb = get_bounding_box(otherMotion);
+	Collider& ec = registry.colliders.get(entity);
+	Collider& oc = registry.colliders.get(collidesWith);
+
+	vec2 m1_pos = entityMotion.position + ec.offset, 
+		m2_pos = otherMotion.position + oc.offset;
+	vec2 m1_bb = get_bounding_box(entityMotion), 
+		m2_bb = get_bounding_box(otherMotion);
 
 	// idea: for both bounding boxes, check if any corner is within any of the other bounding boxes
-	int m1_minx = m1_pos[0] + offsetPos[0] - m1_bb[0] / 2;
-	int m1_miny = m1_pos[1] + offsetPos[1] - m1_bb[1] / 2;
-	int m1_maxx = m1_pos[0] + offsetPos[0] + m1_bb[0] / 2;
-	int m1_maxy = m1_pos[1] + offsetPos[1] + m1_bb[1] / 2;
+	int m1_minx = m1_pos[0] + offsetPos[0] - ec.spr_scale.x * m1_bb[0] / 2;
+	int m1_miny = m1_pos[1] + offsetPos[1] - ec.spr_scale.y * m1_bb[1] / 2;
+	int m1_maxx = m1_pos[0] + offsetPos[0] + ec.spr_scale.x * m1_bb[0] / 2;
+	int m1_maxy = m1_pos[1] + offsetPos[1] + ec.spr_scale.y * m1_bb[1] / 2;
 
-	int m2_minx = m2_pos[0] - m2_bb[0] / 2;
-	int m2_miny = m2_pos[1] - m2_bb[1] / 2;
-	int m2_maxx = m2_pos[0] + m2_bb[0] / 2;
-	int m2_maxy = m2_pos[1] + m2_bb[1] / 2;
+	int m2_minx = m2_pos[0] - oc.spr_scale.x * m2_bb[0] / 2;
+	int m2_miny = m2_pos[1] - oc.spr_scale.y * m2_bb[1] / 2;
+	int m2_maxx = m2_pos[0] + oc.spr_scale.x * m2_bb[0] / 2;
+	int m2_maxy = m2_pos[1] + oc.spr_scale.y * m2_bb[1] / 2;
 
 	return (
 		m1_minx < m2_maxx &&
@@ -121,7 +126,7 @@ void PhysicsSystem::doPlayerInput(float elapsed_ms) {
 			if (physics.onWall && player.wallJumps < player.maxWallJumps) {
 				int facing = (playerMotion.scale.x > 0) - (playerMotion.scale.x < 0);
 				
-				physics.targetVelocity.x = -facing * 3 * mob.moveSpeed;
+				physics.targetVelocity.x = -facing * mob.jumpSpeed;
 				physics.velocity.x = physics.targetVelocity.x;
 
 				physics.targetVelocity.y = -mob.jumpSpeed;
@@ -189,8 +194,7 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 
 		vec2 startPos = motion.position;
 
-		vec2 msp = step_seconds * physComp.velocity;
-		int hsp = msp[0], vsp = msp[1];
+		float hsp = step_seconds * (int) physComp.velocity.x, vsp = step_seconds * (int) physComp.velocity.y;
 		int targHsp = step_seconds * physComp.targetVelocity.x;
 		int shsp = (hsp > 0) - (hsp < 0), svsp = (vsp > 0) - (vsp < 0);
 
@@ -204,6 +208,8 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 			for (uint j = 0; j < collider_registry.size(); j++) {
 				Entity otherEntity = collider_registry.entities[j];
 				Motion otherMotion = motion_registry.get(otherEntity);
+
+				if (otherEntity == entity) continue;
 
 				if (registry.solids.has(otherEntity)) {
 					Solid& solid = registry.solids.get(otherEntity);
@@ -286,9 +292,9 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 
 				}
 			}
+			motion.position += vec2({ hsp, vsp });
 		}
 
-		motion.position += vec2({ hsp, vsp });
 	}
 }
 

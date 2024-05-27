@@ -23,6 +23,8 @@ public:
 	ComponentContainer<Gravity> gravEntities;
 	ComponentContainer <Solid> solids;
 	ComponentContainer<Collider> colliders;
+
+	ComponentContainer<LevelElement> levelElements;
 	ComponentContainer<Collision> collisions;
 
 	ComponentContainer<Interactable> interactables;
@@ -56,10 +58,16 @@ public:
 		registry_list.push_back(&gravEntities);
 		registry_list.push_back(&solids);
 		registry_list.push_back(&colliders);
+
+		registry_list.push_back(&levelElements);
 		registry_list.push_back(&collisions);
+
+		registry_list.push_back(&interactables);
+		registry_list.push_back(&transitions);
 
 		registry_list.push_back(&players);
 		registry_list.push_back(&mobs);
+		registry_list.push_back(&healths);
 
 		registry_list.push_back(&meshPtrs);
 		registry_list.push_back(&renderRequests);

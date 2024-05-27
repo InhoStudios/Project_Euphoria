@@ -8,16 +8,14 @@ class InteractableSystem
 {
 public:
 	InteractableSystem() {
-
 	}
 
-	void init(WorldSystem& world) {
-		this->world = world;
+	void init() {
+
 	}
 
 	void step();
 
-	void doInteract();
+	void doInteract(Entity e);
 private:
-	WorldSystem& world;
 };

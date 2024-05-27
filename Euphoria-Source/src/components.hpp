@@ -13,13 +13,12 @@ enum class GAME_STATE {
 	//
 };
 
-enum class LEVEL_INDEX {
-	START = 0,
-};
+enum class LEVEL;
+enum class TEXTURE_ASSET_ID;
 
 struct GameManager {
 	GAME_STATE current_state;
-	LEVEL_INDEX current_level;
+	LEVEL current_level;
 };
 
 // Player component
@@ -51,7 +50,7 @@ struct Physics {
 	vec2 targetVelocity = { 0.f, 0.f };
 	bool inAir = false;
 	bool onWall = false;
-	float elasticity = 0.0;
+	float elasticity = 0.f;
 	float drag = 0.15;
 	float rampSpeed = 1.0;
 };
@@ -62,7 +61,8 @@ struct Gravity {
 };
 
 struct Collider {
-	std::vector<vec2> hull;
+	vec2 spr_scale = { 1.0f, 1.0f };
+	vec2 offset = { 0.f, 0.f };
 };
 
 struct Solid {
@@ -77,24 +77,24 @@ struct Camera {
 	float defaultZoom = 1.0;
 	float zoom = defaultZoom;
 	float interpSpeed = 0.3;
-	vec2 offset = { 16.f, 64.f };
+	vec2 offset = { 16.f, 32.f };
 
 	vec2 bounds; // dynamically set
 };
 
 enum class KEY {
 	RIGHT = 0,
-	LEFT = RIGHT + 1,
-	UP = LEFT + 1,
-	DOWN = UP + 1,
+	LEFT,
+	UP,
+	DOWN,
 
-	JUMP = DOWN + 1,
+	JUMP,
 
-	BASIC = JUMP + 1, // i or z
-	SPECIAL = BASIC + 1, // j or x
-	GRAB = SPECIAL + 1, // k or c
-	ENHANCE = GRAB + 1, // l or v
-	DASH = ENHANCE + 1, // shift
+	BASIC, // i or z
+	SPECIAL, // j or x
+	GRAB, // k or c
+	ENHANCE, // l or v
+	DASH, // shift
 	
 };
 
@@ -197,20 +197,44 @@ struct Interactable
 {
 	//  Anything that can be collided with by the player and picked up
 	vec2 boundsScale = { 1.f, 1.f }; // scale of the hitbox to the size of the collider
-	bool requiresInput;
+	bool needsInput;
 };
 
 // LEVEL COMPONENTS
 
 struct Transition {
 	// transitions need interactable
-	LEVEL_INDEX targetLevel;
+	LEVEL targetLevel;
 	vec2 targetPosition;
+};
+
+struct TransitionData {
+	// transitions need interactable
+	LEVEL targetLevel;
+	vec2 targetPosition;
+	vec2 position;
+	vec2 scale;
+	bool needsInput;
+	TEXTURE_ASSET_ID sprite = (TEXTURE_ASSET_ID) 0;
 };
 
 struct LevelElement {
 
 };
+
+enum class LEVEL {
+	TUT_INT_1,
+	TUT_INT_2,
+	TUT_INT_3,
+	TUT_INT_4,
+	TUT_EXT_1,
+	TUT_EXT_2,
+
+
+
+	NUM_LEVELS,
+};
+const int num_levels = (int)LEVEL::NUM_LEVELS;
 
 struct Level {
 	std::string directory;
@@ -218,7 +242,7 @@ struct Level {
 	vec2 startPos;
 	// backgrounds
 	// doors
-	// transitions
+	std::vector<TransitionData> connects;
 };
 
 // END LEVEL COMPONENTS
@@ -227,6 +251,13 @@ struct Level {
 struct Debug {
 	bool in_debug_mode = 0;
 	bool in_freeze_mode = 0;
+
+	int acc_frames = 0;
+
+	float cur_ms_slow = 0.f, cur_ms_fast = 0.f;
+	float redraw_slow = 500.f, redraw_fast = 42.f;
+	int fps, px, py;
+	float vx, vy;
 };
 extern Debug debugging;
 
@@ -297,30 +328,30 @@ struct Mesh
 
 enum class TEXTURE_ASSET_ID {
 	DEFAULT = 0,
-	NO_SPRITE = DEFAULT + 1,
-	SOLID = NO_SPRITE + 1,
-	PLAYER = SOLID + 1,
-	TEXTURE_COUNT = PLAYER + 1
+	NO_SPRITE,
+	SOLID,
+	PLAYER,
+	TEXTURE_COUNT,
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
 enum class EFFECT_ASSET_ID {
 	COLOURED = 0,
-	EGG = COLOURED + 1,
-	CHICKEN = EGG + 1,
-	TEXTURED = CHICKEN + 1,
-	WIND = TEXTURED + 1,
-	EFFECT_COUNT = WIND + 1
+	EGG,
+	CHICKEN,
+	TEXTURED,
+	WIND,
+	EFFECT_COUNT
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
 enum class GEOMETRY_BUFFER_ID {
 	CHICKEN = 0,
-	SPRITE = CHICKEN + 1,
-	EGG = SPRITE + 1,
-	DEBUG_LINE = EGG + 1,
-	SCREEN_TRIANGLE = DEBUG_LINE + 1,
-	GEOMETRY_COUNT = SCREEN_TRIANGLE + 1
+	SPRITE,
+	EGG,
+	DEBUG_LINE,
+	SCREEN_TRIANGLE,
+	GEOMETRY_COUNT
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 

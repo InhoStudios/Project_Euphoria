@@ -1,4 +1,7 @@
 #include "interactable_system.hpp"
+#include "physics_system.hpp"
+#include <iostream>
+#include "level_registry.hpp"
 
 void InteractableSystem::step() {
 	// iterate through players
@@ -10,13 +13,26 @@ void InteractableSystem::step() {
 		Entity& p = registry.players.entities[ie];
 		Player& player = registry.players.components[ie];
 
+		Input& input = registry.inputs.get(p);
+
 		for (int ii = 0; ii < registry.interactables.size(); ++ii) {
 			Entity& i = registry.interactables.entities[ii];
 			Interactable& interactable = registry.interactables.components[ii];
+
+			if (collides_at(p, i)) {
+				if (!interactable.needsInput || input.key_press[KEY::GRAB]) {
+					doInteract(i); // pass through parameters?
+				}
+			}
 		}
 	}
 }
 
-void InteractableSystem::doInteract() {
-
+void InteractableSystem::doInteract(Entity e) {
+	// check if item, transition, etc
+	if (registry.transitions.has(e)) {
+		std::cout << "Transition" << std::endl;
+		Transition& to = registry.transitions.get(e);
+		transitionTo(to);
+	}
 }
