@@ -24,12 +24,12 @@ Entity createPlayer(RenderSystem* renderer, vec2 pos)
 	registry.gravEntities.emplace(entity);
 
 	Collider& collider = registry.colliders.emplace(entity);
-	collider.spr_scale = { 0.34f, 0.875f };
+	collider.spr_scale = { 0.375f, 0.875f };
 	collider.offset = { 0.f, 2.f };
 
 	Mob& mob = registry.mobs.emplace(entity);
 	mob.moveSpeed = 350.f;
-	mob.jumpSpeed = 700.f;
+	mob.jumpSpeed = 600.f;
 	mob.knockbackSpeed = 300.f;
 
 	// Setting initial motion values

@@ -264,24 +264,33 @@ void RenderSystem::draw(float elapsed_ms)
 }
 
 void RenderSystem::drawDebug(float elapsed_ms) {
-	debugging.cur_ms += elapsed_ms;
-	if (debugging.cur_ms > debugging.redraw_ms) {
-		debugging.fps = (int)(1000.f / elapsed_ms);
+	debugging.cur_ms_fast += elapsed_ms;
+	debugging.cur_ms_slow += elapsed_ms;
+	debugging.acc_frames++;
+
+	if (debugging.cur_ms_slow > debugging.redraw_slow) {
+		debugging.fps = (int)(1000.f / debugging.cur_ms_slow * debugging.acc_frames);
+
+		debugging.cur_ms_slow -= debugging.redraw_slow;
+		debugging.acc_frames = 0;
+	}
+
+	if (debugging.cur_ms_fast > debugging.redraw_fast) {
 
 		Entity& p = registry.players.entities[0];
 
 		Motion& pm = registry.motions.get(p);
-		debugging.px = pm.position.x; 
+		debugging.px = pm.position.x;
 		debugging.py = pm.position.y;
 
 		Physics& ph = registry.physEntities.get(p);
 		debugging.vx = ph.velocity.x;
 		debugging.vy = ph.velocity.y;
 
-		debugging.cur_ms -= debugging.redraw_ms;
+		debugging.cur_ms_fast -= debugging.redraw_fast;
 	}
 	float sx = 16.f;
-	float sy = window_height_px - 24.f;
+	float sy = window_height_px - 32.f;
 
 	std::stringstream pos_str;
 	pos_str << "Position: " << debugging.px << ", " << debugging.py;

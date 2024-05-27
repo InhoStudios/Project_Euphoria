@@ -49,7 +49,7 @@ struct Physics {
 	vec2 targetVelocity = { 0.f, 0.f };
 	bool inAir = false;
 	bool onWall = false;
-	float elasticity = 0.0;
+	float elasticity = 0.f;
 	float drag = 0.15;
 	float rampSpeed = 1.0;
 };
@@ -241,7 +241,11 @@ struct Level {
 struct Debug {
 	bool in_debug_mode = 0;
 	bool in_freeze_mode = 0;
-	float cur_ms = 0.f, redraw_ms = 500.f;
+
+	int acc_frames = 0;
+
+	float cur_ms_slow = 0.f, cur_ms_fast = 0.f;
+	float redraw_slow = 500.f, redraw_fast = 42.f;
 	int fps, px, py;
 	float vx, vy;
 };

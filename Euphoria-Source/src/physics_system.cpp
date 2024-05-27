@@ -126,7 +126,7 @@ void PhysicsSystem::doPlayerInput(float elapsed_ms) {
 			if (physics.onWall && player.wallJumps < player.maxWallJumps) {
 				int facing = (playerMotion.scale.x > 0) - (playerMotion.scale.x < 0);
 				
-				physics.targetVelocity.x = -facing * 3 * mob.moveSpeed;
+				physics.targetVelocity.x = -facing * mob.jumpSpeed;
 				physics.velocity.x = physics.targetVelocity.x;
 
 				physics.targetVelocity.y = -mob.jumpSpeed;
@@ -194,8 +194,7 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 
 		vec2 startPos = motion.position;
 
-		vec2 msp = step_seconds * physComp.velocity;
-		int hsp = msp[0], vsp = msp[1];
+		float hsp = step_seconds * (int) physComp.velocity.x, vsp = step_seconds * (int) physComp.velocity.y;
 		int targHsp = step_seconds * physComp.targetVelocity.x;
 		int shsp = (hsp > 0) - (hsp < 0), svsp = (vsp > 0) - (vsp < 0);
 
@@ -209,6 +208,8 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 			for (uint j = 0; j < collider_registry.size(); j++) {
 				Entity otherEntity = collider_registry.entities[j];
 				Motion otherMotion = motion_registry.get(otherEntity);
+
+				if (otherEntity == entity) continue;
 
 				if (registry.solids.has(otherEntity)) {
 					Solid& solid = registry.solids.get(otherEntity);
@@ -262,8 +263,6 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 							motion.position.y += svsp;
 						}
 						vsp = 0;
-						physComp.velocity.y = 0;
-						physComp.targetVelocity.y = 0;
 					}
 
 					if (collides_at(entity, otherEntity, { hsp, 0. })) {
@@ -293,9 +292,9 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 
 				}
 			}
+			motion.position += vec2({ hsp, vsp });
 		}
 
-		motion.position += vec2({ hsp, vsp });
 	}
 }
 
