@@ -31,7 +31,6 @@ void InteractableSystem::step() {
 void InteractableSystem::doInteract(Entity e) {
 	// check if item, transition, etc
 	if (registry.transitions.has(e)) {
-		std::cout << "Transition" << std::endl;
 		Transition& to = registry.transitions.get(e);
 		transitionTo(to);
 	}

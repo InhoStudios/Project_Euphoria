@@ -29,6 +29,9 @@ void transitionTo(Transition to) {
     registry.motions.get(p).position = targetPos;
 
     loadLevel(to.targetLevel);
+
+    GameManager& gm = registry.gameManagers.components[0];
+    gm.current_level = to.targetLevel;
 }
 
 void loadGeometryFile(std::string file_path) {
