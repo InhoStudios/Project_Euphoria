@@ -325,10 +325,10 @@ mat3 RenderSystem::createProjectionMatrix()
 	
 	camera.targetPosition.y -= camera.offset.y;
 
-	camera.targetPosition[0] = fmin(camera.targetPosition[0], camera.bounds[0] - halfWidth);
+	camera.targetPosition[0] = fmin(camera.targetPosition[0], camera.bounds[0] - halfWidth - 8);
 	camera.targetPosition[0] = fmax(camera.targetPosition[0], halfWidth - 8);
-	camera.targetPosition[1] = fmin(camera.targetPosition[1], camera.bounds[1] - halfHeight - 16);
-	camera.targetPosition[1] = fmax(camera.targetPosition[1], halfHeight + 8);
+	camera.targetPosition[1] = fmin(camera.targetPosition[1], camera.bounds[1] - halfHeight - 8);
+	camera.targetPosition[1] = fmax(camera.targetPosition[1], halfHeight - 8);
 
 	camera.position += camera.interpSpeed * (camera.targetPosition - camera.position);
 

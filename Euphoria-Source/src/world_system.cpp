@@ -128,15 +128,15 @@ void WorldSystem::init_game() {
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 
-	// Create a new chicken
-	player = createPlayer(renderer, { screen_width_px / 2 + 32, screen_height_px / 2 });
-
 	gameManager = createGameManager();
 	GameManager& gm = registry.gameManagers.get(gameManager);
 
 	gm.current_level = LEVEL::TUT_INT_1;
 
-	loadLevel(renderer, gm.current_level);
+	Level& l = levels.get(gm.current_level);
+	player = createPlayer(l.startPos);
+
+	loadLevel(gm.current_level);
 }
 
 // Update our game world
@@ -214,8 +214,11 @@ void WorldSystem::restart_game() {
 
 	GameManager& gm = registry.gameManagers.get(gameManager);
 
-	loadLevel(renderer, gm.current_level);
+	loadLevel(gm.current_level);
 
+	Entity& p = registry.players.entities[0];
+	Level& l = levels.get(gm.current_level);
+	registry.motions.get(p).position = l.startPos;
 }
 
 // Compute collisions between entities

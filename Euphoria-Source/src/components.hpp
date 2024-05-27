@@ -14,6 +14,7 @@ enum class GAME_STATE {
 };
 
 enum class LEVEL;
+enum class TEXTURE_ASSET_ID;
 
 struct GameManager {
 	GAME_STATE current_state;
@@ -196,7 +197,7 @@ struct Interactable
 {
 	//  Anything that can be collided with by the player and picked up
 	vec2 boundsScale = { 1.f, 1.f }; // scale of the hitbox to the size of the collider
-	bool requiresInput;
+	bool needsInput;
 };
 
 // LEVEL COMPONENTS
@@ -205,7 +206,16 @@ struct Transition {
 	// transitions need interactable
 	LEVEL targetLevel;
 	vec2 targetPosition;
-	bool requiresInput;
+};
+
+struct TransitionData {
+	// transitions need interactable
+	LEVEL targetLevel;
+	vec2 targetPosition;
+	vec2 position;
+	vec2 scale;
+	bool needsInput;
+	TEXTURE_ASSET_ID sprite = (TEXTURE_ASSET_ID) 0;
 };
 
 struct LevelElement {
@@ -232,7 +242,7 @@ struct Level {
 	vec2 startPos;
 	// backgrounds
 	// doors
-	std::vector<Transition> connects;
+	std::vector<TransitionData> connects;
 };
 
 // END LEVEL COMPONENTS

@@ -6,7 +6,7 @@ enum class Tiles {
     INTERACTABLE = 1,
 };
 
-void loadLevel(RenderSystem* renderer, LEVEL l) {
+void loadLevel(LEVEL l) {
     // clear level elements
     while (registry.levelElements.entities.size() > 0)
         registry.remove_all_components_of(registry.levelElements.entities.back());
@@ -15,10 +15,23 @@ void loadLevel(RenderSystem* renderer, LEVEL l) {
     Level& level = levels.get(l);
 
     // temp: load geometry file
-    loadGeometryFile(renderer, level_path(level.directory + "/geometry.png"));
+    loadGeometryFile(level_path(level.directory + "/geometry.png"));
+    // load connects
+    for (TransitionData& connect : level.connects) {
+        createTransition(connect);
+    }
 }
 
-void loadGeometryFile(RenderSystem* renderer, std::string file_path) {
+void transitionTo(Transition to) {
+    vec2 targetPos = to.targetPosition;
+
+    Entity& p = registry.players.entities[0];
+    registry.motions.get(p).position = targetPos;
+
+    loadLevel(to.targetLevel);
+}
+
+void loadGeometryFile(std::string file_path) {
     int im_width, im_height, num_channels;
     uint8_t* imageData = stbi_load(file_path.c_str(), &im_width, &im_height, &num_channels, 0);
 
@@ -32,12 +45,12 @@ void loadGeometryFile(RenderSystem* renderer, std::string file_path) {
             switch (tile) {
             case Tiles::SOLID:
                 if (opacity == 255) {
-                    createSolid(renderer, { xTo, yTo }, { TILE_SIZE, TILE_SIZE });
+                    createSolid({ xTo, yTo }, { TILE_SIZE, TILE_SIZE });
                 }
                 break;
             case Tiles::INTERACTABLE:
                 if (opacity == 255) {
-                    createItem(renderer, { xTo, yTo }, { TILE_SIZE, TILE_SIZE }, { 1.f, 1.f, }, true);
+                    createItem({ xTo, yTo }, { TILE_SIZE, TILE_SIZE }, { 1.f, 1.f, }, true);
                 }
                 break;
 
