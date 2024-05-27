@@ -122,10 +122,21 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 
 	// Set all states to default
 	init_game();
-    restart_game();
 }
 
 void WorldSystem::init_game() {
+	// Debugging for memory/component leaks
+	registry.list_all_components();
+
+	// Create a new chicken
+	player = createPlayer(renderer, { screen_width_px / 2 + 32, screen_height_px / 2 });
+
+	gameManager = createGameManager();
+	GameManager& gm = registry.gameManagers.get(gameManager);
+
+	gm.current_level = LEVEL::TUT_INT_1;
+
+	loadLevel(renderer, gm.current_level);
 }
 
 // Update our game world
@@ -198,18 +209,13 @@ void WorldSystem::restart_game() {
 
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all bug, eagles, ... but that would be more cumbersome
-	while (registry.motions.entities.size() > 0)
-	    registry.remove_all_components_of(registry.motions.entities.back());
+	while (registry.levelElements.entities.size() > 0)
+	    registry.remove_all_components_of(registry.levelElements.entities.back());
 
-	// Debugging for memory/component leaks
-	registry.list_all_components();
+	GameManager& gm = registry.gameManagers.get(gameManager);
 
-	// Create a new chicken
-	player = createPlayer(renderer, { screen_width_px/2 + 32, screen_height_px / 2 });
+	loadLevel(renderer, gm.current_level);
 
-	gameManager = createGameManager();
-
-	loadGeometryFile(renderer, level_path("test_level.png"));
 }
 
 // Compute collisions between entities

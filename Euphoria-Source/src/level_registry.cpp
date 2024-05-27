@@ -6,11 +6,16 @@ enum class Tiles {
     INTERACTABLE = 1,
 };
 
-void loadLevel() {
+void loadLevel(RenderSystem* renderer, LEVEL l) {
     // clear level elements
     while (registry.levelElements.entities.size() > 0)
         registry.remove_all_components_of(registry.levelElements.entities.back());
     // load level data
+
+    Level& level = levels.get(l);
+
+    // temp: load geometry file
+    loadGeometryFile(renderer, level_path(level.directory + "/geometry.png"));
 }
 
 void loadGeometryFile(RenderSystem* renderer, std::string file_path) {
