@@ -205,6 +205,7 @@ struct Transition {
 	// transitions need interactable
 	LEVEL targetLevel;
 	vec2 targetPosition;
+	bool requiresInput;
 };
 
 struct LevelElement {
@@ -231,7 +232,7 @@ struct Level {
 	vec2 startPos;
 	// backgrounds
 	// doors
-	// transitions
+	std::vector<Transition> connects;
 };
 
 // END LEVEL COMPONENTS
@@ -240,6 +241,9 @@ struct Level {
 struct Debug {
 	bool in_debug_mode = 0;
 	bool in_freeze_mode = 0;
+	float cur_ms = 0.f, redraw_ms = 500.f;
+	int fps, px, py;
+	float vx, vy;
 };
 extern Debug debugging;
 

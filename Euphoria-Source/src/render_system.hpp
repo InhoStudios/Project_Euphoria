@@ -103,6 +103,8 @@ private:
 	void drawTexturedMesh(Entity entity, const mat3& projection);
 	void drawToScreen();
 
+	void drawDebug(float elapsed_ms);
+
 	// Window handle
 	GLFWwindow* window;
 

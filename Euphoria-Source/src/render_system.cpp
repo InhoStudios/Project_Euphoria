@@ -2,6 +2,9 @@
 #include "render_system.hpp"
 #include <SDL.h>
 
+#include <iomanip>
+#include <sstream>
+
 #include "tiny_ecs_registry.hpp"
 
 void RenderSystem::drawTexturedMesh(Entity entity,
@@ -249,15 +252,49 @@ void RenderSystem::draw(float elapsed_ms)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// RENDER TEXT HERE!!!!! because glfwSwapBuffers clears screen 
-	/*
-	int fps = (int)(1000.f / elapsed_ms);
-	renderText(std::to_string(fps), window_width_px - 128, window_height_px - 32, 1.0f, {1., 1., 1.}, glm::mat4(1.0f));
-	*/
+	
+	if (debugging.in_debug_mode) {
+		drawDebug(elapsed_ms);
+	}
 
 
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);
 	gl_has_errors();
+}
+
+void RenderSystem::drawDebug(float elapsed_ms) {
+	debugging.cur_ms += elapsed_ms;
+	if (debugging.cur_ms > debugging.redraw_ms) {
+		debugging.fps = (int)(1000.f / elapsed_ms);
+
+		Entity& p = registry.players.entities[0];
+
+		Motion& pm = registry.motions.get(p);
+		debugging.px = pm.position.x; 
+		debugging.py = pm.position.y;
+
+		Physics& ph = registry.physEntities.get(p);
+		debugging.vx = ph.velocity.x;
+		debugging.vy = ph.velocity.y;
+
+		debugging.cur_ms -= debugging.redraw_ms;
+	}
+	float sx = 16.f;
+	float sy = window_height_px - 24.f;
+
+	std::stringstream pos_str;
+	pos_str << "Position: " << debugging.px << ", " << debugging.py;
+
+	std::stringstream vel_str;
+	vel_str << "Speed: " << std::fixed << std::setprecision(2) << debugging.vx << ", " << std::fixed << std::setprecision(2) << debugging.vy;
+
+	renderText("FPS: " + std::to_string(debugging.fps), sx, sy, 0.8f, { 1., 1., 1. }, glm::mat4(1.0f));
+	sy -= 24.f;
+	renderText(pos_str.str(), sx, sy, 0.8f, { 1., 1., 1. }, glm::mat4(1.0f));
+	sy -= 24.f;
+	renderText(vel_str.str(), sx, sy, 0.8f, { 1., 1., 1. }, glm::mat4(1.0f));
+
 }
 
 mat3 RenderSystem::createProjectionMatrix()

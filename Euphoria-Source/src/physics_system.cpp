@@ -262,6 +262,8 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 							motion.position.y += svsp;
 						}
 						vsp = 0;
+						physComp.velocity.y = 0;
+						physComp.targetVelocity.y = 0;
 					}
 
 					if (collides_at(entity, otherEntity, { hsp, 0. })) {
