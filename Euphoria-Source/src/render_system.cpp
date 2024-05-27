@@ -311,6 +311,7 @@ mat3 RenderSystem::createProjectionMatrix()
 	Entity player = registry.players.entities[0];
 	auto& playerMotion = registry.motions.get(player);
 	Camera& camera = registry.cameras.components[0];
+	GameManager& gm = registry.gameManagers.components[0];
 
 	camera.targetPosition = playerMotion.position;
 
@@ -325,9 +326,9 @@ mat3 RenderSystem::createProjectionMatrix()
 	
 	camera.targetPosition.y -= camera.offset.y;
 
-	camera.targetPosition[0] = fmin(camera.targetPosition[0], camera.bounds[0] - halfWidth - 8);
+	camera.targetPosition[0] = fmin(camera.targetPosition[0], gm.bounds[0] - halfWidth - 8);
 	camera.targetPosition[0] = fmax(camera.targetPosition[0], halfWidth - 8);
-	camera.targetPosition[1] = fmin(camera.targetPosition[1], camera.bounds[1] - halfHeight - 8);
+	camera.targetPosition[1] = fmin(camera.targetPosition[1], gm.bounds[1] - halfHeight - 8);
 	camera.targetPosition[1] = fmax(camera.targetPosition[1], halfHeight - 8);
 
 	camera.position += camera.interpSpeed * (camera.targetPosition - camera.position);

@@ -62,7 +62,7 @@ void loadGeometryFile(std::string file_path) {
     }
 
     // camera bounds
-    registry.cameras.components[0].bounds = { TILE_SIZE * im_width, TILE_SIZE * im_height };
+    registry.gameManagers.components[0].bounds = { TILE_SIZE * im_width, TILE_SIZE * im_height };
 
     stbi_image_free(imageData);
 }

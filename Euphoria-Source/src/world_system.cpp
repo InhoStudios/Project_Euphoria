@@ -146,6 +146,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	title_ss << "Points: " << points;
 	glfwSetWindowTitle(window, title_ss.str().c_str());
 
+	GameManager& gm = registry.gameManagers.get(gameManager);
+
 	// Remove debug info from the last step
 	while (registry.debugComponents.entities.size() > 0)
 	    registry.remove_all_components_of(registry.debugComponents.entities.back());
@@ -164,6 +166,12 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
+	Motion& playerMotion = registry.motions.get(player);
+	if (playerMotion.position.y > gm.bounds.y + playerMotion.scale.y / 2) {
+		if (!registry.deathTimers.has(player)) 
+			registry.deathTimers.emplace(player);
+	}
+
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// TODO A2: HANDLE EGG SPAWN HERE
 	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
@@ -173,7 +181,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	assert(registry.screenStates.components.size() <= 1);
     ScreenState &screen = registry.screenStates.components[0];
 
-    float min_counter_ms = 3000.f;
+    float min_counter_ms = 1000.f;
 	for (Entity entity : registry.deathTimers.entities) {
 		// progress timer
 		DeathTimer& counter = registry.deathTimers.get(entity);
@@ -191,7 +199,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 	// reduce window brightness if any of the present chickens is dying
-	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
+	screen.darken_screen_factor = 1 - min_counter_ms / 1000;
 
 	// !!! TODO A1: update LightUp timers and remove if time drops below zero, similar to the death counter
 
