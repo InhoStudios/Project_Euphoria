@@ -30,6 +30,9 @@ void transitionTo(Transition to) {
 
     loadLevel(to.targetLevel);
 
+    Level& level = levels.get(to.targetLevel);
+    level.startPos = targetPos;
+
     GameManager& gm = registry.gameManagers.components[0];
     gm.current_level = to.targetLevel;
 }

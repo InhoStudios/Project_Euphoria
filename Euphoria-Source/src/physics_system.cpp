@@ -63,7 +63,7 @@ void PhysicsSystem::step(float elapsed_ms)
 {
 	// Move bug based on how much time has passed, this is to (partially) avoid
 	// having entities move at different speed based on the machine.
-	doPlayerInput(elapsed_ms);
+	doMobInput(elapsed_ms);
 	doGravity(elapsed_ms);
 	doPhysicsCollisions(elapsed_ms);
 
@@ -102,8 +102,7 @@ void PhysicsSystem::step(float elapsed_ms)
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
-void doPlayerDash(Entity& p, float elapsed_ms) {
-	Player& player = registry.players.get(p);
+void doDashes(Entity& p, float elapsed_ms) {
 	Motion& playerMotion = registry.motions.get(p);
 	Physics& physics = registry.physEntities.get(p);
 	Mob& mob = registry.mobs.get(p);
@@ -119,30 +118,30 @@ void doPlayerDash(Entity& p, float elapsed_ms) {
 
 		if (input.key_press[KEY::DASH]) {
 
-			if ((player.state != PLAYER_STATE::DASH && d.cd <= 0.1f) || 
+			if ((mob.state != MOB_STATE::DASH && d.cd <= 0.1f) ||
 				(d.enabled_dashes & CHAIN_DASH && d.cd < d.ctMax && d.cd > d.ctMin)) {
 				if (!physics.inAir || d.enabled_dashes & MID_AIR_DASH) {
 					debugging.dashDuration = 0.f;
 
 					d.cd = d.cdTime;
 
-					player.state = PLAYER_STATE::DASH;
+					mob.state = MOB_STATE::DASH;
 					physics.velocity.x = hdir * d.dashSpeed;
 					physics.targetVelocity.x = 0;
 				}
 			}
 		}
 
-		if (player.state == PLAYER_STATE::DASH) {
+		if (mob.state == MOB_STATE::DASH) {
 			if (physics.velocity.x < 250 && physics.velocity.x > -250) {
-				player.state = PLAYER_STATE::MOVE;
+				mob.state = MOB_STATE::MOVE;
 			}
 		}
 
 		// DEBUGGING
 		if (debugging.in_debug_mode) {
-			switch (player.state) {
-			case PLAYER_STATE::DASH:
+			switch (mob.state) {
+			case MOB_STATE::DASH:
 				debugging.dashDuration += elapsed_ms;
 				break;
 			default:
@@ -155,8 +154,7 @@ void doPlayerDash(Entity& p, float elapsed_ms) {
 	}
 }
 
-void doPlayerJump(Entity& p) {
-	Player& player = registry.players.get(p);
+void doJumps(Entity& p) {
 	Motion& playerMotion = registry.motions.get(p);
 	Physics& physics = registry.physEntities.get(p);
 	Mob& mob = registry.mobs.get(p);
@@ -166,7 +164,7 @@ void doPlayerJump(Entity& p) {
 	int hdir = input.key[KEY::RIGHT] - input.key[KEY::LEFT];
 
 	if (input.key_press[KEY::JUMP]) {
-		if (physics.onWall && player.wallJumps < player.maxWallJumps) {
+		if (physics.onWall && mob.wallJumps < mob.maxWallJumps) {
 			int facing = (playerMotion.scale.x > 0) - (playerMotion.scale.x < 0);
 
 			physics.targetVelocity.x = -facing * mob.jumpSpeed;
@@ -174,19 +172,19 @@ void doPlayerJump(Entity& p) {
 
 			physics.targetVelocity.y = -mob.jumpSpeed;
 			physics.velocity.y = physics.targetVelocity.y;
-			player.wallJumps++;
+			mob.wallJumps++;
 
 			// air jumps
 		}
 		else if (!physics.inAir ||
-			player.coyoteMS < player.maxCoyoteMS) {
+			mob.coyoteMS < mob.maxCoyoteMS) {
 			physics.targetVelocity.y = -mob.jumpSpeed;
 			physics.velocity.y = physics.targetVelocity.y;
 		}
-		else if (player.airJumps < player.maxAirJumps) {
+		else if (mob.airJumps < mob.maxAirJumps) {
 			physics.targetVelocity.y = -mob.jumpSpeed;
 			physics.velocity.y = physics.targetVelocity.y;
-			player.airJumps++;
+			mob.airJumps++;
 		}
 	}
 
@@ -196,12 +194,12 @@ void doPlayerJump(Entity& p) {
 
 }
 
-void PhysicsSystem::doPlayerInput(float elapsed_ms) {
+void PhysicsSystem::doMobInput(float elapsed_ms) {
 	// iterate through players
-	auto& player_registry = registry.players;
-	for (uint i = 0; i < player_registry.size(); i++) {
-		Entity playerEntity = player_registry.entities[i];
-		Player& player = player_registry.get(playerEntity);
+	auto& mob_registry = registry.mobs;
+	for (uint i = 0; i < mob_registry.size(); i++) {
+		Entity playerEntity = mob_registry.entities[i];
+
 		Motion& playerMotion = registry.motions.get(playerEntity);
 		Physics& physics = registry.physEntities.get(playerEntity);
 		Mob& mob = registry.mobs.get(playerEntity);
@@ -210,16 +208,16 @@ void PhysicsSystem::doPlayerInput(float elapsed_ms) {
 
 		int hdir = input.key[KEY::RIGHT] - input.key[KEY::LEFT];
 		
-		if (player.state == PLAYER_STATE::MOVE) {
+		if (mob.state == MOB_STATE::MOVE) {
 			physics.targetVelocity.x = hdir * mob.moveSpeed;
-			doPlayerJump(playerEntity);
+			doJumps(playerEntity);
 		}
 
 		if (hdir) {
 			playerMotion.scale.x = hdir * abs(playerMotion.scale.x);
 		}
 
-		doPlayerDash(playerEntity, elapsed_ms);
+		doDashes(playerEntity, elapsed_ms);
 	}
 }
 
@@ -238,7 +236,7 @@ void PhysicsSystem::doGravity(float elapsed_ms) {
 		Physics& physics = physics_registry.get(entity);
 
 		// player check
-		if (registry.players.has(entity) && registry.players.get(entity).state != PLAYER_STATE::MOVE) {
+		if (registry.mobs.has(entity) && registry.mobs.get(entity).state != MOB_STATE::MOVE) {
 			continue;
 		}
 
@@ -277,8 +275,8 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 		physComp.inAir = true;
 		physComp.onWall = false;
 		
-		if (registry.players.has(entity))
-			registry.players.get(entity).checkedFrame = false;
+		if (registry.mobs.has(entity))
+			registry.mobs.get(entity).checkedFrame = false;
 
 		if (!registry.solids.has(entity) && registry.colliders.has(entity)) {
 			for (uint j = 0; j < collider_registry.size(); j++) {
@@ -293,24 +291,24 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 					// IN AIR CHECKS
 					if (collides_at(entity, otherEntity, { 0., 2. }) && vsp >= 0) {
 						physComp.inAir = false;
-						if (registry.players.has(entity)) {
+						if (registry.mobs.has(entity)) {
 							// on ground: jump reset
-							Player& p = registry.players.get(entity);
-							p.airJumps = 0;
-							p.wallJumps = 0;
-							p.coyoteMS = 0;
+							Mob& m = registry.mobs.get(entity);
+							m.airJumps = 0;
+							m.wallJumps = 0;
+							m.coyoteMS = 0;
 						}
 					}
-					else if (registry.players.has(entity)) {
-						Player& p = registry.players.get(entity);
-						if (p.coyoteMS < p.maxCoyoteMS && !p.checkedFrame) {
-							p.coyoteMS += elapsed_ms;
-							p.checkedFrame = true;
+					else if (registry.mobs.has(entity)) {
+						Mob& m = registry.mobs.get(entity);
+						if (m.coyoteMS < m.maxCoyoteMS && !m.checkedFrame) {
+							m.coyoteMS += elapsed_ms;
+							m.checkedFrame = true;
 						}
 					}
 					// ON WALL CHECKS
 					if (registry.players.has(entity)) {
-						Player& p = registry.players.get(entity);
+						// Player& p = registry.players.get(entity);
 						Input& input = registry.inputs.get(entity);
 
 						if ((

@@ -23,29 +23,24 @@ struct GameManager {
 	vec2 bounds; // dynamically set
 };
 
-enum class PLAYER_STATE {
+enum class MOB_STATE {
 	MOVE,
 	ATTACK,
-	DASH
+	DASH,
+	KNOCKBACK,
+	IV
 };
 
 // Player component
 struct Player
 {
 	// put enhancements in player component? or in game manager?
-	PLAYER_STATE state = PLAYER_STATE::MOVE;
-	uint coyoteMS = 0;
-	uint maxCoyoteMS = 60;
-	uint airJumps = 0;
-	uint maxAirJumps = 0;
-	uint wallJumps = 0;
-	uint maxWallJumps = 3;
-	bool checkedFrame = false;
 };
 
 #define MID_AIR_DASH 0b00000001
 #define CHAIN_DASH 0b00000010
 #define PARRY_DASH 0b00000100
+#define SLASH_DASH 0b00001000
 
 struct DashKit
 {
@@ -56,6 +51,16 @@ struct DashKit
 };
 
 struct Mob {
+	// put enhancements in player component? or in game manager?
+	MOB_STATE state = MOB_STATE::MOVE;
+	uint coyoteMS = 0;
+	uint maxCoyoteMS = 60;
+	uint airJumps = 0;
+	uint maxAirJumps = 0;
+	uint wallJumps = 0;
+	uint maxWallJumps = 3;
+	bool checkedFrame = false;
+
 	float moveSpeed;
 	float jumpSpeed;
 	float knockbackSpeed;
@@ -209,6 +214,15 @@ struct Collision
 	// Note, the first object is stored in the ECS container.entities
 	Entity other; // the second object involved in the collision
 	Collision(Entity& other) { this->other = other; };
+};
+
+// COMBAT RELATED ENTITIES
+struct Enemy {
+
+};
+
+struct DamageCollider {
+
 };
 
 // INTERACTABLES
