@@ -28,7 +28,8 @@ enum class MOB_STATE {
 	ATTACK,
 	DASH,
 	KNOCKBACK,
-	IV
+	FLEE,
+	INVINCIBLE
 };
 
 // Player component
@@ -37,15 +38,16 @@ struct Player
 	// put enhancements in player component? or in game manager?
 };
 
-#define MID_AIR_DASH 0b00000001
-#define CHAIN_DASH 0b00000010
-#define PARRY_DASH 0b00000100
-#define SLASH_DASH 0b00001000
+#define MID_AIR_DASH  0b00000001
+#define CHAIN_DASH    0b00000010
+#define PARRY_DASH    0b00000100
+#define SLASH_DASH    0b00001000
+#define INVINCIBLE    0b00010000
 
 struct DashKit
 {
 	int enabled_dashes = 0b00000000;
-	float dashSpeed = 2500.f;
+	float dashSpeed = 3000.f;
 	float cd, cdTime = 600.f;
 	float ctMax = 350.f, ctMin = 250.f;
 };
