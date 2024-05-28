@@ -92,7 +92,7 @@ Entity createPlayer(vec2 pos)
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
 	motion.angle = 0.f;
-	motion.scale = { 32., 32. };
+	motion.scale = { PLAYER_DIMS, PLAYER_DIMS };
 
 	registry.renderRequests.insert(
 		entity,
@@ -100,6 +100,45 @@ Entity createPlayer(vec2 pos)
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE });
 
+	return entity;
+}
+
+Entity createEnemy(vec2 pos) {
+	auto entity = Entity();
+
+	registry.inputs.emplace(entity);
+
+	DashKit& d = registry.dashKits.emplace(entity);
+
+	registry.physEntities.emplace(entity);
+
+	Health& h = registry.healths.emplace(entity);
+	// h.hp = 5;
+
+	registry.gravEntities.emplace(entity);
+
+	Collider& collider = registry.colliders.emplace(entity);
+	collider.spr_scale = { 0.375f, 0.875f };
+	collider.offset = { 0.f, 2.f };
+
+	Mob& mob = registry.mobs.emplace(entity);
+	mob.moveSpeed = 150.f;
+	mob.jumpSpeed = 600.f;
+	mob.knockbackSpeed = 300.f;
+
+	// Setting initial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.scale = { PLAYER_DIMS, PLAYER_DIMS };
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::GB_ENEMY, // TEXTURE_COUNT indicates that no txture is needed
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
+
+	registry.levelElements.emplace(entity);
 	return entity;
 }
 

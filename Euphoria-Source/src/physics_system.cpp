@@ -103,7 +103,7 @@ void PhysicsSystem::step(float elapsed_ms)
 }
 
 void doDashes(Entity& p, float elapsed_ms) {
-	Motion& playerMotion = registry.motions.get(p);
+	// Motion& mobMotion = registry.motions.get(p);
 	Physics& physics = registry.physEntities.get(p);
 	Mob& mob = registry.mobs.get(p);
 
@@ -155,7 +155,7 @@ void doDashes(Entity& p, float elapsed_ms) {
 }
 
 void doJumps(Entity& p) {
-	Motion& playerMotion = registry.motions.get(p);
+	Motion& mobMotion = registry.motions.get(p);
 	Physics& physics = registry.physEntities.get(p);
 	Mob& mob = registry.mobs.get(p);
 
@@ -165,7 +165,7 @@ void doJumps(Entity& p) {
 
 	if (input.key_press[KEY::JUMP]) {
 		if (physics.onWall && mob.wallJumps < mob.maxWallJumps) {
-			int facing = (playerMotion.scale.x > 0) - (playerMotion.scale.x < 0);
+			int facing = (mobMotion.scale.x > 0) - (mobMotion.scale.x < 0);
 
 			physics.targetVelocity.x = -facing * mob.jumpSpeed;
 			physics.velocity.x = physics.targetVelocity.x;
@@ -198,26 +198,26 @@ void PhysicsSystem::doMobInput(float elapsed_ms) {
 	// iterate through players
 	auto& mob_registry = registry.mobs;
 	for (uint i = 0; i < mob_registry.size(); i++) {
-		Entity playerEntity = mob_registry.entities[i];
+		Entity entity = mob_registry.entities[i];
 
-		Motion& playerMotion = registry.motions.get(playerEntity);
-		Physics& physics = registry.physEntities.get(playerEntity);
-		Mob& mob = registry.mobs.get(playerEntity);
+		Motion& mobMotion = registry.motions.get(entity);
+		Physics& physics = registry.physEntities.get(entity);
+		Mob& mob = registry.mobs.get(entity);
 
-		Input& input = registry.inputs.get(playerEntity);
+		Input& input = registry.inputs.get(entity);
 
 		int hdir = input.key[KEY::RIGHT] - input.key[KEY::LEFT];
 		
 		if (mob.state == MOB_STATE::MOVE) {
 			physics.targetVelocity.x = hdir * mob.moveSpeed;
-			doJumps(playerEntity);
+			doJumps(entity);
 		}
 
 		if (hdir) {
-			playerMotion.scale.x = hdir * abs(playerMotion.scale.x);
+			mobMotion.scale.x = hdir * abs(mobMotion.scale.x);
 		}
 
-		doDashes(playerEntity, elapsed_ms);
+		doDashes(entity, elapsed_ms);
 	}
 }
 

@@ -5,14 +5,14 @@
 #include "render_system.hpp"
 
 // These are ahrd coded to the dimensions of the entity texture
-const float BUG_BB_WIDTH = 300.f;
-const float BUG_BB_HEIGHT = 300.f;
-const float EAGLE_BB_WIDTH = 32.f;
-const float EAGLE_BB_HEIGHT = 32.f;
+const float PLAYER_DIMS = 32.f;
 
 Entity createGameManager();
 // the player
 Entity createPlayer(vec2 pos);
+
+// enemy
+Entity createEnemy(vec2 pos);
 
 Entity setAnimation(Entity e, TEXTURE_ASSET_ID sheet, uint numFrames, float frameRate);
 void clearAnimation(Entity e);

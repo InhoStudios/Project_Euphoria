@@ -4,6 +4,8 @@
 enum class Tiles {
     SOLID = 0,
     INTERACTABLE = 1,
+
+    ENEMY = 72,
 };
 
 void loadLevel(LEVEL l) {
@@ -16,6 +18,7 @@ void loadLevel(LEVEL l) {
 
     // temp: load geometry file
     loadGeometryFile(level_path(level.directory + "/geometry.png"));
+    loadEntityFile(level_path(level.directory + "/entities.png"));
     // load connects
     for (TransitionData& connect : level.connects) {
         createTransition(connect);
@@ -45,6 +48,9 @@ void loadGeometryFile(std::string file_path) {
         for (int xx = 0; xx < im_width; xx++) {
             Tiles tile = (Tiles) imageData[num_channels * (yy * im_width + xx)];
             uint8_t opacity = imageData[num_channels * (yy * im_width + xx) + 1];
+
+            if (opacity == 0) continue;
+
             int xTo = xx * TILE_SIZE, yTo = yy * TILE_SIZE;
 
             // create different tiles
@@ -66,6 +72,28 @@ void loadGeometryFile(std::string file_path) {
 
     // camera bounds
     registry.gameManagers.components[0].bounds = { TILE_SIZE * im_width, TILE_SIZE * im_height };
+
+    stbi_image_free(imageData);
+}
+
+void loadEntityFile(std::string file_path) {
+    int im_width, im_height, num_channels;
+    uint8_t* imageData = stbi_load(file_path.c_str(), &im_width, &im_height, &num_channels, 0);
+
+    for (int yy = 0; yy < im_height; yy++) {
+        for (int xx = 0; xx < im_width; xx++) {
+            Tiles tile = (Tiles)imageData[num_channels * (yy * im_width + xx)];
+            uint8_t opacity = imageData[num_channels * (yy * im_width + xx) + 1];
+            int xTo = xx * TILE_SIZE, yTo = yy * TILE_SIZE;
+
+            // create different tiles
+            switch (tile) {
+            case Tiles::ENEMY:
+                createEnemy({ xTo, yTo });
+                break;
+            }
+        }
+    }
 
     stbi_image_free(imageData);
 }

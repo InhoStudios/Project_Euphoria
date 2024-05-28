@@ -156,7 +156,7 @@ const std::map<KEY, int> ARROW_MAPPING = {
 
 struct Input {
 	// map of KEY to GLFW keys
-	std::map<KEY, int> key_mapping = ARROW_MAPPING;
+	std::map<KEY, int> key_mapping = WASD_MAPPING;
 	std::map<KEY, bool> key = {
 		{KEY::RIGHT, false},
 		{KEY::LEFT, false},
@@ -367,6 +367,7 @@ enum class TEXTURE_ASSET_ID {
 	NO_SPRITE,
 	SOLID,
 	PLAYER,
+	GB_ENEMY,
 	TEXTURE_COUNT,
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;

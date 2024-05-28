@@ -10,6 +10,8 @@ void transitionTo(Transition to);
 
 void loadGeometryFile(std::string file_path);
 
+void loadEntityFile(std::string file_path);
+
 class LevelRegistry
 {
 public:

@@ -11,6 +11,7 @@
 #include "world_system.hpp"
 #include "animation_system.hpp"
 #include "interactable_system.hpp"
+#include "ai_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -22,6 +23,7 @@ int main()
 	RenderSystem renderer;
 	PhysicsSystem physics;
 	AnimationSystem animations;
+	AISystem ai;
 	InteractableSystem interactables;
 
 	// Initializing window
@@ -52,6 +54,9 @@ int main()
 		float clamped_ms = min(elapsed_ms, 16.6666667f);
 
 		world.step(clamped_ms);
+
+		ai.step(clamped_ms);
+
 		physics.step(clamped_ms);
 
 		interactables.step();
