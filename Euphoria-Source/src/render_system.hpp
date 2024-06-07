@@ -50,6 +50,7 @@ class RenderSystem {
 	const std::array<std::string, texture_count> texture_paths = {
 			textures_path("spr_default_item.png"),
 			textures_path("spr_no_sprite.png"),
+			textures_path("spr_hitbox.png"),
 			textures_path("spr_solid.png"),
 			textures_path("spr_player.png"),
 			textures_path("spr_enemy.png"),

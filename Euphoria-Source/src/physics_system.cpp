@@ -59,6 +59,27 @@ bool collides_at(Entity entity, Entity collidesWith, vec2 offsetPos) {
 		);
 }
 
+void PhysicsSystem::checkCollisions() {
+	ComponentContainer<Collider>& colliders = registry.colliders;
+	for (uint i = 0; i < colliders.components.size(); i++)
+	{
+		Entity entity_i = colliders.entities[i];
+
+		// note starting j at i+1 to compare all (i,j) pairs only once (and to not compare with itself)
+		for (uint j = i + 1; j < colliders.components.size(); j++)
+		{
+			Entity entity_j = colliders.entities[j];
+			if (collides_at(entity_i, entity_j))
+			{
+				// Create a collisions event
+				// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
+				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
+				registry.collisions.emplace_with_duplicates(entity_j, entity_i);
+			}
+		}
+	}
+}
+
 void PhysicsSystem::step(float elapsed_ms)
 {
 	// Move bug based on how much time has passed, this is to (partially) avoid
@@ -67,39 +88,6 @@ void PhysicsSystem::step(float elapsed_ms)
 	doGravity(elapsed_ms);
 	doPhysicsCollisions(elapsed_ms);
 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: HANDLE EGG UPDATES HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-	// Check for collisions between all moving entities
-	/*
-    ComponentContainer<Motion> &motion_container = registry.motions;
-	for(uint i = 0; i<motion_container.components.size(); i++)
-	{
-		Motion& motion_i = motion_container.components[i];
-		Entity entity_i = motion_container.entities[i];
-		
-		// note starting j at i+1 to compare all (i,j) pairs only once (and to not compare with itself)
-		for(uint j = i+1; j<motion_container.components.size(); j++)
-		{
-			Motion& motion_j = motion_container.components[j];
-			if (collides(motion_i, motion_j))
-			{
-				Entity entity_j = motion_container.entities[j];
-				// Create a collisions event
-				// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
-				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
-				registry.collisions.emplace_with_duplicates(entity_j, entity_i);
-			}
-		}
-	}
-	*/
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: HANDLE EGG collisions HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
 void doDashes(Entity& p, float elapsed_ms) {

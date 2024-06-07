@@ -20,7 +20,7 @@ struct GameManager {
 	GAME_STATE current_state;
 	LEVEL current_level;
 
-	vec2 bounds; // dynamically set
+	vec2 bounds; // dynamically set 
 };
 
 enum class MOB_STATE {
@@ -224,7 +224,8 @@ struct Enemy {
 };
 
 struct DamageCollider {
-
+	Entity source;
+	int ttl;
 };
 
 // INTERACTABLES
@@ -365,10 +366,11 @@ struct Mesh
 enum class TEXTURE_ASSET_ID {
 	DEFAULT = 0,
 	NO_SPRITE,
+	HITBOX,
 	SOLID,
 	PLAYER,
 	GB_ENEMY,
-	TEXTURE_COUNT,
+	TEXTURE_COUNT
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
