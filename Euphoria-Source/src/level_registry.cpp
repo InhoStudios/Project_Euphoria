@@ -110,24 +110,24 @@ void loadGeometryFile(std::string file_path) {
                     // selection logic: edges
                     if (u != Tiles::SOLID || o_u == 0) {
                         if (r != Tiles::SOLID || o_r == 0) {
-                            if (dl != Tiles::SOLID || o_dl == 0) {
-                                t_index = 39;
-                            } else if (l != Tiles::SOLID || o_l == 0) {
-                                t_index = 36;
-                            } else if (d != Tiles::SOLID || o_d == 0) {
+                            if (d != Tiles::SOLID || o_d == 0) {
                                 if (l != Tiles::SOLID || o_l == 0) {
                                     t_index = 19;
                                 } else {
                                     t_index = 22;
                                 }
+                            } else if (l != Tiles::SOLID || o_l == 0) {
+                                t_index = 36;
+                            } else if (dl != Tiles::SOLID || o_dl == 0) {
+                                t_index = 39;
                             } else {
                                 t_index = 2;
                             }
                         } else if (l != Tiles::SOLID || o_l == 0) {
-                            if (dr != Tiles::SOLID || o_dr == 0) {
-                                t_index = 40;
-                            } else if (d != Tiles::SOLID || o_d == 0) {
+                            if (d != Tiles::SOLID || o_d == 0) {
                                 t_index = 20;
+                            } else if (dr != Tiles::SOLID || o_dr == 0) {
+                                t_index = 40;
                             } else {
                                 t_index = 0;
                             }
