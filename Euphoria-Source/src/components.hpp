@@ -223,6 +223,27 @@ struct Enemy {
 
 };
 
+enum class ATK_DIRL {
+	TWO_WAY = 2,
+	FOUR_WAY = 4,
+	EIGHT_WAY = 8
+};
+
+enum class WEAPON_ID {
+	CROWBAR = 0,
+	SHOTGUN,
+	BASEBALL_BAT,
+	BRASS_KNUCKLES
+};
+
+struct Weapon {
+	int basic_jolt, special_jolt;
+	int basic_kb, special_kb;
+	int basic_dmg, special_dmg;
+	int basic_range, special_range;
+	ATK_DIRL basic_dirl, special_dirl;
+};
+
 struct DamageCollider {
 	Entity source;
 	int ttl;
