@@ -7,9 +7,9 @@
 
 enum class GAME_STATE {
 	MENU = 0,
-	PLAY = MENU + 1,
-	PAUSE = PLAY + 1,
-
+	PLAY,
+	PAUSE,
+	FRAME_FREEZE,
 	//
 };
 

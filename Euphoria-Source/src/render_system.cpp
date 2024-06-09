@@ -225,7 +225,7 @@ void RenderSystem::draw(float elapsed_ms)
 	// Clearing backbuffer
 	glViewport(0, 0, w, h);
 	glDepthRange(0.00001, 10);
-	glClearColor(0.674, 0.847, 1.0 , 1.0);
+	glClearColor(0.8, 0.8, 0.8 , 1.0);
 	glClearDepth(10.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_BLEND);
@@ -333,7 +333,7 @@ mat3 RenderSystem::createProjectionMatrix()
 
 	camera.targetPosition[0] = fmin(camera.targetPosition[0], gm.bounds[0] - halfWidth - 8);
 	camera.targetPosition[0] = fmax(camera.targetPosition[0], halfWidth - 8);
-	camera.targetPosition[1] = fmin(camera.targetPosition[1], gm.bounds[1] - halfHeight - 8);
+	camera.targetPosition[1] = fmin(camera.targetPosition[1], gm.bounds[1] - halfHeight - 16);
 	camera.targetPosition[1] = fmax(camera.targetPosition[1], halfHeight - 8);
 
 	camera.position += camera.interpSpeed * (camera.targetPosition - camera.position);
