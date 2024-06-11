@@ -55,13 +55,15 @@ int main()
 
 		float clamped_ms = min(elapsed_ms, 16.6666667f);
 
-		world.step(clamped_ms);
+		physics.checkCollisions();
 
 		ai.step(clamped_ms);
 
+		world.step(clamped_ms);
+
 		physics.step(clamped_ms);
 
-		combat.step();
+		combat.step(clamped_ms);
 
 		interactables.step();
 

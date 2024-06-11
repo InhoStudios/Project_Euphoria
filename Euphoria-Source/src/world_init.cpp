@@ -85,7 +85,8 @@ Entity createPlayer(vec2 pos)
 	collider.offset = { 0.f, 2.f };
 
 	Mob& mob = registry.mobs.emplace(entity);
-	mob.moveSpeed = 350.f;
+	mob.equipped_atk = WEAPON_ID::NO_WEAPON;
+	mob.moveSpeed = 250.f;
 	mob.jumpSpeed = 600.f;
 	mob.knockbackSpeed = 300.f;
 
@@ -123,7 +124,8 @@ Entity createEnemy(vec2 pos) {
 	collider.offset = { 0.f, 2.f };
 
 	Mob& mob = registry.mobs.emplace(entity);
-	mob.moveSpeed = 150.f;
+	mob.equipped_atk = WEAPON_ID::NO_WEAPON;
+	mob.moveSpeed = 75.f;
 	mob.jumpSpeed = 600.f;
 	mob.knockbackSpeed = 300.f;
 

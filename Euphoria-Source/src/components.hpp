@@ -15,6 +15,7 @@ enum class GAME_STATE {
 
 enum class LEVEL;
 enum class TEXTURE_ASSET_ID;
+enum class WEAPON_ID;
 
 struct GameManager {
 	GAME_STATE current_state;
@@ -67,6 +68,8 @@ struct Mob {
 	float jumpSpeed;
 	float knockbackSpeed;
 	int numJumps;
+
+	WEAPON_ID equipped_atk;
 }; 
 
 struct Health {
@@ -230,7 +233,8 @@ enum class ATK_DIRL {
 };
 
 enum class WEAPON_ID {
-	CROWBAR = 0,
+	NO_WEAPON = 0,
+	CROWBAR,
 	SHOTGUN,
 	BASEBALL_BAT,
 	BRASS_KNUCKLES
@@ -246,6 +250,8 @@ struct Weapon {
 
 struct DamageCollider {
 	Entity source;
+	vec2 knockback;
+	int dmg;
 	int ttl;
 };
 

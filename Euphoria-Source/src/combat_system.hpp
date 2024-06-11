@@ -11,7 +11,7 @@ class CombatSystem
 public:
 	CombatSystem() { }
 
-	void step();
+	void step(float elapsed_ms);
 private:
 
 };
@@ -21,21 +21,32 @@ class WeaponRegistry
 public:
 	std::vector<Weapon*> weapons;
 
-	Weapon crowbar, shotgun, baseball_bat, brass_knuckles;
+	Weapon none, crowbar, shotgun, baseball_bat, brass_knuckles;
 
 	WeaponRegistry() {
-
 		weapons = {
-
+			&none,
+			&crowbar
 		};
+
+		initWeapons();
 	}
 private:
+
 	void initWeapons() {
-		crowbar = {
-			5, 15,
-			50, 50,
+		none = {
+			75, 100,
+			1, 1,
 			1, 2,
-			8, 16,
+			24, 16,
+			ATK_DIRL::TWO_WAY, ATK_DIRL::TWO_WAY
+		};
+
+		crowbar = {
+			75, 100,
+			1, 1,
+			1, 2,
+			24, 16,
 			ATK_DIRL::TWO_WAY, ATK_DIRL::TWO_WAY
 		};
 	}

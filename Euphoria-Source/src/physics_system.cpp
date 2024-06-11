@@ -224,7 +224,8 @@ void PhysicsSystem::doGravity(float elapsed_ms) {
 		Physics& physics = physics_registry.get(entity);
 
 		// player check
-		if (registry.mobs.has(entity) && registry.mobs.get(entity).state != MOB_STATE::MOVE) {
+		if (registry.mobs.has(entity) && registry.mobs.get(entity).state != MOB_STATE::MOVE
+			&& registry.mobs.get(entity).state != MOB_STATE::KNOCKBACK) {
 			continue;
 		}
 
