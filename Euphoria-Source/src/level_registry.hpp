@@ -73,7 +73,7 @@ private:
                 { 624, 280 },
                 { 16, 96 },
                 false,
-                TEXTURE_ASSET_ID::NO_SPRITE
+                TEXTURE_ASSET_ID::DEFAULT
             )
         );
         tut_int_1.connects.push_back(
@@ -83,7 +83,7 @@ private:
                 { 624, 184 },
                 { 16, 96 },
                 false,
-                TEXTURE_ASSET_ID::NO_SPRITE
+                TEXTURE_ASSET_ID::DEFAULT
             )
         );
         tut_int_1.connects.push_back(
@@ -93,7 +93,7 @@ private:
                 { 624, 88 },
                 { 16, 96 },
                 false,
-                TEXTURE_ASSET_ID::NO_SPRITE
+                TEXTURE_ASSET_ID::DEFAULT
             )
         );
 
@@ -106,7 +106,7 @@ private:
                 { 0, 280 },
                 { 16, 96 },
                 false,
-                TEXTURE_ASSET_ID::NO_SPRITE
+                TEXTURE_ASSET_ID::DEFAULT
             )
         );
         tut_int_2.connects.push_back(
@@ -116,7 +116,7 @@ private:
                 { 0, 184 },
                 { 16, 96 },
                 false,
-                TEXTURE_ASSET_ID::NO_SPRITE
+                TEXTURE_ASSET_ID::DEFAULT
             )
         );
         tut_int_2.connects.push_back(
@@ -126,7 +126,7 @@ private:
                 { 0, 88 },
                 { 16, 96 },
                 false,
-                TEXTURE_ASSET_ID::NO_SPRITE
+                TEXTURE_ASSET_ID::DEFAULT
             )
         );
         tut_int_2.connects.push_back(
@@ -136,7 +136,7 @@ private:
                 { 1264, 232 },
                 { 16, 96 },
                 false,
-                TEXTURE_ASSET_ID::NO_SPRITE
+                TEXTURE_ASSET_ID::DEFAULT
             )
         );
 
@@ -149,7 +149,7 @@ private:
                 { 0, 256 },
                 { 16, 48 },
                 false,
-                TEXTURE_ASSET_ID::NO_SPRITE
+                TEXTURE_ASSET_ID::DEFAULT
             )
         );
         tut_int_3.connects.push_back(
@@ -159,7 +159,7 @@ private:
                 { 0, 640 },
                 { 16, 48 },
                 false,
-                TEXTURE_ASSET_ID::NO_SPRITE
+                TEXTURE_ASSET_ID::DEFAULT
             )
         );
 
@@ -172,7 +172,7 @@ private:
                 { 0, 264 },
                 { 16, 64 },
                 false,
-                TEXTURE_ASSET_ID::NO_SPRITE
+                TEXTURE_ASSET_ID::DEFAULT
             )
         );
 
@@ -185,7 +185,7 @@ private:
                 { 0, 232 },
                 { 16, 96 },
                 false,
-                TEXTURE_ASSET_ID::NO_SPRITE
+                TEXTURE_ASSET_ID::DEFAULT
             )
         );
         tut_ext_1.connects.push_back(
@@ -195,7 +195,7 @@ private:
                 { 624, 256 },
                 { 16, 48 },
                 false,
-                TEXTURE_ASSET_ID::NO_SPRITE
+                TEXTURE_ASSET_ID::DEFAULT
             )
         );
 
@@ -208,7 +208,7 @@ private:
                 { 624, 256 },
                 { 16, 48 },
                 false,
-                TEXTURE_ASSET_ID::NO_SPRITE
+                TEXTURE_ASSET_ID::DEFAULT
             )
         );
         tut_ext_2.connects.push_back(
@@ -218,7 +218,7 @@ private:
                 { 624, 408 },
                 { 16, 64 },
                 false,
-                TEXTURE_ASSET_ID::NO_SPRITE
+                TEXTURE_ASSET_ID::DEFAULT
             )
         );
     }

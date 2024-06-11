@@ -9,6 +9,9 @@ void AISystem::step(float elapsed_ms)
 	for (uint i = 0; i < mob_registry.size(); i++) {
 		Entity& e = mob_registry.entities[i];
 		Mob& mob = mob_registry.components[i];
+
+		if (mob.state != MOB_STATE::MOVE) continue;
+
 		Motion& mm = registry.motions.get(e);
 		Physics& mp = registry.physEntities.get(e);
 		Input& mi = registry.inputs.get(e);

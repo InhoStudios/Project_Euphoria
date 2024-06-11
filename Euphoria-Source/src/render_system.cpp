@@ -7,11 +7,12 @@
 
 #include "tiny_ecs_registry.hpp"
 
-void RenderSystem::drawTexturedMesh(Entity entity,
+void RenderSystem::drawTexturedMesh(Entity entity, 
+									Motion& motion, 
+									RenderRequest& render_request,
 									const mat3 &projection)
 {
 	glBindVertexArray(vao);
-	Motion &motion = registry.motions.get(entity);
 	// Transformation code, see Rendering and Transformation in the template
 	// specification for more info Incrementally updates transformation matrix,
 	// thus ORDER IS IMPORTANT
@@ -21,9 +22,6 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	transform.scale(motion.scale);
 	// !!! TODO A1: add rotation to the chain of transformations, mind the order
 	// of transformations
-
-	assert(registry.renderRequests.has(entity));
-	const RenderRequest &render_request = registry.renderRequests.get(entity);
 
 	const GLuint used_effect_enum = (GLuint)render_request.used_effect;
 	assert(used_effect_enum != (GLuint)EFFECT_ASSET_ID::EFFECT_COUNT);
@@ -39,7 +37,8 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	// const GLuint ibo = index_buffers[(GLuint)render_request.used_geometry];
 
 	// check animation
-	if (registry.animations.has(entity)) {
+	bool isAnimation = false;
+	if (isAnimation = registry.animations.has(entity)) {
 		Animation& anim = registry.animations.get(entity);
 
 		vbo = anim.vertex_buffers[anim.index];
@@ -77,16 +76,16 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		glActiveTexture(GL_TEXTURE0);
 		gl_has_errors();
 
-		assert(registry.renderRequests.has(entity));
+		// assert(registry.renderRequests.has(entity));
 
 		GLuint texture_id;
 
-		if (registry.animations.has(entity)) {
+		if (isAnimation) {
 			texture_id = 
 				texture_gl_handles[(GLuint)registry.animations.get(entity).sheet];
 		} else {
 			texture_id =
-				texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
+				texture_gl_handles[(GLuint)render_request.used_texture];
 		}
 
 		glBindTexture(GL_TEXTURE_2D, texture_id);
@@ -236,13 +235,26 @@ void RenderSystem::draw(float elapsed_ms)
 	gl_has_errors();
 	mat3 projection_2D = createProjectionMatrix();
 	// Draw all textured meshes that have a position and size component
-	for (Entity entity : registry.renderRequests.entities)
+	for (uint i = 0; i < registry.renderRequests.size(); ++i)
 	{
+		Entity entity = registry.renderRequests.entities[i];
+		RenderRequest& rr = registry.renderRequests.components[i];
+
 		if (!registry.motions.has(entity))
 			continue;
+
+		Motion& motion = registry.motions.get(entity);
+
+		// check if motion in window
+		Camera& cam = registry.cameras.components[0];
+		if (motion.position.x > cam.position.x + (cam.dims.x / 2 + abs(motion.scale.x) / 2) ||
+			motion.position.x < cam.position.x - (cam.dims.x / 2 + abs(motion.scale.x) / 2) ||
+			motion.position.y > cam.position.y + (cam.dims.y / 2 + abs(motion.scale.y) / 2) ||
+			motion.position.y < cam.position.y - (cam.dims.y / 2 + abs(motion.scale.y) / 2)) continue;
+
 		// Note, its not very efficient to access elements indirectly via the entity
 		// albeit iterating through all Sprites in sequence. A good point to optimize
-		drawTexturedMesh(entity, projection_2D);
+		drawTexturedMesh(entity, motion, rr, projection_2D);
 	}
 	// Truely render to the screen
 	drawToScreen(); 

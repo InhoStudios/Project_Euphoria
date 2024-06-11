@@ -70,7 +70,51 @@ void CombatSystem::step(float elapsed_ms) {
 			// take damage
 			Health& health = registry.healths.get(eThis);
 			Mob& mob = registry.mobs.get(eThis);
+			Input& i = registry.inputs.get(eThis);
 			Physics& phys = registry.physEntities.get(eThis);
+
+			i.key = {
+				{KEY::RIGHT, false},
+				{KEY::LEFT, false},
+				{KEY::UP, false},
+				{KEY::DOWN, false},
+
+				{KEY::JUMP, false},
+
+				{KEY::BASIC, false},
+				{KEY::SPECIAL, false},
+				{KEY::GRAB, false},
+				{KEY::ENHANCE, false},
+				{KEY::DASH, false},
+			};
+			i.key_press = {
+				{KEY::RIGHT, false},
+				{KEY::LEFT, false},
+				{KEY::UP, false},
+				{KEY::DOWN, false},
+
+				{KEY::JUMP, false},
+
+				{KEY::BASIC, false},
+				{KEY::SPECIAL, false},
+				{KEY::GRAB, false},
+				{KEY::ENHANCE, false},
+				{KEY::DASH, false},
+			};
+			i.key_release = {
+				{KEY::RIGHT, false},
+				{KEY::LEFT, false},
+				{KEY::UP, false},
+				{KEY::DOWN, false},
+
+				{KEY::JUMP, false},
+
+				{KEY::BASIC, false},
+				{KEY::SPECIAL, false},
+				{KEY::GRAB, false},
+				{KEY::ENHANCE, false},
+				{KEY::DASH, false},
+			};
 
 			health.hp -= dc.dmg;
 			phys.velocity = mob.knockbackSpeed * dc.knockback;

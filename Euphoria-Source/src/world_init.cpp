@@ -115,7 +115,7 @@ Entity createEnemy(vec2 pos) {
 	registry.physEntities.emplace(entity);
 
 	Health& h = registry.healths.emplace(entity);
-	// h.hp = 5;
+	h.hp = 5;
 
 	registry.gravEntities.emplace(entity);
 

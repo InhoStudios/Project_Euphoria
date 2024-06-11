@@ -272,7 +272,16 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 				Entity otherEntity = collider_registry.entities[j];
 				Motion otherMotion = motion_registry.get(otherEntity);
 
-				if (otherEntity == entity) continue;
+				/*
+				otherMotion.position[1] >= motion.position[1] + 32 ||
+				otherMotion.position[1] <= motion.position[1] - 32 ||
+				otherMotion.position[0] >= motion.position[0] + 32 ||
+				otherMotion.position[0] <= motion.position[0] - 32 ||
+				*/
+
+				if (otherEntity == entity) {
+					continue;
+				}
 
 				if (registry.solids.has(otherEntity)) {
 					Solid& solid = registry.solids.get(otherEntity);
@@ -286,6 +295,10 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 							m.airJumps = 0;
 							m.wallJumps = 0;
 							m.coyoteMS = 0;
+							if (m.state == MOB_STATE::KNOCKBACK) {
+								m.state = MOB_STATE::MOVE;
+								physComp.targetVelocity = { 0., 0. };
+							}
 						}
 					}
 					else if (registry.mobs.has(entity)) {

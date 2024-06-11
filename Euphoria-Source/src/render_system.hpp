@@ -103,7 +103,8 @@ public:
 
 private:
 	// Internal drawing functions for each entity type
-	void drawTexturedMesh(Entity entity, const mat3& projection);
+	// void drawTexturedMesh(Entity entity, const mat3& projection);
+	void drawTexturedMesh(Entity entity, Motion& motion, RenderRequest& render_request, const mat3& projection);
 	void drawToScreen();
 
 	void drawDebug(float elapsed_ms);
