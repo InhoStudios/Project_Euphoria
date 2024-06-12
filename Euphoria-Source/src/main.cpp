@@ -11,6 +11,8 @@
 #include "world_system.hpp"
 #include "animation_system.hpp"
 #include "interactable_system.hpp"
+#include "ai_system.hpp"
+#include "combat_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -22,7 +24,9 @@ int main()
 	RenderSystem renderer;
 	PhysicsSystem physics;
 	AnimationSystem animations;
+	AISystem ai;
 	InteractableSystem interactables;
+	CombatSystem combat;
 
 	// Initializing window
 	GLFWwindow* window = world.create_window();
@@ -51,8 +55,15 @@ int main()
 
 		float clamped_ms = min(elapsed_ms, 16.6666667f);
 
+		physics.checkCollisions();
+
+		ai.step(clamped_ms);
+
 		world.step(clamped_ms);
+
 		physics.step(clamped_ms);
+
+		combat.step(clamped_ms);
 
 		interactables.step();
 

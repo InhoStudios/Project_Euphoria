@@ -1,13 +1,14 @@
 #include "world_init.hpp"
 #include "tiny_ecs_registry.hpp"
 
-Entity setAnimation(Entity e, TEXTURE_ASSET_ID sheet, uint numFrames, float frameRate) {
+Entity setAnimation(Entity e, TEXTURE_ASSET_ID sheet, uint numFrames, uint index, float frameRate) {
 	// generate animation
 	if (registry.animations.has(e)) registry.animations.remove(e);
 
 	Animation& animation = registry.animations.emplace(e);
 	animation.sheet = sheet;
 	animation.numFrames = numFrames;
+	animation.index = index;
 	animation.frameRate = frameRate;
 
 	animation.vertex_buffers = std::vector<GLuint>(numFrames);
@@ -84,15 +85,16 @@ Entity createPlayer(vec2 pos)
 	collider.offset = { 0.f, 2.f };
 
 	Mob& mob = registry.mobs.emplace(entity);
-	mob.moveSpeed = 350.f;
-	mob.jumpSpeed = 600.f;
+	mob.equipped_atk = WEAPON_ID::NO_WEAPON;
+	mob.moveSpeed = 270.f;
+	mob.jumpSpeed = 480.f;
 	mob.knockbackSpeed = 300.f;
 
 	// Setting initial motion values
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
 	motion.angle = 0.f;
-	motion.scale = { 32., 32. };
+	motion.scale = { PLAYER_DIMS, PLAYER_DIMS };
 
 	registry.renderRequests.insert(
 		entity,
@@ -103,7 +105,47 @@ Entity createPlayer(vec2 pos)
 	return entity;
 }
 
-Entity createSolid(vec2 pos, vec2 scale) {
+Entity createEnemy(vec2 pos) {
+	auto entity = Entity();
+
+	registry.inputs.emplace(entity);
+
+	DashKit& d = registry.dashKits.emplace(entity);
+
+	registry.physEntities.emplace(entity);
+
+	Health& h = registry.healths.emplace(entity);
+	h.hp = 5;
+
+	registry.gravEntities.emplace(entity);
+
+	Collider& collider = registry.colliders.emplace(entity);
+	collider.spr_scale = { 0.375f, 0.875f };
+	collider.offset = { 0.f, 2.f };
+
+	Mob& mob = registry.mobs.emplace(entity);
+	mob.equipped_atk = WEAPON_ID::NO_WEAPON;
+	mob.moveSpeed = 75.f;
+	mob.jumpSpeed = 600.f;
+	mob.knockbackSpeed = 300.f;
+
+	// Setting initial motion values
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.scale = { PLAYER_DIMS, PLAYER_DIMS };
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::GB_ENEMY, // TEXTURE_COUNT indicates that no txture is needed
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
+
+	registry.levelElements.emplace(entity);
+	return entity;
+}
+
+Entity createSolid(vec2 pos, vec2 scale, TEXTURE_ASSET_ID sprite) {
 	auto entity = Entity(); 
 
 	registry.colliders.emplace(entity);
@@ -119,11 +161,25 @@ Entity createSolid(vec2 pos, vec2 scale) {
 
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::SOLID, // TEXTURE_COUNT indicates that no txture is needed
+		{ sprite, // TEXTURE_COUNT indicates that no txture is needed
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE });
 
 	registry.levelElements.emplace(entity);
+	return entity;
+}
+
+Entity createTiledSolid(vec2 pos, vec2 scale, TEXTURE_ASSET_ID sprite, uint index) {
+	Entity entity = createSolid(pos, scale, sprite);
+
+	setAnimation(entity, sprite, 47, index, 0.f);
+
+	if ((index >= 8 && index <= 18) || index == 23 || (index >= 43 && index <= 46)) {
+		registry.solids.remove(entity);
+		registry.colliders.remove(entity);
+		registry.physEntities.remove(entity);
+	}
+
 	return entity;
 }
 

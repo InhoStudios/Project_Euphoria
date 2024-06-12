@@ -7,20 +7,21 @@
 
 enum class GAME_STATE {
 	MENU = 0,
-	PLAY = MENU + 1,
-	PAUSE = PLAY + 1,
-
+	PLAY,
+	PAUSE,
+	FRAME_FREEZE,
 	//
 };
 
 enum class LEVEL;
 enum class TEXTURE_ASSET_ID;
+enum class WEAPON_ID;
 
 struct GameManager {
 	GAME_STATE current_state;
 	LEVEL current_level;
 
-	vec2 bounds; // dynamically set
+	vec2 bounds; // dynamically set 
 };
 
 enum class MOB_STATE {
@@ -28,7 +29,8 @@ enum class MOB_STATE {
 	ATTACK,
 	DASH,
 	KNOCKBACK,
-	IV
+	FLEE,
+	INVINCIBLE
 };
 
 // Player component
@@ -37,15 +39,16 @@ struct Player
 	// put enhancements in player component? or in game manager?
 };
 
-#define MID_AIR_DASH 0b00000001
-#define CHAIN_DASH 0b00000010
-#define PARRY_DASH 0b00000100
-#define SLASH_DASH 0b00001000
+#define MID_AIR_DASH  0b00000001
+#define CHAIN_DASH    0b00000010
+#define PARRY_DASH    0b00000100
+#define SLASH_DASH    0b00001000
+#define INVINCIBLE    0b00010000
 
 struct DashKit
 {
 	int enabled_dashes = 0b00000000;
-	float dashSpeed = 2500.f;
+	float dashSpeed = 3000.f;
 	float cd, cdTime = 600.f;
 	float ctMax = 350.f, ctMin = 250.f;
 };
@@ -65,6 +68,8 @@ struct Mob {
 	float jumpSpeed;
 	float knockbackSpeed;
 	int numJumps;
+
+	WEAPON_ID equipped_atk;
 }; 
 
 struct Health {
@@ -82,7 +87,7 @@ struct Physics {
 };
 
 struct Gravity {
-	float grav = 100.f * TILE_SIZE;
+	float grav = 70.f * TILE_SIZE;
 	float terminalVelocity = 1000.f;
 };
 
@@ -154,7 +159,7 @@ const std::map<KEY, int> ARROW_MAPPING = {
 
 struct Input {
 	// map of KEY to GLFW keys
-	std::map<KEY, int> key_mapping = ARROW_MAPPING;
+	std::map<KEY, int> key_mapping = WASD_MAPPING;
 	std::map<KEY, bool> key = {
 		{KEY::RIGHT, false},
 		{KEY::LEFT, false},
@@ -221,8 +226,33 @@ struct Enemy {
 
 };
 
-struct DamageCollider {
+enum class ATK_DIRL {
+	TWO_WAY = 2,
+	FOUR_WAY = 4,
+	EIGHT_WAY = 8
+};
 
+enum class WEAPON_ID {
+	NO_WEAPON = 0,
+	CROWBAR,
+	SHOTGUN,
+	BASEBALL_BAT,
+	BRASS_KNUCKLES
+};
+
+struct Weapon {
+	int basic_jolt, special_jolt;
+	int basic_kb, special_kb;
+	int basic_dmg, special_dmg;
+	int basic_range, special_range;
+	ATK_DIRL basic_dirl, special_dirl;
+};
+
+struct DamageCollider {
+	Entity source;
+	vec2 knockback;
+	int dmg;
+	int ttl;
 };
 
 // INTERACTABLES
@@ -363,9 +393,12 @@ struct Mesh
 enum class TEXTURE_ASSET_ID {
 	DEFAULT = 0,
 	NO_SPRITE,
+	HITBOX,
 	SOLID,
+	SOLID_TILES,
 	PLAYER,
-	TEXTURE_COUNT,
+	GB_ENEMY,
+	TEXTURE_COUNT
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

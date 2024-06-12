@@ -203,6 +203,18 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	// !!! TODO A1: update LightUp timers and remove if time drops below zero, similar to the death counter
 
+	// remove enemies with no health
+	for (uint i = 0; i < registry.healths.size(); i++) {
+		Entity entity = registry.healths.entities[i];
+		Health& health = registry.healths.components[i];
+
+		if (health.hp <= 0) {
+			if (!registry.players.has(entity)) {
+				registry.remove_all_components_of(entity);
+			}
+		}
+	}
+
 	return true;
 }
 
@@ -351,34 +363,35 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 }
 
 void WorldSystem::clear_keys() {
-	Input& i = registry.inputs.get(player);
+	for (Input& i : registry.inputs.components) {
+		i.key_press = {
+			{KEY::RIGHT, false},
+			{KEY::LEFT, false},
+			{KEY::UP, false},
+			{KEY::DOWN, false},
 
-	i.key_press = {
-		{KEY::RIGHT, false},
-		{KEY::LEFT, false},
-		{KEY::UP, false},
-		{KEY::DOWN, false},
+			{KEY::JUMP, false},
 
-		{KEY::JUMP, false},
+			{KEY::BASIC, false},
+			{KEY::SPECIAL, false},
+			{KEY::GRAB, false},
+			{KEY::ENHANCE, false},
+			{KEY::DASH, false},
+		};
+		i.key_release = {
+			{KEY::RIGHT, false},
+			{KEY::LEFT, false},
+			{KEY::UP, false},
+			{KEY::DOWN, false},
 
-		{KEY::BASIC, false},
-		{KEY::SPECIAL, false},
-		{KEY::GRAB, false},
-		{KEY::ENHANCE, false},
-		{KEY::DASH, false},
-	};
-	i.key_release = {
-		{KEY::RIGHT, false},
-		{KEY::LEFT, false},
-		{KEY::UP, false},
-		{KEY::DOWN, false},
+			{KEY::JUMP, false},
 
-		{KEY::JUMP, false},
+			{KEY::BASIC, false},
+			{KEY::SPECIAL, false},
+			{KEY::GRAB, false},
+			{KEY::ENHANCE, false},
+			{KEY::DASH, false},
+		};
+	}
 
-		{KEY::BASIC, false},
-		{KEY::SPECIAL, false},
-		{KEY::GRAB, false},
-		{KEY::ENHANCE, false},
-		{KEY::DASH, false},
-	};
 }

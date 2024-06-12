@@ -50,8 +50,11 @@ class RenderSystem {
 	const std::array<std::string, texture_count> texture_paths = {
 			textures_path("spr_default_item.png"),
 			textures_path("spr_no_sprite.png"),
+			textures_path("spr_hitbox.png"),
 			textures_path("spr_solid.png"),
+			textures_path("spr_solid_tiles.png"),
 			textures_path("spr_player.png"),
+			textures_path("spr_enemy.png"),
 	};
 
 	std::array<GLuint, effect_count> effects;
@@ -100,7 +103,8 @@ public:
 
 private:
 	// Internal drawing functions for each entity type
-	void drawTexturedMesh(Entity entity, const mat3& projection);
+	// void drawTexturedMesh(Entity entity, const mat3& projection);
+	void drawTexturedMesh(Entity entity, Motion& motion, RenderRequest& render_request, const mat3& projection);
 	void drawToScreen();
 
 	void drawDebug(float elapsed_ms);

@@ -27,6 +27,8 @@ public:
 	ComponentContainer<LevelElement> levelElements;
 	ComponentContainer<Collision> collisions;
 
+	ComponentContainer<DamageCollider> damageColliders;
+
 	ComponentContainer<Interactable> interactables;
 	ComponentContainer<Transition> transitions;
 
@@ -60,6 +62,8 @@ public:
 		registry_list.push_back(&gravEntities);
 		registry_list.push_back(&solids);
 		registry_list.push_back(&colliders);
+
+		registry_list.push_back(&damageColliders);
 
 		registry_list.push_back(&levelElements);
 		registry_list.push_back(&collisions);

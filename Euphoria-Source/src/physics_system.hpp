@@ -7,6 +7,7 @@
 
 // A simple physics system that moves rigid bodies and checks for collision
 bool collides_at(Entity e, Entity o, vec2 at={ 0.f, 0.f });
+
 class PhysicsSystem
 {
 public:
@@ -16,6 +17,8 @@ public:
 
 	void doPhysicsCollisions(float elapsed_ms);
 	void doGravity(float elapsed_ms);
+
+	void checkCollisions();
 
 	PhysicsSystem()
 	{

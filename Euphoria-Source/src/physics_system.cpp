@@ -59,6 +59,27 @@ bool collides_at(Entity entity, Entity collidesWith, vec2 offsetPos) {
 		);
 }
 
+void PhysicsSystem::checkCollisions() {
+	ComponentContainer<Collider>& colliders = registry.colliders;
+	for (uint i = 0; i < colliders.components.size(); i++)
+	{
+		Entity entity_i = colliders.entities[i];
+
+		// note starting j at i+1 to compare all (i,j) pairs only once (and to not compare with itself)
+		for (uint j = i + 1; j < colliders.components.size(); j++)
+		{
+			Entity entity_j = colliders.entities[j];
+			if (collides_at(entity_i, entity_j))
+			{
+				// Create a collisions event
+				// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
+				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
+				registry.collisions.emplace_with_duplicates(entity_j, entity_i);
+			}
+		}
+	}
+}
+
 void PhysicsSystem::step(float elapsed_ms)
 {
 	// Move bug based on how much time has passed, this is to (partially) avoid
@@ -67,43 +88,10 @@ void PhysicsSystem::step(float elapsed_ms)
 	doGravity(elapsed_ms);
 	doPhysicsCollisions(elapsed_ms);
 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: HANDLE EGG UPDATES HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-	// Check for collisions between all moving entities
-	/*
-    ComponentContainer<Motion> &motion_container = registry.motions;
-	for(uint i = 0; i<motion_container.components.size(); i++)
-	{
-		Motion& motion_i = motion_container.components[i];
-		Entity entity_i = motion_container.entities[i];
-		
-		// note starting j at i+1 to compare all (i,j) pairs only once (and to not compare with itself)
-		for(uint j = i+1; j<motion_container.components.size(); j++)
-		{
-			Motion& motion_j = motion_container.components[j];
-			if (collides(motion_i, motion_j))
-			{
-				Entity entity_j = motion_container.entities[j];
-				// Create a collisions event
-				// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
-				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
-				registry.collisions.emplace_with_duplicates(entity_j, entity_i);
-			}
-		}
-	}
-	*/
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: HANDLE EGG collisions HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
 void doDashes(Entity& p, float elapsed_ms) {
-	Motion& playerMotion = registry.motions.get(p);
+	// Motion& mobMotion = registry.motions.get(p);
 	Physics& physics = registry.physEntities.get(p);
 	Mob& mob = registry.mobs.get(p);
 
@@ -155,7 +143,7 @@ void doDashes(Entity& p, float elapsed_ms) {
 }
 
 void doJumps(Entity& p) {
-	Motion& playerMotion = registry.motions.get(p);
+	Motion& mobMotion = registry.motions.get(p);
 	Physics& physics = registry.physEntities.get(p);
 	Mob& mob = registry.mobs.get(p);
 
@@ -165,7 +153,7 @@ void doJumps(Entity& p) {
 
 	if (input.key_press[KEY::JUMP]) {
 		if (physics.onWall && mob.wallJumps < mob.maxWallJumps) {
-			int facing = (playerMotion.scale.x > 0) - (playerMotion.scale.x < 0);
+			int facing = (mobMotion.scale.x > 0) - (mobMotion.scale.x < 0);
 
 			physics.targetVelocity.x = -facing * mob.jumpSpeed;
 			physics.velocity.x = physics.targetVelocity.x;
@@ -198,26 +186,26 @@ void PhysicsSystem::doMobInput(float elapsed_ms) {
 	// iterate through players
 	auto& mob_registry = registry.mobs;
 	for (uint i = 0; i < mob_registry.size(); i++) {
-		Entity playerEntity = mob_registry.entities[i];
+		Entity entity = mob_registry.entities[i];
 
-		Motion& playerMotion = registry.motions.get(playerEntity);
-		Physics& physics = registry.physEntities.get(playerEntity);
-		Mob& mob = registry.mobs.get(playerEntity);
+		Motion& mobMotion = registry.motions.get(entity);
+		Physics& physics = registry.physEntities.get(entity);
+		Mob& mob = registry.mobs.get(entity);
 
-		Input& input = registry.inputs.get(playerEntity);
+		Input& input = registry.inputs.get(entity);
 
 		int hdir = input.key[KEY::RIGHT] - input.key[KEY::LEFT];
 		
 		if (mob.state == MOB_STATE::MOVE) {
 			physics.targetVelocity.x = hdir * mob.moveSpeed;
-			doJumps(playerEntity);
+			doJumps(entity);
 		}
 
 		if (hdir) {
-			playerMotion.scale.x = hdir * abs(playerMotion.scale.x);
+			mobMotion.scale.x = hdir * abs(mobMotion.scale.x);
 		}
 
-		doDashes(playerEntity, elapsed_ms);
+		doDashes(entity, elapsed_ms);
 	}
 }
 
@@ -236,7 +224,8 @@ void PhysicsSystem::doGravity(float elapsed_ms) {
 		Physics& physics = physics_registry.get(entity);
 
 		// player check
-		if (registry.mobs.has(entity) && registry.mobs.get(entity).state != MOB_STATE::MOVE) {
+		if (registry.mobs.has(entity) && registry.mobs.get(entity).state != MOB_STATE::MOVE
+			&& registry.mobs.get(entity).state != MOB_STATE::KNOCKBACK) {
 			continue;
 		}
 
@@ -283,7 +272,16 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 				Entity otherEntity = collider_registry.entities[j];
 				Motion otherMotion = motion_registry.get(otherEntity);
 
-				if (otherEntity == entity) continue;
+				/*
+				otherMotion.position[1] >= motion.position[1] + 32 ||
+				otherMotion.position[1] <= motion.position[1] - 32 ||
+				otherMotion.position[0] >= motion.position[0] + 32 ||
+				otherMotion.position[0] <= motion.position[0] - 32 ||
+				*/
+
+				if (otherEntity == entity) {
+					continue;
+				}
 
 				if (registry.solids.has(otherEntity)) {
 					Solid& solid = registry.solids.get(otherEntity);
@@ -297,6 +295,10 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 							m.airJumps = 0;
 							m.wallJumps = 0;
 							m.coyoteMS = 0;
+							if (m.state == MOB_STATE::KNOCKBACK) {
+								m.state = MOB_STATE::MOVE;
+								physComp.targetVelocity = { 0., 0. };
+							}
 						}
 					}
 					else if (registry.mobs.has(entity)) {
