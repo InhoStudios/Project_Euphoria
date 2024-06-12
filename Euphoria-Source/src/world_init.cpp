@@ -86,8 +86,8 @@ Entity createPlayer(vec2 pos)
 
 	Mob& mob = registry.mobs.emplace(entity);
 	mob.equipped_atk = WEAPON_ID::NO_WEAPON;
-	mob.moveSpeed = 250.f;
-	mob.jumpSpeed = 600.f;
+	mob.moveSpeed = 270.f;
+	mob.jumpSpeed = 480.f;
 	mob.knockbackSpeed = 300.f;
 
 	// Setting initial motion values

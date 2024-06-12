@@ -87,7 +87,7 @@ struct Physics {
 };
 
 struct Gravity {
-	float grav = 100.f * TILE_SIZE;
+	float grav = 70.f * TILE_SIZE;
 	float terminalVelocity = 1000.f;
 };
 
