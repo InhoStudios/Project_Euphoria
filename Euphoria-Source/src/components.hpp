@@ -397,6 +397,10 @@ enum class TEXTURE_ASSET_ID {
 	SOLID,
 	SOLID_TILES,
 	PLAYER,
+	PLAYER_IDLE,
+	PLAYER_IDLE_NOHELM,
+	PLAYER_RUN,
+	PLAYER_JUMP,
 	GB_ENEMY,
 	TEXTURE_COUNT
 };
@@ -431,8 +435,8 @@ struct RenderRequest {
 struct Animation
 {
 	TEXTURE_ASSET_ID sheet;
-	uint numFrames;
-	uint index;
+	int numFrames;
+	int index;
 	float frameRate;
 	float msCounter = 0.f;
 

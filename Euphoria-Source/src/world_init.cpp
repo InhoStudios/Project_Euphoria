@@ -1,9 +1,21 @@
 #include "world_init.hpp"
 #include "tiny_ecs_registry.hpp"
 
-Entity setAnimation(Entity e, TEXTURE_ASSET_ID sheet, uint numFrames, uint index, float frameRate) {
+Entity setAnimation(Entity e, TEXTURE_ASSET_ID sheet, int numFrames, int index, float frameRate) {
 	// generate animation
-	if (registry.animations.has(e)) registry.animations.remove(e);
+	if (registry.animations.has(e)) {
+		if (registry.animations.get(e).sheet != sheet) {
+			registry.animations.remove(e);
+		}
+		else {
+			Animation& animation = registry.animations.get(e);
+			if (index != 0 || frameRate == 0) {
+				animation.index = index;
+			}
+			animation.frameRate = frameRate;
+			return e;
+		}
+	}
 
 	Animation& animation = registry.animations.emplace(e);
 	animation.sheet = sheet;
@@ -48,7 +60,9 @@ Entity setAnimation(Entity e, TEXTURE_ASSET_ID sheet, uint numFrames, uint index
 }
 
 void clearAnimation(Entity e) {
-	if (registry.animations.has(e)) registry.animations.remove(e);
+	if (registry.animations.has(e)) {
+		registry.animations.remove(e);
+	}
 }
 
 Entity createGameManager() {

@@ -319,8 +319,8 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 							) &&
 							input.key[KEY::GRAB] &&
 							physComp.inAir) {
-							if (vsp > 1) {
-								vsp = 1;
+							if (vsp > 0.1) {
+								vsp = 0.1;
 								physComp.targetVelocity.y = (float)vsp / step_seconds;
 								physComp.velocity.y = (float)vsp / step_seconds;
 							}

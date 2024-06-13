@@ -54,6 +54,10 @@ class RenderSystem {
 			textures_path("spr_solid.png"),
 			textures_path("spr_solid_tiles.png"),
 			textures_path("spr_player.png"),
+			textures_path("player/spr_player_idle.png"),
+			textures_path("player/spr_player_idle_nohelm.png"),
+			textures_path("player/spr_player_run.png"),
+			textures_path("player/spr_player_jump.png"),
 			textures_path("spr_enemy.png"),
 	};
 
