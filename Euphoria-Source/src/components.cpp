@@ -119,3 +119,28 @@ bool Mesh::loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out
 
 	return true;
 }
+
+POINT_DIRS getInputPointingDirection(Input& i, ATK_DIRL dirType) {
+	int hdir = i.key[KEY::RIGHT] - i.key[KEY::LEFT];
+	int vdir = i.key[KEY::DOWN] - i.key[KEY::UP];
+
+	int converted_dir = 0;
+	float angle;
+
+	switch (dirType) {
+	case ATK_DIRL::TWO_WAY:
+		converted_dir = 6 - 2 * hdir;
+
+		break;
+	case ATK_DIRL::FOUR_WAY:
+		if (vdir != 0) hdir = 0;
+	case ATK_DIRL::EIGHT_WAY:
+		angle = atan2(vdir, hdir);
+
+		converted_dir = angle / (M_PI / 4) + 4;
+		break;
+	default:
+		return POINT_DIRS::NEUTRAL;
+	}
+	return (POINT_DIRS)converted_dir;
+}

@@ -329,7 +329,7 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 					}
 					
 					// COLLISION CODE
-					if (collides_at(entity, otherEntity, { 0., vsp })) {
+					if (collides_at(entity, otherEntity, { 0., vsp }) && !registry.damageColliders.has(entity)) {
 						motion.position = startPos;
 						physComp.targetVelocity.y = -(physComp.elasticity * physComp.targetVelocity.y);
 						physComp.velocity.y = -(physComp.elasticity * physComp.velocity.y);
@@ -341,7 +341,7 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 						vsp = 0;
 					}
 
-					if (collides_at(entity, otherEntity, { hsp, 0. })) {
+					if (collides_at(entity, otherEntity, { hsp, 0. }) && !registry.damageColliders.has(entity)) {
 						int yplus = 0;
 
 						while (collides_at(entity, otherEntity, { hsp, -yplus }) && 

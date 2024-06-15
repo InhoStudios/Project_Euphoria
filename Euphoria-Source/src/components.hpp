@@ -33,6 +33,18 @@ enum class MOB_STATE {
 	INVINCIBLE
 };
 
+enum class POINT_DIRS {
+	NEUTRAL,
+	UP_LEFT,
+	UP,
+	UP_RIGHT,
+	RIGHT,
+	DOWN_RIGHT,
+	DOWN,
+	DOWN_LEFT,
+	LEFT
+};
+
 // Player component
 struct Player
 {
@@ -232,12 +244,17 @@ enum class ATK_DIRL {
 	EIGHT_WAY = 8
 };
 
+POINT_DIRS getInputPointingDirection(Input& i, ATK_DIRL dirType);
+
 enum class WEAPON_ID {
 	NO_WEAPON = 0,
 	CROWBAR,
 	SHOTGUN,
 	BASEBALL_BAT,
-	BRASS_KNUCKLES
+	BRASS_KNUCKLES,
+	RAILGUN,
+	POP_SICKLE,
+	ARM_BLADES,
 };
 
 struct Weapon {
@@ -283,6 +300,17 @@ struct TransitionData {
 
 struct LevelElement {
 
+};
+
+struct Background {
+	float parallaxDistance;
+};
+
+struct BackgroundData {
+	vec2 pos;
+	vec2 scale;
+	float parallaxDistance;
+	TEXTURE_ASSET_ID background;
 };
 
 enum class LEVEL {
@@ -396,12 +424,17 @@ enum class TEXTURE_ASSET_ID {
 	HITBOX,
 	SOLID,
 	SOLID_TILES,
+
+	BG_TUT_INT_1,
+
 	PLAYER,
 	PLAYER_IDLE,
 	PLAYER_IDLE_NOHELM,
 	PLAYER_RUN,
 	PLAYER_JUMP,
 	GB_ENEMY,
+
+
 	TEXTURE_COUNT
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;

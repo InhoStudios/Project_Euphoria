@@ -99,7 +99,7 @@ Entity createPlayer(vec2 pos)
 	collider.offset = { 0.f, 2.f };
 
 	Mob& mob = registry.mobs.emplace(entity);
-	mob.equipped_atk = WEAPON_ID::NO_WEAPON;
+	mob.equipped_atk = WEAPON_ID::SHOTGUN;
 	mob.moveSpeed = 270.f;
 	mob.jumpSpeed = 480.f;
 	mob.knockbackSpeed = 300.f;

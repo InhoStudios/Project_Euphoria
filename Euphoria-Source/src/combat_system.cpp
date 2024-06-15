@@ -52,11 +52,89 @@ void CombatSystem::step(float elapsed_ms) {
 
 		int facing = (motion.scale.x > 0) - (motion.scale.x < 0);
 
+		if (mob.equipped_atk == WEAPON_ID::NO_WEAPON) continue;
+		Weapon* wpn = weapon.weapons[(int)mob.equipped_atk];
+		POINT_DIRS dir = getInputPointingDirection(input, wpn->basic_dirl);
+
 		if (input.key_press[KEY::BASIC]) {
-			Weapon *wpn = weapon.weapons[(int) mob.equipped_atk];
-			instantiateDamage(entity, motion.position + vec2({ facing * wpn->basic_range, 0.f }), 
-				{2 * TILE_SIZE, TILE_SIZE}, facing * wpn->basic_kb, wpn->basic_dmg, 25);
-			phys.velocity.x = facing * wpn->basic_jolt;
+			Entity dmgEnt;
+
+			// do jolt dir
+			float angle = ((int)dir - 4) * (M_PI / 4);
+			float x = cos(angle);
+			float y = sin(angle);
+
+			phys.velocity.x = x * wpn->basic_jolt;
+			phys.targetVelocity.x = x * wpn->basic_jolt;
+			phys.velocity.y = y * wpn->basic_jolt;
+			phys.targetVelocity.y = y * wpn->basic_jolt;
+
+			switch (mob.equipped_atk) {
+			case WEAPON_ID::CROWBAR:
+				dmgEnt = instantiateDamage(entity, motion.position + vec2({ facing * wpn->basic_range, 0.f }),
+					{ 2 * TILE_SIZE, TILE_SIZE }, facing * wpn->basic_kb, wpn->basic_dmg, 25);
+				break;
+			case WEAPON_ID::SHOTGUN:
+			{
+				dmgEnt = instantiateDamage(entity, motion.position + vec2({ 0.f, 0.f }),
+					{ 1.5 * TILE_SIZE, 1.5 * TILE_SIZE }, facing * wpn->basic_kb, wpn->basic_dmg, 250);
+				Physics& projectile = registry.physEntities.emplace(dmgEnt);
+				projectile.velocity = { 1600 * x, 1600 * y };
+				projectile.targetVelocity = { 100 * x, 100 * y };
+				break;
+			}
+			case WEAPON_ID::BASEBALL_BAT:
+				break;
+			case WEAPON_ID::BRASS_KNUCKLES:
+				break;
+			case WEAPON_ID::RAILGUN:
+				break;
+			case WEAPON_ID::POP_SICKLE:
+				break;
+			case WEAPON_ID::ARM_BLADES:
+				break;
+			}
+
+		}
+		else if (input.key_press[KEY::SPECIAL]) {
+			Entity dmgEnt;
+
+			// do jolt dir
+			float angle = ((int)dir - 4) * (M_PI / 4);
+			float x = cos(angle);
+			float y = sin(angle);
+
+			phys.velocity.x = x * wpn->special_jolt;
+			phys.targetVelocity.x = x * wpn->special_jolt;
+			phys.velocity.y = y * wpn->special_jolt;
+			phys.targetVelocity.y = y * wpn->special_jolt;
+
+			switch (mob.equipped_atk) {
+			case WEAPON_ID::CROWBAR:
+				dmgEnt = instantiateDamage(entity, motion.position + vec2({ facing * wpn->special_range, 0.f }),
+					{ 2 * TILE_SIZE, TILE_SIZE }, facing * wpn->special_kb, wpn->special_dmg, 25);
+				break;
+			case WEAPON_ID::SHOTGUN:
+			{
+				dmgEnt = instantiateDamage(entity, motion.position + vec2({ 0.f, 0.f }),
+					{ 1.5 * TILE_SIZE, 1.5 * TILE_SIZE }, facing * wpn->special_kb, wpn->special_dmg, 250);
+				Physics& projectile = registry.physEntities.emplace(dmgEnt);
+				projectile.velocity = { 2000 * x, 2000 * y };
+				projectile.targetVelocity = { 100 * x, 100 * y };
+				break;
+			}
+			case WEAPON_ID::BASEBALL_BAT:
+				break;
+			case WEAPON_ID::BRASS_KNUCKLES:
+				break;
+			case WEAPON_ID::RAILGUN:
+				break;
+			case WEAPON_ID::POP_SICKLE:
+				break;
+			case WEAPON_ID::ARM_BLADES:
+				break;
+			}
+
 		}
 	}
 
@@ -122,6 +200,10 @@ void CombatSystem::step(float elapsed_ms) {
 			mob.state = MOB_STATE::KNOCKBACK;
 
 			registry.remove_all_components_of(eOther);
+		}
+
+		if (registry.solids.has(eOther) && registry.damageColliders.has(eThis)) {
+			registry.remove_all_components_of(eThis);
 		}
 	}
 }
