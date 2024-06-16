@@ -26,6 +26,7 @@ void loadLevel(LEVEL l) {
     // temp: load geometry file
     loadGeometryFile(level_path(level.directory + "/geometry.png"));
     loadEntityFile(level_path(level.directory + "/entities.png"));
+
     // load connects
     for (TransitionData& connect : level.connects) {
         createTransition(connect);

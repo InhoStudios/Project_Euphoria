@@ -220,8 +220,8 @@ void RenderSystem::stepBackgrounds() {
 		Background& background = backgrounds.get(backgroundEntity);
 		Motion& backgroundMotion = registry.motions.get(backgroundEntity);
 
-		backgroundMotion.position.x = background.parallaxDistance * (playerCamera.position.x - background.centre.x) + background.centre.x;
-		backgroundMotion.position.y = 0.8 * background.parallaxDistance * (playerCamera.position.y - background.centre.y) + background.centre.y;
+		backgroundMotion.position.x = (int) (background.parallaxDistance * (playerCamera.position.x - background.centre.x) + background.centre.x);
+		backgroundMotion.position.y = (int) (0.8 * background.parallaxDistance * (playerCamera.position.y - background.centre.y) + background.centre.y);
 
 	}
 }
