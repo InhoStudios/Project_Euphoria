@@ -141,7 +141,7 @@ Entity createEnemy(vec2 pos) {
 	mob.equipped_atk = WEAPON_ID::NO_WEAPON;
 	mob.moveSpeed = 75.f;
 	mob.jumpSpeed = 600.f;
-	mob.knockbackSpeed = 300.f;
+	mob.knockbackSpeed = 200.f;
 
 	// Setting initial motion values
 	Motion& motion = registry.motions.emplace(entity);

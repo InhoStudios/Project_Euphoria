@@ -295,10 +295,6 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 							m.airJumps = 0;
 							m.wallJumps = 0;
 							m.coyoteMS = 0;
-							if (m.state == MOB_STATE::KNOCKBACK) {
-								m.state = MOB_STATE::MOVE;
-								physComp.targetVelocity = { 0., 0. };
-							}
 						}
 					}
 					else if (registry.mobs.has(entity)) {

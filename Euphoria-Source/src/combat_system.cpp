@@ -14,7 +14,7 @@ Entity instantiateDamage(Entity source, vec2 position, vec2 scale,
 
 	DamageCollider& dmg = registry.damageColliders.emplace(entity);
 	dmg.source = source;
-	dmg.knockback = { knockback, -abs(knockback) };
+	dmg.knockback = { knockback, - 0.5f * abs(knockback)};
 	dmg.dmg = damage;
 	dmg.ttl = ttl;
 
@@ -66,8 +66,11 @@ void CombatSystem::step(float elapsed_ms) {
 
 			phys.velocity.x = x * wpn->basic_jolt;
 			phys.targetVelocity.x = x * wpn->basic_jolt;
+
 			phys.velocity.y = y * wpn->basic_jolt;
 			phys.targetVelocity.y = y * wpn->basic_jolt;
+			mob.state = MOB_STATE::KNOCKBACK;
+			mob.stateTimer = wpn->basic_jolt_time;
 
 			switch (mob.equipped_atk) {
 			case WEAPON_ID::CROWBAR:
@@ -108,6 +111,8 @@ void CombatSystem::step(float elapsed_ms) {
 			phys.targetVelocity.x = x * wpn->special_jolt;
 			phys.velocity.y = y * wpn->special_jolt;
 			phys.targetVelocity.y = y * wpn->special_jolt;
+			mob.state = MOB_STATE::KNOCKBACK;
+			mob.stateTimer = wpn->special_jolt_time;
 
 			switch (mob.equipped_atk) {
 			case WEAPON_ID::CROWBAR:
@@ -196,8 +201,9 @@ void CombatSystem::step(float elapsed_ms) {
 
 			health.hp -= dc.dmg;
 			phys.velocity = mob.knockbackSpeed * dc.knockback;
-			phys.targetVelocity = mob.knockbackSpeed * dc.knockback;
+			phys.targetVelocity = 0.5f * mob.knockbackSpeed * dc.knockback;
 			mob.state = MOB_STATE::KNOCKBACK;
+			mob.stateTimer = 130.f;
 
 			registry.remove_all_components_of(eOther);
 		}

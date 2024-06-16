@@ -41,15 +41,17 @@ private:
 
 	void initWeapons() {
 		none = {
-			75, 100,
-			1, 1,
-			1, 2,
-			24, 16,
+			0, 0,
+			0, 0,
+			0, 0,
+			0, 0,
+			0, 0,
 			ATK_DIRL::TWO_WAY, ATK_DIRL::TWO_WAY
 		};
 
 		crowbar = {
 			75, 100,
+			100, 100,
 			1, 1,
 			1, 2,
 			24, 16,
@@ -59,8 +61,9 @@ private:
 
 		shotgun = {
 			-300, -450,
+			120, 120,
+			1, 1,
 			1, 2,
-			2, 4,
 			0, 0,
 			ATK_DIRL::FOUR_WAY, ATK_DIRL::FOUR_WAY
 		};

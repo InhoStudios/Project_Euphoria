@@ -81,6 +81,8 @@ struct Mob {
 	float knockbackSpeed;
 	int numJumps;
 
+	float stateTimer = 0.f;
+
 	WEAPON_ID equipped_atk;
 }; 
 
@@ -259,6 +261,7 @@ enum class WEAPON_ID {
 
 struct Weapon {
 	int basic_jolt, special_jolt;
+	float basic_jolt_time, special_jolt_time;
 	int basic_kb, special_kb;
 	int basic_dmg, special_dmg;
 	int basic_range, special_range;
