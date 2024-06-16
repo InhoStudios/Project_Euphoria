@@ -16,6 +16,13 @@ void loadLevel(LEVEL l) {
 
     Level& level = levels.get(l);
 
+    createBackground({
+        {312, 176},
+        {640, 368},
+        0.4f,
+        TEXTURE_ASSET_ID::BG_TUT_INT_1
+    });
+
     // temp: load geometry file
     loadGeometryFile(level_path(level.directory + "/geometry.png"));
     loadEntityFile(level_path(level.directory + "/entities.png"));

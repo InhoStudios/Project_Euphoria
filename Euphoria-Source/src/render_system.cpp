@@ -210,10 +210,27 @@ void RenderSystem::drawToScreen()
 	gl_has_errors();
 }
 
+void RenderSystem::stepBackgrounds() {
+	Camera& playerCamera = registry.cameras.components[0];
+	auto& backgrounds = registry.backgrounds;
+
+	for (int i = 0; i < backgrounds.size(); ++i) {
+		Entity backgroundEntity = backgrounds.entities[i];
+
+		Background& background = backgrounds.get(backgroundEntity);
+		Motion& backgroundMotion = registry.motions.get(backgroundEntity);
+
+		backgroundMotion.position.x = background.parallaxDistance * (playerCamera.position.x - background.centre.x) + background.centre.x;
+		backgroundMotion.position.y = 0.8 * background.parallaxDistance * (playerCamera.position.y - background.centre.y) + background.centre.y;
+
+	}
+}
+
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 void RenderSystem::draw(float elapsed_ms)
 {
+	stepBackgrounds();
 	// Getting size of window
 	int w, h;
 	glfwGetFramebufferSize(window, &w, &h); // Note, this will be 2x the resolution given to glfwCreateWindow on retina displays

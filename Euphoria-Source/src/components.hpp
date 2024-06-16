@@ -307,6 +307,7 @@ struct LevelElement {
 
 struct Background {
 	float parallaxDistance;
+	vec2 centre;
 };
 
 struct BackgroundData {

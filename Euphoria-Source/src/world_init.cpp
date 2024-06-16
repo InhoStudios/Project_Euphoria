@@ -197,6 +197,29 @@ Entity createTiledSolid(vec2 pos, vec2 scale, TEXTURE_ASSET_ID sprite, uint inde
 	return entity;
 }
 
+Entity createBackground(BackgroundData bg) {
+	Entity entity;
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = bg.pos;
+	motion.scale = bg.scale;
+
+	registry.backgrounds.insert(
+		entity,
+		{ bg.parallaxDistance,
+			bg.pos }
+	);
+
+	registry.renderRequests.insert(
+		entity,
+		{ bg.background, // TEXTURE_COUNT indicates that no txture is needed
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
+
+	registry.levelElements.emplace(entity);
+	return entity;
+}
+
 Entity createLine(vec2 position, vec2 scale)
 {
 	Entity entity = Entity();

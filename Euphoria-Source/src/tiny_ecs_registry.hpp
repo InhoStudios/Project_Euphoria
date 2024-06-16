@@ -24,6 +24,7 @@ public:
 	ComponentContainer <Solid> solids;
 	ComponentContainer<Collider> colliders;
 
+	ComponentContainer<Background> backgrounds;
 	ComponentContainer<LevelElement> levelElements;
 	ComponentContainer<Collision> collisions;
 
@@ -65,6 +66,7 @@ public:
 
 		registry_list.push_back(&damageColliders);
 
+		registry_list.push_back(&backgrounds);
 		registry_list.push_back(&levelElements);
 		registry_list.push_back(&collisions);
 
