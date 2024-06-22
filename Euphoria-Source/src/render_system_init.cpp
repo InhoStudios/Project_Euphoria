@@ -521,7 +521,7 @@ bool RenderSystem::initFont(const std::string& font_filename, unsigned int font_
 			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
 			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
 			static_cast<unsigned int>(face->glyph->advance.x),
-			c
+			(char) c
 		};
 		m_ftCharacters.insert(std::pair<char, Character>(c, character));
 	}
