@@ -159,7 +159,7 @@ elseif (IS_OS_WINDOWS)
 
     # Add FreeType - Windows-specific; not tested on Linux or macOS
     set (FREETYPE_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/include")
-    set (FREETYPE_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/release static/vs2015-2022/win64/freetype.lib")
+    set (FREETYPE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/release static/vs2015-2022/win64/freetype.lib")
     # set (SDL2_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/ext/sdl/lib/SDL2-x86.lib")
     include_directories("${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/include")
     
@@ -193,7 +193,11 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${GLFW_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${SDL2_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${FREETYPE_INCLUDE_DIRS})
 
+if (IS_OS_MAC OR IS_OS_LINUX)
 target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2MIXER_LIBRARIES} glm::glm ${FREETYPE_LIBRARIES})
+elseif (IS_OS_WINDOWS)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2MIXER_LIBRARIES} glm::glm ${FREETYPE_LIBRARY})
+endif()
 
 # Needed to add this
 if(IS_OS_LINUX)
