@@ -114,7 +114,7 @@ private:
 	// void drawTexturedMesh(Entity entity, const mat3& projection);
 	void stepBackgrounds();
 
-	void drawTexturedMesh(Entity entity, Motion& motion, RenderRequest& render_request, const mat3& projection);
+	void drawTexturedMesh(Entity entity, Motion& motion, const mat3& projection);
 	void drawToScreen();
 
 	void drawDebug(float elapsed_ms);

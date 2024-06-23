@@ -109,7 +109,6 @@ void doDashes(Entity& p, float elapsed_ms) {
 			if ((mob.state != MOB_STATE::DASH && d.cd <= 0.1f) ||
 				(d.enabled_dashes & CHAIN_DASH && d.cd < d.ctMax && d.cd > d.ctMin)) {
 				if (!physics.inAir || d.enabled_dashes & MID_AIR_DASH) {
-					debugging.dashDuration = 0.f;
 
 					d.cd = d.cdTime;
 
@@ -130,7 +129,6 @@ void doDashes(Entity& p, float elapsed_ms) {
 		if (debugging.in_debug_mode) {
 			switch (mob.state) {
 			case MOB_STATE::DASH:
-				debugging.dashDuration += elapsed_ms;
 				break;
 			default:
 				break;

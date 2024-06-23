@@ -10,6 +10,11 @@ Entity instantiateDamage(Entity source, vec2 position, vec2 scale,
 	motion.position = position;
 	motion.scale = scale;
 
+	motion.visible = true;
+	motion.used_texture = TEXTURE_ASSET_ID::HITBOX;
+	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
+
 	registry.colliders.emplace(entity);
 
 	DamageCollider& dmg = registry.damageColliders.emplace(entity);
@@ -19,12 +24,6 @@ Entity instantiateDamage(Entity source, vec2 position, vec2 scale,
 	dmg.ttl = ttl;
 
 	registry.levelElements.emplace(entity);
-
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::HITBOX, // TEXTURE_COUNT indicates that no txture is needed
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }

@@ -288,8 +288,8 @@ RenderSystem::~RenderSystem()
 	gl_has_errors();
 
 	// remove all entities created by the render system
-	while (registry.renderRequests.entities.size() > 0)
-	    registry.remove_all_components_of(registry.renderRequests.entities.back());
+	while (registry.motions.entities.size() > 0)
+	    registry.remove_all_components_of(registry.motions.entities.back());
 }
 
 // Initialize the screen texture from a standard sprite

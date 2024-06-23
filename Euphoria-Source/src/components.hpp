@@ -86,6 +86,15 @@ struct Mob {
 	WEAPON_ID equipped_atk;
 }; 
 
+struct AnimatedMob {
+	TEXTURE_ASSET_ID run;
+	TEXTURE_ASSET_ID jump;
+	TEXTURE_ASSET_ID idle;
+	TEXTURE_ASSET_ID crouch;
+	TEXTURE_ASSET_ID crouch_walk;
+	TEXTURE_ASSET_ID slide;
+};
+
 struct Health {
 	int hp = 10;
 };
@@ -220,13 +229,6 @@ struct Input {
 	};
 };
 
-// All data relevant to the shape and motion of entities
-struct Motion {
-	vec2 position = { 0, 0 };
-	float angle = 0;
-	vec2 scale = { 10, 10 };
-};
-
 // Stucture to store collision information
 struct Collision
 {
@@ -353,7 +355,6 @@ struct Debug {
 	float redraw_slow = 500.f, redraw_fast = 42.f;
 	int fps, px, py;
 	float vx, vy;
-	float dashDuration = 0.f;
 };
 extern Debug debugging;
 
@@ -462,6 +463,20 @@ enum class GEOMETRY_BUFFER_ID {
 	GEOMETRY_COUNT
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
+
+// All data relevant to the shape and motion of entities
+struct Motion {
+	vec2 position = { 0, 0 };
+	float angle = 0;
+	vec2 scale = { 10, 10 };
+
+	bool visible;
+	bool rendered = false;
+
+	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
+	EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;
+	GEOMETRY_BUFFER_ID used_geometry = GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
+};
 
 struct RenderRequest {
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;

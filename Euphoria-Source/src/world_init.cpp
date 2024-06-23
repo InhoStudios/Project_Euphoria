@@ -61,6 +61,8 @@ Entity setAnimation(Entity e, TEXTURE_ASSET_ID sheet, int numFrames, int index, 
 
 void clearAnimation(Entity e) {
 	if (registry.animations.has(e)) {
+		Animation& a = registry.animations.get(e);
+		// TODO: CLEAR AND FREE BUFFER DATA BEFORE REMOVING THE COMPONENT HERE
 		registry.animations.remove(e);
 	}
 }
@@ -110,11 +112,10 @@ Entity createPlayer(vec2 pos)
 	motion.angle = 0.f;
 	motion.scale = { PLAYER_DIMS, PLAYER_DIMS };
 
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::PLAYER, // TEXTURE_COUNT indicates that no txture is needed
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
+	motion.visible = true;
+	motion.used_texture = TEXTURE_ASSET_ID::PLAYER;
+	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
 
 	return entity;
 }
@@ -149,11 +150,10 @@ Entity createEnemy(vec2 pos) {
 	motion.angle = 0.f;
 	motion.scale = { PLAYER_DIMS, PLAYER_DIMS };
 
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::GB_ENEMY, // TEXTURE_COUNT indicates that no txture is needed
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
+	motion.visible = true;
+	motion.used_texture = TEXTURE_ASSET_ID::GB_ENEMY;
+	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
 
 	registry.levelElements.emplace(entity);
 	return entity;
@@ -173,11 +173,10 @@ Entity createSolid(vec2 pos, vec2 scale, TEXTURE_ASSET_ID sprite) {
 	motion.scale = scale;
 	motion.angle = 0.f;
 
-	registry.renderRequests.insert(
-		entity,
-		{ sprite, // TEXTURE_COUNT indicates that no txture is needed
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
+	motion.visible = true;
+	motion.used_texture = sprite;
+	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
 
 	registry.levelElements.emplace(entity);
 	return entity;
@@ -200,21 +199,20 @@ Entity createTiledSolid(vec2 pos, vec2 scale, TEXTURE_ASSET_ID sprite, uint inde
 Entity createBackground(BackgroundData bg) {
 	Entity entity;
 
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = bg.pos;
-	motion.scale = bg.scale;
-
 	registry.backgrounds.insert(
 		entity,
 		{ bg.parallaxDistance,
 			bg.pos }
 	);
 
-	registry.renderRequests.insert(
-		entity,
-		{ bg.background, // TEXTURE_COUNT indicates that no txture is needed
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = bg.pos;
+	motion.scale = bg.scale;
+
+	motion.visible = true;
+	motion.used_texture = bg.background;
+	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
 
 	registry.levelElements.emplace(entity);
 	return entity;
@@ -224,18 +222,17 @@ Entity createLine(vec2 position, vec2 scale)
 {
 	Entity entity = Entity();
 
-	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
-		 EFFECT_ASSET_ID::EGG,
-		 GEOMETRY_BUFFER_ID::DEBUG_LINE });
-
 	// Create motion
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.position = position;
 	motion.scale = scale;
+
+
+	motion.visible = true;
+	motion.used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
+	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	motion.used_geometry = GEOMETRY_BUFFER_ID::DEBUG_LINE;
 
 	registry.debugComponents.emplace(entity);
 	return entity;
@@ -255,14 +252,10 @@ Entity createItem(vec2 pos, vec2 im_scale, vec2 collider_scale, bool needsInput)
 	i.boundsScale = collider_scale;
 	i.needsInput = needsInput;
 
-	registry.renderRequests.insert(
-		entity,
-		{
-			TEXTURE_ASSET_ID::DEFAULT,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		}
-	);
+	motion.visible = true;
+	motion.used_texture = TEXTURE_ASSET_ID::DEFAULT;
+	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
 
 	registry.levelElements.emplace(entity);
 	return entity;
@@ -288,14 +281,10 @@ Entity createTransition(TransitionData& t) {
 		}
 	);
 
-	registry.renderRequests.insert(
-		entity,
-		{
-			t.sprite,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		}
-	);
+	m.visible = true;
+	m.used_texture = t.sprite;
+	m.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	m.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
 
 	registry.levelElements.emplace(entity);
 	return entity;

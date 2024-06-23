@@ -9,7 +9,6 @@
 
 void RenderSystem::drawTexturedMesh(Entity entity, 
 									Motion& motion, 
-									RenderRequest& render_request,
 									const mat3 &projection)
 {
 	glBindVertexArray(vao);
@@ -23,7 +22,7 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	// !!! TODO A1: add rotation to the chain of transformations, mind the order
 	// of transformations
 
-	const GLuint used_effect_enum = (GLuint)render_request.used_effect;
+	const GLuint used_effect_enum = (GLuint)motion.used_effect;
 	assert(used_effect_enum != (GLuint)EFFECT_ASSET_ID::EFFECT_COUNT);
 	const GLuint program = (GLuint)effects[used_effect_enum];
 
@@ -31,7 +30,7 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	glUseProgram(program);
 	gl_has_errors();
 
-	assert(render_request.used_geometry != GEOMETRY_BUFFER_ID::GEOMETRY_COUNT);
+	assert(motion.used_geometry != GEOMETRY_BUFFER_ID::GEOMETRY_COUNT);
 	GLuint vbo, ibo;
 	// const GLuint vbo = vertex_buffers[(GLuint)render_request.used_geometry];
 	// const GLuint ibo = index_buffers[(GLuint)render_request.used_geometry];
@@ -44,8 +43,8 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		vbo = anim.vertex_buffers[anim.index];
 		ibo = anim.indexBuffer;
 	} else {
-		vbo = vertex_buffers[(GLuint)render_request.used_geometry];
-		ibo = index_buffers[(GLuint)render_request.used_geometry];
+		vbo = vertex_buffers[(GLuint)motion.used_geometry];
+		ibo = index_buffers[(GLuint)motion.used_geometry];
 	}
 
 	// Setting vertex and index buffers
@@ -54,7 +53,7 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	gl_has_errors();
 
 	// Input data location as in the vertex buffer
-	if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED)
+	if (motion.used_effect == EFFECT_ASSET_ID::TEXTURED)
 	{
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
@@ -85,13 +84,13 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 				texture_gl_handles[(GLuint)registry.animations.get(entity).sheet];
 		} else {
 			texture_id =
-				texture_gl_handles[(GLuint)render_request.used_texture];
+				texture_gl_handles[(GLuint)motion.used_texture];
 		}
 
 		glBindTexture(GL_TEXTURE_2D, texture_id);
 		gl_has_errors();
 	}
-	else if (render_request.used_effect == EFFECT_ASSET_ID::CHICKEN || render_request.used_effect == EFFECT_ASSET_ID::EGG)
+	else if (motion.used_effect == EFFECT_ASSET_ID::CHICKEN || motion.used_effect == EFFECT_ASSET_ID::EGG)
 	{
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_color_loc = glGetAttribLocation(program, "in_color");
@@ -107,7 +106,7 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 							  sizeof(ColoredVertex), (void *)sizeof(vec3));
 		gl_has_errors();
 
-		if (render_request.used_effect == EFFECT_ASSET_ID::CHICKEN)
+		if (motion.used_effect == EFFECT_ASSET_ID::CHICKEN)
 		{
 			// Light up?
 			GLint light_up_uloc = glGetUniformLocation(program, "light_up");
@@ -252,15 +251,14 @@ void RenderSystem::draw(float elapsed_ms)
 	gl_has_errors();
 	mat3 projection_2D = createProjectionMatrix();
 	// Draw all textured meshes that have a position and size component
-	for (uint i = 0; i < registry.renderRequests.size(); ++i)
+	for (uint i = 0; i < registry.motions.size(); ++i)
 	{
-		Entity entity = registry.renderRequests.entities[i];
-		RenderRequest& rr = registry.renderRequests.components[i];
+		Entity entity = registry.motions.entities[i];
+		Motion& motion = registry.motions.components[i];
 
-		if (!registry.motions.has(entity))
+		if (!motion.visible)
 			continue;
 
-		Motion& motion = registry.motions.get(entity);
 
 		// check if motion in window
 		Camera& cam = registry.cameras.components[0];
@@ -271,7 +269,7 @@ void RenderSystem::draw(float elapsed_ms)
 
 		// Note, its not very efficient to access elements indirectly via the entity
 		// albeit iterating through all Sprites in sequence. A good point to optimize
-		drawTexturedMesh(entity, motion, rr, projection_2D);
+		drawTexturedMesh(entity, motion, projection_2D);
 	}
 	// Truely render to the screen
 	drawToScreen(); 
@@ -325,18 +323,14 @@ void RenderSystem::drawDebug(float elapsed_ms) {
 	pos_str << "Position: " << debugging.px << ", " << debugging.py;
 
 	std::stringstream vel_str;
-	vel_str << "Speed: " << std::fixed << std::setprecision(2) << debugging.vx << ", " << std::fixed << std::setprecision(2) << debugging.vy;
+	vel_str << "Speed: " << (int) debugging.vx << ", " << std::fixed << std::setprecision(2) << debugging.vy;
 
-	std::stringstream dash_str;
-	dash_str << "Dash duration: " << std::fixed << std::setprecision(2) << debugging.dashDuration << " ms";
 
 	renderText("FPS: " + std::to_string(debugging.fps), sx, sy, 0.8f, { 1., 1., 1. }, glm::mat4(1.0f));
 	sy -= 24.f;
 	renderText(pos_str.str(), sx, sy, 0.8f, { 1., 1., 1. }, glm::mat4(1.0f));
 	sy -= 24.f;
 	renderText(vel_str.str(), sx, sy, 0.8f, { 1., 1., 1. }, glm::mat4(1.0f));
-	sy -= 24.f;
-	renderText(dash_str.str(), sx, sy, 0.8f, { 1., 1., 1. }, glm::mat4(1.0f));
 
 }
 
