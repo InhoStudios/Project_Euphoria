@@ -4,10 +4,10 @@
 **/out/*
 **/build
 **/build/*
-./Ascension-Source/ext/project-path.hpp
-Ascension-Source/ext/project-path.hpp
-/Ascension-Source/ext/project-path.hpp
-Ascension-Source/ext/project_path.hpp
-Ascension-Source/ext/project_path.hpp.in
+./Euphoria-Source/ext/project-path.hpp
+Euphoria-Source/ext/project-path.hpp
+/Euphoria-Source/ext/project-path.hpp
+Euphoria-Source/ext/project_path.hpp
+Euphoria-Source/ext/project_path.hpp.in
 **/save.json
 **/respawn.json
