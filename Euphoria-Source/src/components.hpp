@@ -464,6 +464,17 @@ enum class GEOMETRY_BUFFER_ID {
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 
+enum class RENDER_LAYER {
+	BACKGROUND = 0,
+	BG_DECOR,
+	BG_ELEMENTS,
+	ENTITIES,
+	ITEMS,
+	FG_DECOR,
+	FOREGROUND,
+	DEBUG
+};
+
 // All data relevant to the shape and motion of entities
 struct Motion {
 	vec2 position = { 0, 0 };
@@ -471,7 +482,7 @@ struct Motion {
 	vec2 scale = { 10, 10 };
 
 	bool visible;
-	bool rendered = false;
+	RENDER_LAYER render_layer;
 
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
 	EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;

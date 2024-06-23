@@ -117,6 +117,8 @@ Entity createPlayer(vec2 pos)
 	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
 	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
 
+	motion.render_layer = RENDER_LAYER::ENTITIES;
+
 	return entity;
 }
 
@@ -155,6 +157,8 @@ Entity createEnemy(vec2 pos) {
 	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
 	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
 
+	motion.render_layer = RENDER_LAYER::ENTITIES;
+
 	registry.levelElements.emplace(entity);
 	return entity;
 }
@@ -177,6 +181,8 @@ Entity createSolid(vec2 pos, vec2 scale, TEXTURE_ASSET_ID sprite) {
 	motion.used_texture = sprite;
 	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
 	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
+
+	motion.render_layer = RENDER_LAYER::BG_DECOR;
 
 	registry.levelElements.emplace(entity);
 	return entity;
@@ -210,9 +216,12 @@ Entity createBackground(BackgroundData bg) {
 	motion.scale = bg.scale;
 
 	motion.visible = true;
+
 	motion.used_texture = bg.background;
 	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
 	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
+
+	motion.render_layer = RENDER_LAYER::BACKGROUND;
 
 	registry.levelElements.emplace(entity);
 	return entity;
@@ -233,6 +242,8 @@ Entity createLine(vec2 position, vec2 scale)
 	motion.used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
 	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
 	motion.used_geometry = GEOMETRY_BUFFER_ID::DEBUG_LINE;
+
+	motion.render_layer = RENDER_LAYER::DEBUG;
 
 	registry.debugComponents.emplace(entity);
 	return entity;
@@ -256,6 +267,8 @@ Entity createItem(vec2 pos, vec2 im_scale, vec2 collider_scale, bool needsInput)
 	motion.used_texture = TEXTURE_ASSET_ID::DEFAULT;
 	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
 	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
+
+	motion.render_layer = RENDER_LAYER::ITEMS;
 
 	registry.levelElements.emplace(entity);
 	return entity;
@@ -285,6 +298,8 @@ Entity createTransition(TransitionData& t) {
 	m.used_texture = t.sprite;
 	m.used_effect = EFFECT_ASSET_ID::TEXTURED;
 	m.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
+
+	m.render_layer = RENDER_LAYER::BG_ELEMENTS;
 
 	registry.levelElements.emplace(entity);
 	return entity;

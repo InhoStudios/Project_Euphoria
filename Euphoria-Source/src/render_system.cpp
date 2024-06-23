@@ -225,6 +225,14 @@ void RenderSystem::stepBackgrounds() {
 	}
 }
 
+bool RenderSystem::outOfView(Motion& motion) {
+	Camera& cam = registry.cameras.components[0];
+	return motion.position.x > cam.position.x + (cam.dims.x / 2 + abs(motion.scale.x) / 2) ||
+		motion.position.x < cam.position.x - (cam.dims.x / 2 + abs(motion.scale.x) / 2) ||
+		motion.position.y > cam.position.y + (cam.dims.y / 2 + abs(motion.scale.y) / 2) ||
+		motion.position.y < cam.position.y - (cam.dims.y / 2 + abs(motion.scale.y) / 2);
+}
+
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 void RenderSystem::draw(float elapsed_ms)
@@ -256,21 +264,104 @@ void RenderSystem::draw(float elapsed_ms)
 		Entity entity = registry.motions.entities[i];
 		Motion& motion = registry.motions.components[i];
 
-		if (!motion.visible)
+		if (!motion.visible || outOfView(motion))
 			continue;
 
+		switch (motion.render_layer) {
+		case RENDER_LAYER::BACKGROUND:
+			registry.rndr_backgrounds.push_back(i);
+			break;
+		case RENDER_LAYER::BG_DECOR:
+			registry.rndr_bg_decor.push_back(i);
+			break;
+		case RENDER_LAYER::BG_ELEMENTS:
+			registry.rndr_bg_elements.push_back(i);
+			break;
+		case RENDER_LAYER::ENTITIES:
+			registry.rndr_entities.push_back(i);
+			break;
+		case RENDER_LAYER::ITEMS:
+			registry.rndr_level_items.push_back(i);
+			break;
+		case RENDER_LAYER::FG_DECOR:
+			registry.rndr_fg_decor.push_back(i);
+			break;
+		case RENDER_LAYER::FOREGROUND:
+			registry.rndr_foreground.push_back(i);
+			break;
+		case RENDER_LAYER::DEBUG:
+			registry.rndr_debug.push_back(i);
+			break;
+		}
 
-		// check if motion in window
-		Camera& cam = registry.cameras.components[0];
-		if (motion.position.x > cam.position.x + (cam.dims.x / 2 + abs(motion.scale.x) / 2) ||
-			motion.position.x < cam.position.x - (cam.dims.x / 2 + abs(motion.scale.x) / 2) ||
-			motion.position.y > cam.position.y + (cam.dims.y / 2 + abs(motion.scale.y) / 2) ||
-			motion.position.y < cam.position.y - (cam.dims.y / 2 + abs(motion.scale.y) / 2)) continue;
+		// drawTexturedMesh(entity, motion, projection_2D);
+	}
 
-		// Note, its not very efficient to access elements indirectly via the entity
-		// albeit iterating through all Sprites in sequence. A good point to optimize
+	for (int ind : registry.rndr_backgrounds) {
+		Entity entity = registry.motions.entities[ind];
+		Motion& motion = registry.motions.components[ind];
+
 		drawTexturedMesh(entity, motion, projection_2D);
 	}
+
+	for (int ind : registry.rndr_bg_decor) {
+		Entity entity = registry.motions.entities[ind];
+		Motion& motion = registry.motions.components[ind];
+
+		drawTexturedMesh(entity, motion, projection_2D);
+	}
+
+	for (int ind : registry.rndr_bg_elements) {
+		Entity entity = registry.motions.entities[ind];
+		Motion& motion = registry.motions.components[ind];
+
+		drawTexturedMesh(entity, motion, projection_2D);
+	}
+
+	for (int ind : registry.rndr_entities) {
+		Entity entity = registry.motions.entities[ind];
+		Motion& motion = registry.motions.components[ind];
+
+		drawTexturedMesh(entity, motion, projection_2D);
+	}
+
+	for (int ind : registry.rndr_level_items) {
+		Entity entity = registry.motions.entities[ind];
+		Motion& motion = registry.motions.components[ind];
+
+		drawTexturedMesh(entity, motion, projection_2D);
+	}
+
+	for (int ind : registry.rndr_fg_decor) {
+		Entity entity = registry.motions.entities[ind];
+		Motion& motion = registry.motions.components[ind];
+
+		drawTexturedMesh(entity, motion, projection_2D);
+	}
+
+	for (int ind : registry.rndr_foreground) {
+		Entity entity = registry.motions.entities[ind];
+		Motion& motion = registry.motions.components[ind];
+
+		drawTexturedMesh(entity, motion, projection_2D);
+	}
+
+	for (int ind : registry.rndr_debug) {
+		Entity entity = registry.motions.entities[ind];
+		Motion& motion = registry.motions.components[ind];
+
+		drawTexturedMesh(entity, motion, projection_2D);
+	}
+
+	registry.rndr_backgrounds.clear();
+	registry.rndr_bg_decor.clear();
+	registry.rndr_bg_elements.clear();
+	registry.rndr_entities.clear();
+	registry.rndr_level_items.clear();
+	registry.rndr_fg_decor.clear();
+	registry.rndr_foreground.clear();
+	registry.rndr_debug.clear();
+
 	// Truely render to the screen
 	drawToScreen(); 
 	

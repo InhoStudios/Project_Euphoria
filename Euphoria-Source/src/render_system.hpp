@@ -114,6 +114,8 @@ private:
 	// void drawTexturedMesh(Entity entity, const mat3& projection);
 	void stepBackgrounds();
 
+	bool outOfView(Motion& motion);
+
 	void drawTexturedMesh(Entity entity, Motion& motion, const mat3& projection);
 	void drawToScreen();
 

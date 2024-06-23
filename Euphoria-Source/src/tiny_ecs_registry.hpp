@@ -25,6 +25,7 @@ public:
 	ComponentContainer<Collider> colliders;
 
 	ComponentContainer<Background> backgrounds;
+
 	ComponentContainer<LevelElement> levelElements;
 	ComponentContainer<Collision> collisions;
 
@@ -46,6 +47,15 @@ public:
 
 	ComponentContainer<DebugComponent> debugComponents;
 	ComponentContainer<vec3> colors;
+
+	std::vector<int> rndr_backgrounds;
+	std::vector<int> rndr_bg_decor;
+	std::vector<int> rndr_bg_elements;
+	std::vector<int> rndr_entities;
+	std::vector<int> rndr_level_items;
+	std::vector<int> rndr_fg_decor;
+	std::vector<int> rndr_foreground;
+	std::vector<int> rndr_debug;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
