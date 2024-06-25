@@ -5,6 +5,9 @@ enum class Tiles {
     SOLID = 0,
     INTERACTABLE = 1,
 
+    CROWBAR = 60,
+    BASEBALL_BAT = 61,
+
     ENEMY = 72,
 };
 
@@ -15,13 +18,6 @@ void loadLevel(LEVEL l) {
     // load level data
 
     Level& level = levels.get(l);
-
-    createBackground({
-        {312, 176},
-        {640, 368},
-        0.4f,
-        TEXTURE_ASSET_ID::BG_TUT_INT_1
-    });
 
     // temp: load geometry file
     loadGeometryFile(level_path(level.directory + "/geometry.png"));
@@ -263,7 +259,12 @@ void loadGeometryFile(std::string file_path) {
                     break;
                 }
                 case Tiles::INTERACTABLE:
-                    createItem({ xTo, yTo }, { TILE_SIZE, TILE_SIZE }, { 1.f, 1.f, }, true);
+                    createItem({ xTo, yTo }, { TILE_SIZE, TILE_SIZE }, { 1.f, 1.f, }, true, 
+                        TEXTURE_ASSET_ID::DEFAULT, ITEM_ID::DEFAULT);
+                    break;
+                case Tiles::CROWBAR:
+                    createItem({ xTo, yTo }, { TILE_SIZE, TILE_SIZE }, { 1.f, 1.f, }, true,
+                        TEXTURE_ASSET_ID::CROWBAR_ITEM, ITEM_ID::CROWBAR);
                     break;
                 }
             }

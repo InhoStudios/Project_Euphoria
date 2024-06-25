@@ -16,10 +16,14 @@ enum class GAME_STATE {
 enum class LEVEL;
 enum class TEXTURE_ASSET_ID;
 enum class WEAPON_ID;
+enum class ITEM_ID;
+enum class MOVE_KIT_ID;
 
 struct GameManager {
 	GAME_STATE current_state;
 	LEVEL current_level;
+
+	std::vector<ITEM_ID> unlocked_items;
 
 	vec2 bounds; // dynamically set 
 };
@@ -285,6 +289,18 @@ struct Interactable
 	bool needsInput;
 };
 
+enum class ITEM_ID {
+	DEFAULT,
+	CROWBAR,
+	BASEBALL_BAT,
+
+};
+
+struct Item
+{
+	ITEM_ID id;
+};
+
 // LEVEL COMPONENTS
 
 struct Transition {
@@ -439,6 +455,7 @@ enum class TEXTURE_ASSET_ID {
 	PLAYER_JUMP,
 	GB_ENEMY,
 
+	CROWBAR_ITEM,
 
 	TEXTURE_COUNT
 };

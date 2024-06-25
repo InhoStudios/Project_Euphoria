@@ -101,7 +101,7 @@ Entity createPlayer(vec2 pos)
 	collider.offset = { 0.f, 2.f };
 
 	Mob& mob = registry.mobs.emplace(entity);
-	mob.equipped_atk = WEAPON_ID::SHOTGUN;
+	mob.equipped_atk = WEAPON_ID::CROWBAR;
 	mob.moveSpeed = 270.f;
 	mob.jumpSpeed = 480.f;
 	mob.knockbackSpeed = 300.f;
@@ -250,7 +250,8 @@ Entity createLine(vec2 position, vec2 scale)
 }
 
 // TODO: ADD SPRITES OR TYPING
-Entity createItem(vec2 pos, vec2 im_scale, vec2 collider_scale, bool needsInput) {
+Entity createItem(vec2 pos, vec2 im_scale, vec2 collider_scale, 
+	bool needsInput, TEXTURE_ASSET_ID sprite, ITEM_ID item) {
 	Entity entity = Entity();
 
 	registry.colliders.emplace(entity);
@@ -264,11 +265,13 @@ Entity createItem(vec2 pos, vec2 im_scale, vec2 collider_scale, bool needsInput)
 	i.needsInput = needsInput;
 
 	motion.visible = true;
-	motion.used_texture = TEXTURE_ASSET_ID::DEFAULT;
+	motion.used_texture = sprite;
 	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
 	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
 
 	motion.render_layer = RENDER_LAYER::ITEMS;
+
+	registry.items.insert(entity, { item });
 
 	registry.levelElements.emplace(entity);
 	return entity;

@@ -23,6 +23,7 @@ Entity createBackground(BackgroundData bg);
 // a red line for debugging purposes
 Entity createLine(vec2 position, vec2 size);
 
-Entity createItem(vec2 pos, vec2 im_scale, vec2 collider_scale, bool requiresInput);
+Entity createItem(vec2 pos, vec2 im_scale, vec2 collider_scale, 
+	bool requiresInput, TEXTURE_ASSET_ID sprite, ITEM_ID item);
 
 Entity createTransition(TransitionData& t);

@@ -34,4 +34,10 @@ void InteractableSystem::doInteract(Entity e) {
 		Transition& to = registry.transitions.get(e);
 		transitionTo(to);
 	}
+	else if (registry.items.has(e)) {
+		Item& i = registry.items.get(e);
+		switch (i.id) {
+			
+		}
+	}
 }

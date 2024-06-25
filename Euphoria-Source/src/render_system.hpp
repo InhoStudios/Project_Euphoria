@@ -63,6 +63,8 @@ class RenderSystem {
 			textures_path("player/spr_player_jump.png"),
 
 			textures_path("spr_enemy.png"),
+
+			textures_path("spr_crowbar_item.png"),
 	};
 
 	std::array<GLuint, effect_count> effects;

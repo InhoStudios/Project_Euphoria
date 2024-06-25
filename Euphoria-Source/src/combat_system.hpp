@@ -54,7 +54,7 @@ private:
 			100, 100,
 			1, 1,
 			1, 2,
-			24, 16,
+			24, 24,
 			ATK_DIRL::TWO_WAY, ATK_DIRL::TWO_WAY
 		};
 
