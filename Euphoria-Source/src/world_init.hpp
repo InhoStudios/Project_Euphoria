@@ -19,6 +19,7 @@ Entity createEnemy(vec2 pos);
 
 Entity createSolid(vec2 pos, vec2 scale, TEXTURE_ASSET_ID sprite);
 Entity createTiledSolid(vec2 pos, vec2 scale, TEXTURE_ASSET_ID sprite, uint index);
+Entity createBreakableBox(vec2 pos, TEXTURE_ASSET_ID sprite);
 Entity createBackground(BackgroundData bg);
 // a red line for debugging purposes
 Entity createLine(vec2 position, vec2 size);

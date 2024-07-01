@@ -177,7 +177,7 @@ private:
         );
         
         tut_int_3.directory = "tutorial/tut_int_3";
-        tut_int_3.startPos = { 368, 32 };
+        tut_int_3.startPos = { 368, 16 };
         tut_int_3.connects.push_back(
             createConnect(
                 LEVEL::TUT_EXT_3,
@@ -188,7 +188,45 @@ private:
                 TEXTURE_ASSET_ID::DEFAULT
             )
         );
+        tut_int_3.connects.push_back(
+            createConnect(
+                LEVEL::TUT_EXT_4,
+                { 240, 16 },
+                { 432, 512 },
+                { 128, 16 },
+                false,
+                TEXTURE_ASSET_ID::DEFAULT
+            )
+        );
+        
+        tut_ext_4.directory = "tutorial/tut_ext_4";
+        tut_ext_4.startPos = { 240, 16 };
+        tut_ext_4.connects.push_back(
+            createConnect(
+                LEVEL::TUT_INT_3,
+                { 464, 440 },
+                { 240, -16 },
+                { 128, 16 },
+                false,
+                TEXTURE_ASSET_ID::DEFAULT
+            )
+        );
+        tut_ext_4.connects.push_back(
+            createConnect(
+                LEVEL::TUT_BRIDGE_1,
+                { 1104, 208 },
+                { 8, 336 },
+                { 16, 208 },
+                false,
+                TEXTURE_ASSET_ID::DEFAULT
+            )
+        );
 
+        tut_bridge_1.directory = "tutorial/tut_bridge_1";
+        tut_bridge_1.startPos = { 1104, 208 };
+
+        tut_bridge_2.directory = "tutorial/tut_bridge_2";
+        tut_bridge_2.startPos = { 32, 208 };
     }
 };
 

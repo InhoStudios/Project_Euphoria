@@ -34,6 +34,7 @@ public:
 	ComponentContainer<Interactable> interactables;
 	ComponentContainer<Transition> transitions;
 	ComponentContainer<Item> items;
+	ComponentContainer<Tooltip> tooltips;
 
 	ComponentContainer<DashKit> dashKits;
 
@@ -84,6 +85,7 @@ public:
 		registry_list.push_back(&interactables);
 		registry_list.push_back(&transitions);
 		registry_list.push_back(&items);
+		registry_list.push_back(&tooltips);
 
 		registry_list.push_back(&dashKits);
 

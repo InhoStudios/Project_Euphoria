@@ -120,7 +120,7 @@ bool Mesh::loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out
 	return true;
 }
 
-POINT_DIRS getInputPointingDirection(Input& i, ATK_DIRL dirType) {
+POINT_DIRS getInputPointingDirection(Input& i, Motion& m, ATK_DIRL dirType) {
 	int hdir = i.key[KEY::RIGHT] - i.key[KEY::LEFT];
 	int vdir = i.key[KEY::DOWN] - i.key[KEY::UP];
 
@@ -129,6 +129,7 @@ POINT_DIRS getInputPointingDirection(Input& i, ATK_DIRL dirType) {
 
 	switch (dirType) {
 	case ATK_DIRL::TWO_WAY:
+		if (hdir == 0) hdir = (m.scale.x > 0) - (m.scale.x < 0);
 		converted_dir = 6 - 2 * hdir;
 
 		break;

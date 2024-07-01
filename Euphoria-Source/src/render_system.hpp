@@ -54,6 +54,8 @@ class RenderSystem {
 			textures_path("spr_solid.png"),
 			textures_path("spr_solid_tiles.png"),
 
+			textures_path("spr_breakable_box.png"),
+
 			level_path("tut_int_1/background.png"),
 
 			textures_path("spr_player.png"),
@@ -122,6 +124,11 @@ private:
 	void drawToScreen();
 
 	void drawDebug(float elapsed_ms);
+
+	void drawTooltips();
+
+	vec2 worldToScreenSpace(vec2 world_space);
+	vec2 centerText(std::string text, float scale, vec2 coords);
 
 	// Window handle
 	GLFWwindow* window;

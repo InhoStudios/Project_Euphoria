@@ -7,6 +7,30 @@
 
 #include "tiny_ecs_registry.hpp"
 
+vec2 RenderSystem::worldToScreenSpace(vec2 world_space) {
+	Camera& camera = registry.cameras.components[0];
+	// xx = camerax - width
+	// yy = cameray + height
+	// drawx = cTTx - xx
+	// drawy = cTTy + yy
+	vec2 origin = { camera.position.x - camera.dims.x / 2, camera.position.y + camera.dims.y / 2 };
+	return { (camera.screenSize.x / camera.dims.x) * camera.zoom * (world_space.x - origin.x), 
+		(camera.screenSize.y / camera.dims.y)* camera.zoom * (origin.y - world_space.y) };
+}
+
+vec2 RenderSystem::centerText(std::string text, float scale, vec2 coords) {
+	float wOffset = 0.0;
+	for (char c : text) {
+		Character ch = m_ftCharacters[c];
+
+		wOffset += scale * ch.Size.x;
+		if (c == ' ' || c == '\n') {
+			wOffset += scale * 0.846153 * m_ftCharacters['I'].Size.x;
+		}
+	}
+	return coords - vec2({ wOffset / 2.0, 0. });
+}
+
 void RenderSystem::drawTexturedMesh(Entity entity, 
 									Motion& motion, 
 									const mat3 &projection)
@@ -233,6 +257,23 @@ bool RenderSystem::outOfView(Motion& motion) {
 		motion.position.y < cam.position.y - (cam.dims.y / 2 + abs(motion.scale.y) / 2);
 }
 
+void RenderSystem::drawTooltips() {
+	for (int i = 0; i < registry.tooltips.size(); ++i) {
+		Entity e = registry.tooltips.entities[i];
+		Tooltip& tooltip = registry.tooltips.components[i];
+		if (registry.collisions.has(e) &&
+			registry.collisions.get(e).other == registry.players.entities[0]) {
+			Motion& motion = registry.motions.get(e);
+			std::string tooltipText = "[I] " + tooltip.tooltipText;
+			float scale = 0.8f;
+			vec2 screenPos = worldToScreenSpace(motion.position - vec2({ 0., 16. }));
+			vec2 position = centerText(tooltipText, scale, screenPos);
+
+			renderText(tooltipText, position.x, position.y, scale, { 1, 1, 1 }, glm::mat4(1.0f));
+		}
+	}
+}
+
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 void RenderSystem::draw(float elapsed_ms)
@@ -374,6 +415,8 @@ void RenderSystem::draw(float elapsed_ms)
 	if (debugging.in_debug_mode) {
 		drawDebug(elapsed_ms);
 	}
+
+	drawTooltips();
 
 
 	// flicker-free display with a double buffer

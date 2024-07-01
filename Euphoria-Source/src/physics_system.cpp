@@ -61,6 +61,7 @@ bool collides_at(Entity entity, Entity collidesWith, vec2 offsetPos) {
 
 void PhysicsSystem::checkCollisions() {
 	ComponentContainer<Collider>& colliders = registry.colliders;
+	registry.collisions.clear();
 	for (uint i = 0; i < colliders.components.size(); i++)
 	{
 		Entity entity_i = colliders.entities[i];

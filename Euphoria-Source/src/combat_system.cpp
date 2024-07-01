@@ -53,7 +53,7 @@ void CombatSystem::step(float elapsed_ms) {
 
 		if (mob.equipped_atk == WEAPON_ID::NO_WEAPON) continue;
 		Weapon* wpn = weapon.weapons[(int)mob.equipped_atk];
-		POINT_DIRS dir = getInputPointingDirection(input, wpn->basic_dirl);
+		POINT_DIRS dir = getInputPointingDirection(input, motion, wpn->basic_dirl);
 
 		if (input.key_press[KEY::BASIC]) {
 			Entity dmgEnt;
@@ -147,68 +147,65 @@ void CombatSystem::step(float elapsed_ms) {
 		Entity eThis = registry.collisions.entities[i];
 		Entity eOther = registry.collisions.components[i].other;
 
-		if (registry.mobs.has(eThis) && registry.damageColliders.has(eOther) && registry.damageColliders.get(eOther).source != eThis) {
+		if (registry.healths.has(eThis) && registry.damageColliders.has(eOther) && registry.damageColliders.get(eOther).source != eThis) {
 			DamageCollider& dc = registry.damageColliders.get(eOther);
 			// take damage
 			Health& health = registry.healths.get(eThis);
-			Mob& mob = registry.mobs.get(eThis);
-			Input& i = registry.inputs.get(eThis);
-			Physics& phys = registry.physEntities.get(eThis);
-
-			i.key = {
-				{KEY::RIGHT, false},
-				{KEY::LEFT, false},
-				{KEY::UP, false},
-				{KEY::DOWN, false},
-
-				{KEY::JUMP, false},
-
-				{KEY::BASIC, false},
-				{KEY::SPECIAL, false},
-				{KEY::GRAB, false},
-				{KEY::ENHANCE, false},
-				{KEY::DASH, false},
-			};
-			i.key_press = {
-				{KEY::RIGHT, false},
-				{KEY::LEFT, false},
-				{KEY::UP, false},
-				{KEY::DOWN, false},
-
-				{KEY::JUMP, false},
-
-				{KEY::BASIC, false},
-				{KEY::SPECIAL, false},
-				{KEY::GRAB, false},
-				{KEY::ENHANCE, false},
-				{KEY::DASH, false},
-			};
-			i.key_release = {
-				{KEY::RIGHT, false},
-				{KEY::LEFT, false},
-				{KEY::UP, false},
-				{KEY::DOWN, false},
-
-				{KEY::JUMP, false},
-
-				{KEY::BASIC, false},
-				{KEY::SPECIAL, false},
-				{KEY::GRAB, false},
-				{KEY::ENHANCE, false},
-				{KEY::DASH, false},
-			};
-
 			health.hp -= dc.dmg;
-			phys.velocity = mob.knockbackSpeed * dc.knockback;
-			phys.targetVelocity = 0.5f * mob.knockbackSpeed * dc.knockback;
-			mob.state = MOB_STATE::KNOCKBACK;
-			mob.stateTimer = 130.f;
+			if (registry.mobs.has(eThis)) {
+				Mob& mob = registry.mobs.get(eThis);
+				Input& i = registry.inputs.get(eThis);
+				Physics& phys = registry.physEntities.get(eThis);
 
-			registry.remove_all_components_of(eOther);
-		}
+				i.key = {
+					{KEY::RIGHT, false},
+					{KEY::LEFT, false},
+					{KEY::UP, false},
+					{KEY::DOWN, false},
 
-		if (registry.solids.has(eOther) && registry.damageColliders.has(eThis)) {
-			registry.remove_all_components_of(eThis);
+					{KEY::JUMP, false},
+
+					{KEY::BASIC, false},
+					{KEY::SPECIAL, false},
+					{KEY::GRAB, false},
+					{KEY::ENHANCE, false},
+					{KEY::DASH, false},
+				};
+				i.key_press = {
+					{KEY::RIGHT, false},
+					{KEY::LEFT, false},
+					{KEY::UP, false},
+					{KEY::DOWN, false},
+
+					{KEY::JUMP, false},
+
+					{KEY::BASIC, false},
+					{KEY::SPECIAL, false},
+					{KEY::GRAB, false},
+					{KEY::ENHANCE, false},
+					{KEY::DASH, false},
+				};
+				i.key_release = {
+					{KEY::RIGHT, false},
+					{KEY::LEFT, false},
+					{KEY::UP, false},
+					{KEY::DOWN, false},
+
+					{KEY::JUMP, false},
+
+					{KEY::BASIC, false},
+					{KEY::SPECIAL, false},
+					{KEY::GRAB, false},
+					{KEY::ENHANCE, false},
+					{KEY::DASH, false},
+				};
+
+				phys.velocity = mob.knockbackSpeed * dc.knockback;
+				phys.targetVelocity = 0.5f * mob.knockbackSpeed * dc.knockback;
+				mob.state = MOB_STATE::KNOCKBACK;
+				mob.stateTimer = 130.f;
+			}
+
 		}
 	}
 }

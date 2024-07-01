@@ -36,8 +36,12 @@ void InteractableSystem::doInteract(Entity e) {
 	}
 	else if (registry.items.has(e)) {
 		Item& i = registry.items.get(e);
+		registry.gameManagers.components[0].inventory[(int) i.id]++;
 		switch (i.id) {
-			
+		case ITEM_ID::CROWBAR:
+			registry.mobs.get(registry.players.entities[0]).equipped_atk = WEAPON_ID::CROWBAR;
+			break;
 		}
+		registry.remove_all_components_of(e);
 	}
 }

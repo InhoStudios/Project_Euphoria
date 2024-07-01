@@ -103,7 +103,7 @@ Entity createPlayer(vec2 pos)
 	collider.offset = { 0.f, 2.f };
 
 	Mob& mob = registry.mobs.emplace(entity);
-	mob.equipped_atk = WEAPON_ID::CROWBAR;
+	mob.equipped_atk = WEAPON_ID::NO_WEAPON;
 	mob.moveSpeed = 240.f;
 	mob.jumpSpeed = 480.f;
 	mob.knockbackSpeed = 300.f;
@@ -204,6 +204,33 @@ Entity createTiledSolid(vec2 pos, vec2 scale, TEXTURE_ASSET_ID sprite, uint inde
 	return entity;
 }
 
+Entity createBreakableBox(vec2 pos, TEXTURE_ASSET_ID sprite) {
+	auto entity = Entity();
+
+	registry.colliders.emplace(entity);
+	registry.solids.emplace(entity);
+
+	registry.physEntities.emplace(entity);
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.scale = { TILE_SIZE, TILE_SIZE };
+	motion.angle = 0.f;
+
+	motion.visible = true;
+	motion.used_texture = sprite;
+	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
+
+	motion.render_layer = RENDER_LAYER::BG_DECOR;
+
+	Health& h = registry.healths.emplace(entity);
+	h.hp = 1;
+
+	registry.levelElements.emplace(entity);
+	return entity;
+}
+
 Entity createBackground(BackgroundData bg) {
 	Entity entity;
 
@@ -274,6 +301,7 @@ Entity createItem(vec2 pos, vec2 im_scale, vec2 collider_scale,
 	motion.render_layer = RENDER_LAYER::ITEMS;
 
 	registry.items.insert(entity, { item });
+	registry.tooltips.insert(entity, { "Pick up" });
 
 	registry.levelElements.emplace(entity);
 	return entity;
@@ -298,6 +326,7 @@ Entity createTransition(TransitionData& t) {
 			t.targetPosition
 		}
 	);
+	registry.tooltips.insert(entity, { "Go" });
 
 	m.visible = true;
 	m.used_texture = t.sprite;

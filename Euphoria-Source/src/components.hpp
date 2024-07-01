@@ -16,14 +16,23 @@ enum class GAME_STATE {
 enum class LEVEL;
 enum class TEXTURE_ASSET_ID;
 enum class WEAPON_ID;
-enum class ITEM_ID;
 enum class MOVE_KIT_ID;
+
+enum class ITEM_ID {
+	DEFAULT,
+	CROWBAR,
+	BASEBALL_BAT,
+	ITEM_COUNT
+};
+const int item_count = (int)ITEM_ID::ITEM_COUNT;
+
+struct Motion;
 
 struct GameManager {
 	GAME_STATE current_state;
 	LEVEL current_level;
 
-	std::vector<ITEM_ID> unlocked_items;
+	int inventory[item_count] = { 0 };
 
 	vec2 bounds; // dynamically set 
 };
@@ -54,7 +63,6 @@ struct Player
 {
 	// put enhancements in player component? or in game manager?
 	MOVE_KIT_ID equipped_MK;
-	ITEM_ID equipped_WPN;
 };
 
 #define MID_AIR_DASH  0b00000001
@@ -133,6 +141,7 @@ struct Camera {
 	vec2 targetPosition = { 0.f, 0.f };
 	vec2 position = { 0.f, 0.f };
 	vec2 dims = { 480, 270 };
+	vec2 screenSize = { 1600, 900 };
 
 	float defaultZoom = 1.0;
 	float zoom = defaultZoom;
@@ -254,7 +263,7 @@ enum class ATK_DIRL {
 	EIGHT_WAY = 8
 };
 
-POINT_DIRS getInputPointingDirection(Input& i, ATK_DIRL dirType);
+POINT_DIRS getInputPointingDirection(Input& i, Motion& m, ATK_DIRL dirType);
 
 enum class WEAPON_ID {
 	NO_WEAPON = 0,
@@ -291,11 +300,9 @@ struct Interactable
 	bool needsInput;
 };
 
-enum class ITEM_ID {
-	DEFAULT,
-	CROWBAR,
-	BASEBALL_BAT,
-
+struct Tooltip
+{
+	std::string tooltipText = "";
 };
 
 struct Item
@@ -451,6 +458,8 @@ enum class TEXTURE_ASSET_ID {
 	HITBOX,
 	SOLID,
 	SOLID_TILES,
+
+	BREAKABLE_BOX,
 
 	BG_TUT_INT_1,
 

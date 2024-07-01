@@ -5,6 +5,8 @@ enum class Tiles {
     SOLID = 0,
     INTERACTABLE = 1,
 
+    DESTRUCTABLE_BOX = 10,
+
     CROWBAR = 60,
     BASEBALL_BAT = 61,
 
@@ -274,6 +276,8 @@ void loadGeometryFile(std::string file_path) {
                     createItem({ xTo, yTo }, { TILE_SIZE, TILE_SIZE }, { 1.f, 1.f, }, true,
                         TEXTURE_ASSET_ID::CROWBAR_ITEM, ITEM_ID::CROWBAR);
                     break;
+                case Tiles::DESTRUCTABLE_BOX:
+                    createBreakableBox({ xTo, yTo }, TEXTURE_ASSET_ID::BREAKABLE_BOX);
                 }
             }
         }

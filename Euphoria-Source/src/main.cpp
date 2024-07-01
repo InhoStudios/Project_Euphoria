@@ -65,9 +65,9 @@ int main()
 
 		world.step(clamped_ms);
 
-		physics.step(clamped_ms);
-
 		combat.step(clamped_ms);
+
+		physics.step(clamped_ms);
 
 		interactables.step();
 
