@@ -34,8 +34,8 @@ inline std::string level_path(const std::string& name) {return data_path() + "/l
 const int window_width_px = 1600;
 const int window_height_px = 900;
 
-const int screen_width_px = 640;
-const int screen_height_px = 360;
+const int screen_width_px = 320;
+const int screen_height_px = 180;
 
 const float TILE_SIZE = 16.f;
 

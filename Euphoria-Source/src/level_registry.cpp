@@ -13,6 +13,12 @@ enum class Tiles {
 
 void loadLevel(LEVEL l) {
     // clear level elements
+    for (Entity e : registry.animations.entities) {
+        if (registry.levelElements.has(e)) {
+            clearAnimation(e);
+        }
+    }
+
     while (registry.levelElements.entities.size() > 0)
         registry.remove_all_components_of(registry.levelElements.entities.back());
     // load level data
@@ -52,6 +58,8 @@ void loadGeometryFile(std::string file_path) {
         for (int xx = 0; xx < im_width; xx++) {
             Tiles tile = (Tiles) imageData[num_channels * (yy * im_width + xx)];
             uint8_t opacity = imageData[num_channels * (yy * im_width + xx) + 1];
+
+            std::cout << "Pixel at (" << xx << ", " << yy << "), tile " << (int) tile << ", opacity " << opacity << std::endl;
 
             if (opacity == 0) continue;
 

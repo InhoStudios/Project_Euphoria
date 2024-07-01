@@ -63,6 +63,8 @@ void clearAnimation(Entity e) {
 	if (registry.animations.has(e)) {
 		Animation& a = registry.animations.get(e);
 		// TODO: CLEAR AND FREE BUFFER DATA BEFORE REMOVING THE COMPONENT HERE
+		glDeleteBuffers((GLsizei)a.vertex_buffers.size(), a.vertex_buffers.data());
+		glDeleteBuffers((GLsizei)1, &a.indexBuffer);
 		registry.animations.remove(e);
 	}
 }
@@ -102,7 +104,7 @@ Entity createPlayer(vec2 pos)
 
 	Mob& mob = registry.mobs.emplace(entity);
 	mob.equipped_atk = WEAPON_ID::CROWBAR;
-	mob.moveSpeed = 270.f;
+	mob.moveSpeed = 240.f;
 	mob.jumpSpeed = 480.f;
 	mob.knockbackSpeed = 300.f;
 

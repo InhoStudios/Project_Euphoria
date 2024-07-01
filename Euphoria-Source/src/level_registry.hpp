@@ -17,7 +17,9 @@ class LevelRegistry
 public:
     std::vector<Level*> levels;
 
-    Level tut_int_1, tut_int_2, tut_int_3, tut_int_4, tut_ext_1, tut_ext_2;
+    Level tut_int_1, tut_int_2, tut_int_3,
+        tut_ext_1, tut_ext_2, tut_ext_3, tut_ext_4, tut_ext_5,
+        tut_bridge_1, tut_bridge_2;
 
     LevelRegistry() {
         this->initLevels();
@@ -26,10 +28,15 @@ public:
             &tut_int_1,
             &tut_int_2,
             &tut_int_3,
-            &tut_int_4,
+
             &tut_ext_1,
             &tut_ext_2,
+            &tut_ext_3,
+            &tut_ext_4,
+            &tut_ext_5,
 
+            &tut_bridge_1,
+            &tut_bridge_2,
 
         };
     }
@@ -64,163 +71,124 @@ private:
 
     void init_tutorial_level() {
         // init tut_int_1, 2, 3, and ext_1, 2
-        tut_int_1.directory = "tut_int_1";
-        tut_int_1.startPos = { 112, 264 };
+        tut_int_1.directory = "tutorial/tut_int_1";
+        tut_int_1.startPos = { 80, 208 };
         tut_int_1.connects.push_back(
-            createConnect(
-                LEVEL::TUT_INT_2,
-                { 24, 280 },
-                { 624, 280 },
-                { 16, 96 },
-                false,
-                TEXTURE_ASSET_ID::DEFAULT
-            )
-        );
-        tut_int_1.connects.push_back(
-            createConnect(
-                LEVEL::TUT_INT_2,
-                { 24, 184 },
-                { 624, 184 },
-                { 16, 96 },
-                false,
-                TEXTURE_ASSET_ID::DEFAULT
-            )
-        );
-        tut_int_1.connects.push_back(
-            createConnect(
-                LEVEL::TUT_INT_2,
-                { 24, 88 },
-                { 624, 88 },
-                { 16, 96 },
-                false,
-                TEXTURE_ASSET_ID::DEFAULT
-            )
-        );
-
-        tut_int_2.directory = "tut_int_2";
-        tut_int_2.startPos = { 32, 280 };
-        tut_int_2.connects.push_back(
-            createConnect(
-                LEVEL::TUT_INT_1,
-                { 600, 280 },
-                { 0, 280 },
-                { 16, 96 },
-                false,
-                TEXTURE_ASSET_ID::DEFAULT
-            )
-        );
-        tut_int_2.connects.push_back(
-            createConnect(
-                LEVEL::TUT_INT_1,
-                { 600, 184 },
-                { 0, 184 },
-                { 16, 96 },
-                false,
-                TEXTURE_ASSET_ID::DEFAULT
-            )
-        );
-        tut_int_2.connects.push_back(
-            createConnect(
-                LEVEL::TUT_INT_1,
-                { 600, 88 },
-                { 0, 88 },
-                { 16, 96 },
-                false,
-                TEXTURE_ASSET_ID::DEFAULT
-            )
-        );
-        tut_int_2.connects.push_back(
             createConnect(
                 LEVEL::TUT_EXT_1,
-                { 32, 264 },
-                { 1264, 232 },
-                { 16, 96 },
-                false,
-                TEXTURE_ASSET_ID::DEFAULT
-            )
-        );
-
-        tut_int_3.directory = "tut_int_3";
-        tut_int_3.startPos = { 32, 264 };
-        tut_int_3.connects.push_back(
-            createConnect(
-                LEVEL::TUT_EXT_1,
-                { 600, 264 },
-                { 0, 256 },
-                { 16, 48 },
-                false,
-                TEXTURE_ASSET_ID::DEFAULT
-            )
-        );
-        tut_int_3.connects.push_back(
-            createConnect(
-                LEVEL::TUT_EXT_2,
-                { 600, 264 },
-                { 0, 640 },
-                { 16, 48 },
-                false,
-                TEXTURE_ASSET_ID::DEFAULT
-            )
-        );
-
-        tut_int_4.directory = "tut_int_4";
-        tut_int_4.startPos = { 24, 280 };
-        tut_int_4.connects.push_back(
-            createConnect(
-                LEVEL::TUT_EXT_2,
-                { 600, 424 },
-                { 0, 264 },
+                { 32, 208 },
+                { 1264, 200 },
                 { 16, 64 },
                 false,
                 TEXTURE_ASSET_ID::DEFAULT
             )
         );
 
-        tut_ext_1.directory = "tut_ext_1";
-        tut_ext_1.startPos = { 32, 264 };
+        tut_ext_1.directory = "tutorial/tut_ext_1";
+        tut_ext_1.startPos = { 32, 208 };
         tut_ext_1.connects.push_back(
             createConnect(
-                LEVEL::TUT_INT_2,
-                { 1248, 264 },
-                { 0, 232 },
-                { 16, 96 },
-                false,
-                TEXTURE_ASSET_ID::DEFAULT
-            )
-        );
-        tut_ext_1.connects.push_back(
-            createConnect(
-                LEVEL::TUT_INT_3,
-                { 24, 264 },
-                { 624, 256 },
-                { 16, 48 },
-                false,
-                TEXTURE_ASSET_ID::DEFAULT
-            )
-        );
-
-        tut_ext_2.directory = "tut_ext_2";
-        tut_ext_2.startPos = { 600, 264 };
-        tut_ext_2.connects.push_back(
-            createConnect(
-                LEVEL::TUT_INT_3,
-                { 24, 648 },
-                { 624, 256 },
-                { 16, 48 },
-                false,
-                TEXTURE_ASSET_ID::DEFAULT
-            )
-        );
-        tut_ext_2.connects.push_back(
-            createConnect(
-                LEVEL::TUT_INT_4,
-                { 24, 280 },
-                { 624, 408 },
+                LEVEL::TUT_INT_1,
+                { 1232, 208 },
+                { 8, 184 },
                 { 16, 64 },
                 false,
                 TEXTURE_ASSET_ID::DEFAULT
             )
         );
+        tut_ext_1.connects.push_back(
+            createConnect(
+                LEVEL::TUT_INT_2,
+                { 32, 432 },
+                { 632, 184 },
+                { 16, 64 },
+                false,
+                TEXTURE_ASSET_ID::DEFAULT
+            )
+        );
+
+        tut_int_2.directory = "tutorial/tut_int_2";
+        tut_int_2.startPos = { 32, 432 };
+        tut_int_2.connects.push_back(
+            createConnect(
+                LEVEL::TUT_EXT_1,
+                { 616, 208 },
+                { 8, 424 },
+                { 16, 64 },
+                false,
+                TEXTURE_ASSET_ID::DEFAULT
+            )
+        );
+        tut_int_2.connects.push_back(
+            createConnect(
+                LEVEL::TUT_EXT_2,
+                { 448, 208 },
+                { 8, 200 },
+                { 16, 64 },
+                false,
+                TEXTURE_ASSET_ID::DEFAULT
+            )
+        );
+        tut_int_2.connects.push_back(
+            createConnect(
+                LEVEL::TUT_EXT_3,
+                { 32, 216 },
+                { 496, 104 },
+                { 16, 32 },
+                false,
+                TEXTURE_ASSET_ID::DEFAULT
+            )
+        );
+
+        tut_ext_2.directory = "tutorial/tut_ext_2";
+        tut_ext_2.startPos = { 448, 208 };
+        tut_ext_2.connects.push_back(
+            createConnect(
+                LEVEL::TUT_INT_2,
+                { 32, 216 },
+                { 496, 200 },
+                { 16, 64 },
+                false,
+                TEXTURE_ASSET_ID::DEFAULT
+            )
+        );
+
+        tut_ext_3.directory = "tutorial/tut_ext_3";
+        tut_ext_3.startPos = { 32, 216 };
+        tut_ext_3.connects.push_back(
+            createConnect(
+                LEVEL::TUT_INT_2,
+                { 464, 104 },
+                { 8, 208 },
+                { 16, 64 },
+                false,
+                TEXTURE_ASSET_ID::DEFAULT
+            )
+        );
+        tut_ext_3.connects.push_back(
+            createConnect(
+                LEVEL::TUT_INT_3,
+                { 368, 32 },
+                { 560, 288 },
+                { 128, 16 },
+                false,
+                TEXTURE_ASSET_ID::DEFAULT
+            )
+        );
+        
+        tut_int_3.directory = "tutorial/tut_int_3";
+        tut_int_3.startPos = { 368, 32 };
+        tut_int_3.connects.push_back(
+            createConnect(
+                LEVEL::TUT_EXT_3,
+                { 512, 192 },
+                { 336, -16 },
+                { 128, 16 },
+                false,
+                TEXTURE_ASSET_ID::DEFAULT
+            )
+        );
+
     }
 };
 

@@ -54,7 +54,7 @@ struct Player
 {
 	// put enhancements in player component? or in game manager?
 	MOVE_KIT_ID equipped_MK;
-	ITEM_ID 
+	ITEM_ID equipped_WPN;
 };
 
 #define MID_AIR_DASH  0b00000001
@@ -66,7 +66,7 @@ struct Player
 struct DashKit
 {
 	int enabled_dashes = 0b00000000;
-	float dashSpeed = 3000.f;
+	float dashSpeed = 2000.f;
 	float cd, cdTime = 600.f;
 	float ctMax = 350.f, ctMin = 250.f;
 };
@@ -132,7 +132,7 @@ struct Solid {
 struct Camera {
 	vec2 targetPosition = { 0.f, 0.f };
 	vec2 position = { 0.f, 0.f };
-	vec2 dims = { 640., 360. };
+	vec2 dims = { 480, 270 };
 
 	float defaultZoom = 1.0;
 	float zoom = defaultZoom;
@@ -341,11 +341,15 @@ enum class LEVEL {
 	TUT_INT_1,
 	TUT_INT_2,
 	TUT_INT_3,
-	TUT_INT_4,
+
 	TUT_EXT_1,
 	TUT_EXT_2,
+	TUT_EXT_3,
+	TUT_EXT_4,
+	TUT_EXT_5,
 
-
+	TUT_BRIDGE_1,
+	TUT_BRIDGE_2,
 
 	NUM_LEVELS,
 };
