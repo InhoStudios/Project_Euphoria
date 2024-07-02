@@ -465,6 +465,7 @@ enum class TEXTURE_ASSET_ID {
 	BREAKABLE_BOX,
 
 	BG_TUT_INT_1,
+	BG_TUT_INT_3,
 
 	PLAYER,
 	PLAYER_IDLE,
@@ -490,7 +491,7 @@ enum class EFFECT_ASSET_ID {
 	EGG,
 	CHICKEN,
 	TEXTURED,
-	WIND,
+	SCREEN,
 	EFFECT_COUNT
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;

@@ -13,7 +13,7 @@ vec2 distort(vec2 uv)
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// TODO A1: HANDLE THE WIND DISTORTION HERE (you may want to try sin/cos)
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+	// vec2 glitch = vec2(round(cos(time / 5.0 + 20.0 * uv[0])) / 255.0 + uv[0], uv[1]);
 	return uv;
 }
 
@@ -38,6 +38,13 @@ void main()
 	vec2 coord = distort(texcoord);
 
     vec4 in_color = texture(screen_texture, coord);
-    color = color_shift(in_color);
+
+    vec4 red = texture(screen_texture, coord - vec2(0.0015, 0.0005));
+    vec4 green = texture(screen_texture, coord);
+    vec4 blue = texture(screen_texture, coord + vec2(0.0015, 0.0005));  
+
+	color = vec4(red.r, green.g, blue.b, 1.0);
+
+    color = color_shift(color);
     color = fade_color(color);
 }

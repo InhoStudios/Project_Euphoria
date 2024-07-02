@@ -27,6 +27,11 @@ void loadLevel(LEVEL l) {
 
     Level& level = levels.get(l);
 
+    // load backgrounds
+    for (BackgroundData& bg : level.backgrounds) {
+        createBackground(bg);
+    }
+
     // temp: load geometry file
     loadGeometryFile(level_path(level.directory + "/geometry.png"));
     loadEntityFile(level_path(level.directory + "/entities.png"));
