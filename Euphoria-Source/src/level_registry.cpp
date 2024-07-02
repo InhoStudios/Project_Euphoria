@@ -61,7 +61,7 @@ void loadGeometryFile(std::string file_path) {
             Tiles tile = (Tiles) imageData[num_channels * (yy * im_width + xx)];
             uint8_t opacity = imageData[num_channels * (yy * im_width + xx) + 1];
 
-            std::cout << "Pixel at (" << xx << ", " << yy << "), tile " << (int) tile << ", opacity " << opacity << std::endl;
+            // std::cout << "Pixel at (" << xx << ", " << yy << "), tile " << (int) tile << ", opacity " << opacity << std::endl;
 
             if (opacity == 0) continue;
 
