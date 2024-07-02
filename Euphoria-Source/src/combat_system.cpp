@@ -1,4 +1,5 @@
 #include "combat_system.hpp"
+#include "world_init.hpp"
 
 WeaponRegistry weapon;
 
@@ -10,7 +11,7 @@ Entity instantiateDamage(Entity source, vec2 position, vec2 scale,
 	motion.position = position;
 	motion.scale = scale;
 
-	motion.visible = true;
+	motion.visible = false;
 	motion.used_texture = TEXTURE_ASSET_ID::HITBOX;
 	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
 	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
@@ -73,8 +74,15 @@ void CombatSystem::step(float elapsed_ms) {
 
 			switch (mob.equipped_atk) {
 			case WEAPON_ID::CROWBAR:
-				dmgEnt = instantiateDamage(entity, motion.position + vec2({ facing * wpn->basic_range, 0.f }),
-					{ 2 * TILE_SIZE, TILE_SIZE }, facing * wpn->basic_kb, wpn->basic_dmg, 25);
+				if (mob.state != MOB_STATE::ATTACK) {
+					mob.state = MOB_STATE::ATTACK;
+					dmgEnt = instantiateDamage(entity, motion.position + vec2({ facing * wpn->basic_range, 0.f }),
+						{ 2 * TILE_SIZE, TILE_SIZE }, facing * wpn->basic_kb, wpn->basic_dmg, 25);
+					if (registry.players.has(entity)) {
+						motion.scale.x = x * 2 * PLAYER_DIMS;
+						setAnimation(entity, TEXTURE_ASSET_ID::PLAYER_SWING_CROWBAR, 7, 0, 30);
+					}
+				}
 				break;
 			case WEAPON_ID::SHOTGUN:
 			{

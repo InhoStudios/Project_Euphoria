@@ -64,6 +64,11 @@ class RenderSystem {
 			textures_path("player/spr_player_run.png"),
 			textures_path("player/spr_player_jump.png"),
 
+			textures_path("player/spr_player_idle_crowbar.png"),
+			textures_path("player/spr_player_run_crowbar.png"),
+			textures_path("player/spr_player_jump_crowbar.png"),
+			textures_path("player/spr_player_crowbar_swing.png"),
+
 			textures_path("spr_enemy.png"),
 
 			textures_path("spr_crowbar_item.png"),

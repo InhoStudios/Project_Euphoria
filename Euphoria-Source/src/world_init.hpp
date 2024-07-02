@@ -10,7 +10,7 @@ const float PLAYER_DIMS = 32.f;
 
 Entity setAnimation(Entity e, TEXTURE_ASSET_ID sheet, int numFrames, int index, float frameRate);
 void clearAnimation(Entity e);
-
+	
 Entity createGameManager();
 // the player
 Entity createPlayer(vec2 pos);
