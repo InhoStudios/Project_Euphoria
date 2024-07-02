@@ -1,5 +1,7 @@
 #include "combat_system.hpp"
 #include "world_init.hpp"
+#include <thread>         // std::this_thread::sleep_for
+#include <chrono>         // std::chrono::seconds
 
 WeaponRegistry weapon;
 

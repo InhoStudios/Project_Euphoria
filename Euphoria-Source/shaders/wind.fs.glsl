@@ -3,6 +3,7 @@
 uniform sampler2D screen_texture;
 uniform float time;
 uniform float darken_screen_factor;
+uniform int enhanced;
 
 in vec2 texcoord;
 
@@ -39,9 +40,9 @@ void main()
 
     vec4 in_color = texture(screen_texture, coord);
 
-    vec4 red = texture(screen_texture, coord - vec2(0.0015, 0.0005));
+    vec4 red = texture(screen_texture, coord - enhanced * vec2(0.0015, 0.0005));
     vec4 green = texture(screen_texture, coord);
-    vec4 blue = texture(screen_texture, coord + vec2(0.0015, 0.0005));  
+    vec4 blue = texture(screen_texture, coord + enhanced * vec2(0.0015, 0.0005));  
 
 	color = vec4(red.r, green.g, blue.b, 1.0);
 

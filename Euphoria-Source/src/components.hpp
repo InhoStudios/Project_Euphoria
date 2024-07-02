@@ -64,6 +64,8 @@ struct Player
 {
 	// put enhancements in player component? or in game manager?
 	MOVE_KIT_ID equipped_MK;
+
+	bool enhanced = true;
 };
 
 #define MID_AIR_DASH  0b00000001
