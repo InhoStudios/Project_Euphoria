@@ -368,6 +368,8 @@ struct Level {
 	vec2 mapPos;
 	vec2 startPos;
 	// backgrounds
+	std::vector<BackgroundData> backgrounds;
+	std::vector<BackgroundData> foregrounds;
 	// doors
 	std::vector<TransitionData> connects;
 };

@@ -256,6 +256,31 @@ Entity createBackground(BackgroundData bg) {
 	return entity;
 }
 
+Entity createForeground(BackgroundData bg) {
+	Entity entity;
+
+	registry.backgrounds.insert(
+		entity,
+		{ bg.parallaxDistance,
+			bg.pos }
+	);
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = bg.pos;
+	motion.scale = bg.scale;
+
+	motion.visible = true;
+
+	motion.used_texture = bg.background;
+	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
+
+	motion.render_layer = RENDER_LAYER::FOREGROUND;
+
+	registry.levelElements.emplace(entity);
+	return entity;
+}
+
 Entity createLine(vec2 position, vec2 scale)
 {
 	Entity entity = Entity();
