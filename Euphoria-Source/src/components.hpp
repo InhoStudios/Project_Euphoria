@@ -16,10 +16,23 @@ enum class GAME_STATE {
 enum class LEVEL;
 enum class TEXTURE_ASSET_ID;
 enum class WEAPON_ID;
+enum class MOVE_KIT_ID;
+
+enum class ITEM_ID {
+	DEFAULT,
+	CROWBAR,
+	BASEBALL_BAT,
+	ITEM_COUNT
+};
+const int item_count = (int)ITEM_ID::ITEM_COUNT;
+
+struct Motion;
 
 struct GameManager {
 	GAME_STATE current_state;
 	LEVEL current_level;
+
+	int inventory[item_count] = { 0 };
 
 	vec2 bounds; // dynamically set 
 };
@@ -30,13 +43,27 @@ enum class MOB_STATE {
 	DASH,
 	KNOCKBACK,
 	FLEE,
+	DORMANT,
 	INVINCIBLE
+};
+
+enum class POINT_DIRS {
+	NEUTRAL,
+	UP_LEFT,
+	UP,
+	UP_RIGHT,
+	RIGHT,
+	DOWN_RIGHT,
+	DOWN,
+	DOWN_LEFT,
+	LEFT
 };
 
 // Player component
 struct Player
 {
 	// put enhancements in player component? or in game manager?
+	MOVE_KIT_ID equipped_MK;
 };
 
 #define MID_AIR_DASH  0b00000001
@@ -48,7 +75,7 @@ struct Player
 struct DashKit
 {
 	int enabled_dashes = 0b00000000;
-	float dashSpeed = 3000.f;
+	float dashSpeed = 2000.f;
 	float cd, cdTime = 600.f;
 	float ctMax = 350.f, ctMin = 250.f;
 };
@@ -69,8 +96,19 @@ struct Mob {
 	float knockbackSpeed;
 	int numJumps;
 
+	float stateTimer = 0.f;
+
 	WEAPON_ID equipped_atk;
 }; 
+
+struct AnimatedMob {
+	TEXTURE_ASSET_ID run;
+	TEXTURE_ASSET_ID jump;
+	TEXTURE_ASSET_ID idle;
+	TEXTURE_ASSET_ID crouch;
+	TEXTURE_ASSET_ID crouch_walk;
+	TEXTURE_ASSET_ID slide;
+};
 
 struct Health {
 	int hp = 10;
@@ -103,7 +141,8 @@ struct Solid {
 struct Camera {
 	vec2 targetPosition = { 0.f, 0.f };
 	vec2 position = { 0.f, 0.f };
-	vec2 dims = { 640., 360. };
+	vec2 dims = { 480, 270 };
+	vec2 screenSize = { 1600, 900 };
 
 	float defaultZoom = 1.0;
 	float zoom = defaultZoom;
@@ -206,13 +245,6 @@ struct Input {
 	};
 };
 
-// All data relevant to the shape and motion of entities
-struct Motion {
-	vec2 position = { 0, 0 };
-	float angle = 0;
-	vec2 scale = { 10, 10 };
-};
-
 // Stucture to store collision information
 struct Collision
 {
@@ -232,16 +264,22 @@ enum class ATK_DIRL {
 	EIGHT_WAY = 8
 };
 
+POINT_DIRS getInputPointingDirection(Input& i, Motion& m, ATK_DIRL dirType);
+
 enum class WEAPON_ID {
 	NO_WEAPON = 0,
 	CROWBAR,
 	SHOTGUN,
 	BASEBALL_BAT,
-	BRASS_KNUCKLES
+	BRASS_KNUCKLES,
+	RAILGUN,
+	POP_SICKLE,
+	ARM_BLADES,
 };
 
 struct Weapon {
 	int basic_jolt, special_jolt;
+	float basic_jolt_time, special_jolt_time;
 	int basic_kb, special_kb;
 	int basic_dmg, special_dmg;
 	int basic_range, special_range;
@@ -261,6 +299,16 @@ struct Interactable
 	//  Anything that can be collided with by the player and picked up
 	vec2 boundsScale = { 1.f, 1.f }; // scale of the hitbox to the size of the collider
 	bool needsInput;
+};
+
+struct Tooltip
+{
+	std::string tooltipText = "";
+};
+
+struct Item
+{
+	ITEM_ID id;
 };
 
 // LEVEL COMPONENTS
@@ -285,15 +333,31 @@ struct LevelElement {
 
 };
 
+struct Background {
+	float parallaxDistance;
+	vec2 centre;
+};
+
+struct BackgroundData {
+	vec2 pos;
+	vec2 scale;
+	float parallaxDistance;
+	TEXTURE_ASSET_ID background;
+};
+
 enum class LEVEL {
 	TUT_INT_1,
 	TUT_INT_2,
 	TUT_INT_3,
-	TUT_INT_4,
+
 	TUT_EXT_1,
 	TUT_EXT_2,
+	TUT_EXT_3,
+	TUT_EXT_4,
+	TUT_EXT_5,
 
-
+	TUT_BRIDGE_1,
+	TUT_BRIDGE_2,
 
 	NUM_LEVELS,
 };
@@ -304,6 +368,8 @@ struct Level {
 	vec2 mapPos;
 	vec2 startPos;
 	// backgrounds
+	std::vector<BackgroundData> backgrounds;
+	std::vector<BackgroundData> foregrounds;
 	// doors
 	std::vector<TransitionData> connects;
 };
@@ -321,7 +387,6 @@ struct Debug {
 	float redraw_slow = 500.f, redraw_fast = 42.f;
 	int fps, px, py;
 	float vx, vy;
-	float dashDuration = 0.f;
 };
 extern Debug debugging;
 
@@ -396,8 +461,26 @@ enum class TEXTURE_ASSET_ID {
 	HITBOX,
 	SOLID,
 	SOLID_TILES,
+
+	BREAKABLE_BOX,
+
+	BG_TUT_INT_1,
+
 	PLAYER,
+	PLAYER_IDLE,
+	PLAYER_IDLE_NOHELM,
+	PLAYER_RUN,
+	PLAYER_JUMP,
+
+	PLAYER_IDLE_CROWBAR,
+	PLAYER_RUN_CROWBAR,
+	PLAYER_JUMP_CROWBAR,
+	PLAYER_SWING_CROWBAR,
+
 	GB_ENEMY,
+
+	CROWBAR_ITEM,
+
 	TEXTURE_COUNT
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
@@ -422,6 +505,31 @@ enum class GEOMETRY_BUFFER_ID {
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 
+enum class RENDER_LAYER {
+	BACKGROUND = 0,
+	BG_DECOR,
+	BG_ELEMENTS,
+	ENTITIES,
+	ITEMS,
+	FG_DECOR,
+	FOREGROUND,
+	DEBUG
+};
+
+// All data relevant to the shape and motion of entities
+struct Motion {
+	vec2 position = { 0, 0 };
+	float angle = 0;
+	vec2 scale = { 10, 10 };
+
+	bool visible;
+	RENDER_LAYER render_layer;
+
+	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
+	EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;
+	GEOMETRY_BUFFER_ID used_geometry = GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
+};
+
 struct RenderRequest {
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
 	EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;
@@ -431,8 +539,8 @@ struct RenderRequest {
 struct Animation
 {
 	TEXTURE_ASSET_ID sheet;
-	uint numFrames;
-	uint index;
+	int numFrames;
+	int index;
 	float frameRate;
 	float msCounter = 0.f;
 

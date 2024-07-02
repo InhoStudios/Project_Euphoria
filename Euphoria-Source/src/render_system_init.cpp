@@ -288,8 +288,8 @@ RenderSystem::~RenderSystem()
 	gl_has_errors();
 
 	// remove all entities created by the render system
-	while (registry.renderRequests.entities.size() > 0)
-	    registry.remove_all_components_of(registry.renderRequests.entities.back());
+	while (registry.motions.entities.size() > 0)
+	    registry.remove_all_components_of(registry.motions.entities.back());
 }
 
 // Initialize the screen texture from a standard sprite
@@ -521,7 +521,7 @@ bool RenderSystem::initFont(const std::string& font_filename, unsigned int font_
 			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
 			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
 			static_cast<unsigned int>(face->glyph->advance.x),
-			c
+			(char) c
 		};
 		m_ftCharacters.insert(std::pair<char, Character>(c, character));
 	}

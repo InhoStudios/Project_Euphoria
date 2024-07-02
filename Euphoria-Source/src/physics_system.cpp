@@ -61,6 +61,7 @@ bool collides_at(Entity entity, Entity collidesWith, vec2 offsetPos) {
 
 void PhysicsSystem::checkCollisions() {
 	ComponentContainer<Collider>& colliders = registry.colliders;
+	registry.collisions.clear();
 	for (uint i = 0; i < colliders.components.size(); i++)
 	{
 		Entity entity_i = colliders.entities[i];
@@ -109,7 +110,6 @@ void doDashes(Entity& p, float elapsed_ms) {
 			if ((mob.state != MOB_STATE::DASH && d.cd <= 0.1f) ||
 				(d.enabled_dashes & CHAIN_DASH && d.cd < d.ctMax && d.cd > d.ctMin)) {
 				if (!physics.inAir || d.enabled_dashes & MID_AIR_DASH) {
-					debugging.dashDuration = 0.f;
 
 					d.cd = d.cdTime;
 
@@ -130,7 +130,6 @@ void doDashes(Entity& p, float elapsed_ms) {
 		if (debugging.in_debug_mode) {
 			switch (mob.state) {
 			case MOB_STATE::DASH:
-				debugging.dashDuration += elapsed_ms;
 				break;
 			default:
 				break;
@@ -224,8 +223,11 @@ void PhysicsSystem::doGravity(float elapsed_ms) {
 		Physics& physics = physics_registry.get(entity);
 
 		// player check
-		if (registry.mobs.has(entity) && registry.mobs.get(entity).state != MOB_STATE::MOVE
-			&& registry.mobs.get(entity).state != MOB_STATE::KNOCKBACK) {
+		if (registry.mobs.has(entity)) {
+			Mob& mob = registry.mobs.get(entity);
+			if (mob.state != MOB_STATE::MOVE &&
+				mob.state != MOB_STATE::ATTACK && 
+				mob.state != MOB_STATE::KNOCKBACK)
 			continue;
 		}
 
@@ -295,10 +297,6 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 							m.airJumps = 0;
 							m.wallJumps = 0;
 							m.coyoteMS = 0;
-							if (m.state == MOB_STATE::KNOCKBACK) {
-								m.state = MOB_STATE::MOVE;
-								physComp.targetVelocity = { 0., 0. };
-							}
 						}
 					}
 					else if (registry.mobs.has(entity)) {
@@ -319,8 +317,8 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 							) &&
 							input.key[KEY::GRAB] &&
 							physComp.inAir) {
-							if (vsp > 1) {
-								vsp = 1;
+							if (vsp > 0.1) {
+								vsp = 0.1;
 								physComp.targetVelocity.y = (float)vsp / step_seconds;
 								physComp.velocity.y = (float)vsp / step_seconds;
 							}
@@ -329,7 +327,7 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 					}
 					
 					// COLLISION CODE
-					if (collides_at(entity, otherEntity, { 0., vsp })) {
+					if (collides_at(entity, otherEntity, { 0., vsp }) && !registry.damageColliders.has(entity)) {
 						motion.position = startPos;
 						physComp.targetVelocity.y = -(physComp.elasticity * physComp.targetVelocity.y);
 						physComp.velocity.y = -(physComp.elasticity * physComp.velocity.y);
@@ -341,7 +339,7 @@ void PhysicsSystem::doPhysicsCollisions(float elapsed_ms) {
 						vsp = 0;
 					}
 
-					if (collides_at(entity, otherEntity, { hsp, 0. })) {
+					if (collides_at(entity, otherEntity, { hsp, 0. }) && !registry.damageColliders.has(entity)) {
 						int yplus = 0;
 
 						while (collides_at(entity, otherEntity, { hsp, -yplus }) && 

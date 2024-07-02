@@ -5,11 +5,22 @@ enum class Tiles {
     SOLID = 0,
     INTERACTABLE = 1,
 
+    DESTRUCTABLE_BOX = 10,
+
+    CROWBAR = 60,
+    BASEBALL_BAT = 61,
+
     ENEMY = 72,
 };
 
 void loadLevel(LEVEL l) {
     // clear level elements
+    for (Entity e : registry.animations.entities) {
+        if (registry.levelElements.has(e)) {
+            clearAnimation(e);
+        }
+    }
+
     while (registry.levelElements.entities.size() > 0)
         registry.remove_all_components_of(registry.levelElements.entities.back());
     // load level data
@@ -19,6 +30,7 @@ void loadLevel(LEVEL l) {
     // temp: load geometry file
     loadGeometryFile(level_path(level.directory + "/geometry.png"));
     loadEntityFile(level_path(level.directory + "/entities.png"));
+
     // load connects
     for (TransitionData& connect : level.connects) {
         createTransition(connect);
@@ -48,6 +60,8 @@ void loadGeometryFile(std::string file_path) {
         for (int xx = 0; xx < im_width; xx++) {
             Tiles tile = (Tiles) imageData[num_channels * (yy * im_width + xx)];
             uint8_t opacity = imageData[num_channels * (yy * im_width + xx) + 1];
+
+            // std::cout << "Pixel at (" << xx << ", " << yy << "), tile " << (int) tile << ", opacity " << opacity << std::endl;
 
             if (opacity == 0) continue;
 
@@ -255,8 +269,15 @@ void loadGeometryFile(std::string file_path) {
                     break;
                 }
                 case Tiles::INTERACTABLE:
-                    createItem({ xTo, yTo }, { TILE_SIZE, TILE_SIZE }, { 1.f, 1.f, }, true);
+                    createItem({ xTo, yTo }, { TILE_SIZE, TILE_SIZE }, { 1.f, 1.f, }, true, 
+                        TEXTURE_ASSET_ID::DEFAULT, ITEM_ID::DEFAULT);
                     break;
+                case Tiles::CROWBAR:
+                    createItem({ xTo, yTo }, { TILE_SIZE, TILE_SIZE }, { 1.f, 1.f, }, true,
+                        TEXTURE_ASSET_ID::CROWBAR_ITEM, ITEM_ID::CROWBAR);
+                    break;
+                case Tiles::DESTRUCTABLE_BOX:
+                    createBreakableBox({ xTo, yTo }, TEXTURE_ASSET_ID::BREAKABLE_BOX);
                 }
             }
         }

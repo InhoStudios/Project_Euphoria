@@ -13,6 +13,7 @@
 #include "interactable_system.hpp"
 #include "ai_system.hpp"
 #include "combat_system.hpp"
+#include "mob_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -27,6 +28,7 @@ int main()
 	AISystem ai;
 	InteractableSystem interactables;
 	CombatSystem combat;
+	MobSystem mobs;
 
 	// Initializing window
 	GLFWwindow* window = world.create_window();
@@ -59,11 +61,13 @@ int main()
 
 		ai.step(clamped_ms);
 
+		mobs.step(clamped_ms);
+
 		world.step(clamped_ms);
 
-		physics.step(clamped_ms);
-
 		combat.step(clamped_ms);
+
+		physics.step(clamped_ms);
 
 		interactables.step();
 

@@ -1,0 +1,3 @@
+C:/Users/Andy/Documents/Repos/Project_Euphoria/Euphoria-Source/CMakeFiles/Euphoria.dir
+C:/Users/Andy/Documents/Repos/Project_Euphoria/Euphoria-Source/CMakeFiles/ALL_BUILD.dir
+C:/Users/Andy/Documents/Repos/Project_Euphoria/Euphoria-Source/CMakeFiles/ZERO_CHECK.dir

@@ -1,9 +1,21 @@
 #include "world_init.hpp"
 #include "tiny_ecs_registry.hpp"
 
-Entity setAnimation(Entity e, TEXTURE_ASSET_ID sheet, uint numFrames, uint index, float frameRate) {
+Entity setAnimation(Entity e, TEXTURE_ASSET_ID sheet, int numFrames, int index, float frameRate) {
 	// generate animation
-	if (registry.animations.has(e)) registry.animations.remove(e);
+	if (registry.animations.has(e)) {
+		if (registry.animations.get(e).sheet != sheet) {
+			registry.animations.remove(e);
+		}
+		else {
+			Animation& animation = registry.animations.get(e);
+			if (index != 0 || frameRate == 0) {
+				animation.index = index;
+			}
+			animation.frameRate = frameRate;
+			return e;
+		}
+	}
 
 	Animation& animation = registry.animations.emplace(e);
 	animation.sheet = sheet;
@@ -48,7 +60,13 @@ Entity setAnimation(Entity e, TEXTURE_ASSET_ID sheet, uint numFrames, uint index
 }
 
 void clearAnimation(Entity e) {
-	if (registry.animations.has(e)) registry.animations.remove(e);
+	if (registry.animations.has(e)) {
+		Animation& a = registry.animations.get(e);
+		// TODO: CLEAR AND FREE BUFFER DATA BEFORE REMOVING THE COMPONENT HERE
+		glDeleteBuffers((GLsizei)a.vertex_buffers.size(), a.vertex_buffers.data());
+		glDeleteBuffers((GLsizei)1, &a.indexBuffer);
+		registry.animations.remove(e);
+	}
 }
 
 Entity createGameManager() {
@@ -86,7 +104,7 @@ Entity createPlayer(vec2 pos)
 
 	Mob& mob = registry.mobs.emplace(entity);
 	mob.equipped_atk = WEAPON_ID::NO_WEAPON;
-	mob.moveSpeed = 270.f;
+	mob.moveSpeed = 240.f;
 	mob.jumpSpeed = 480.f;
 	mob.knockbackSpeed = 300.f;
 
@@ -96,11 +114,12 @@ Entity createPlayer(vec2 pos)
 	motion.angle = 0.f;
 	motion.scale = { PLAYER_DIMS, PLAYER_DIMS };
 
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::PLAYER, // TEXTURE_COUNT indicates that no txture is needed
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
+	motion.visible = true;
+	motion.used_texture = TEXTURE_ASSET_ID::PLAYER;
+	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
+
+	motion.render_layer = RENDER_LAYER::ENTITIES;
 
 	return entity;
 }
@@ -127,7 +146,7 @@ Entity createEnemy(vec2 pos) {
 	mob.equipped_atk = WEAPON_ID::NO_WEAPON;
 	mob.moveSpeed = 75.f;
 	mob.jumpSpeed = 600.f;
-	mob.knockbackSpeed = 300.f;
+	mob.knockbackSpeed = 200.f;
 
 	// Setting initial motion values
 	Motion& motion = registry.motions.emplace(entity);
@@ -135,11 +154,12 @@ Entity createEnemy(vec2 pos) {
 	motion.angle = 0.f;
 	motion.scale = { PLAYER_DIMS, PLAYER_DIMS };
 
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::GB_ENEMY, // TEXTURE_COUNT indicates that no txture is needed
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
+	motion.visible = true;
+	motion.used_texture = TEXTURE_ASSET_ID::GB_ENEMY;
+	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
+
+	motion.render_layer = RENDER_LAYER::ENTITIES;
 
 	registry.levelElements.emplace(entity);
 	return entity;
@@ -159,11 +179,12 @@ Entity createSolid(vec2 pos, vec2 scale, TEXTURE_ASSET_ID sprite) {
 	motion.scale = scale;
 	motion.angle = 0.f;
 
-	registry.renderRequests.insert(
-		entity,
-		{ sprite, // TEXTURE_COUNT indicates that no txture is needed
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
+	motion.visible = true;
+	motion.used_texture = sprite;
+	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
+
+	motion.render_layer = RENDER_LAYER::BG_DECOR;
 
 	registry.levelElements.emplace(entity);
 	return entity;
@@ -183,16 +204,86 @@ Entity createTiledSolid(vec2 pos, vec2 scale, TEXTURE_ASSET_ID sprite, uint inde
 	return entity;
 }
 
+Entity createBreakableBox(vec2 pos, TEXTURE_ASSET_ID sprite) {
+	auto entity = Entity();
+
+	registry.colliders.emplace(entity);
+	registry.solids.emplace(entity);
+
+	registry.physEntities.emplace(entity);
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.scale = { TILE_SIZE, TILE_SIZE };
+	motion.angle = 0.f;
+
+	motion.visible = true;
+	motion.used_texture = sprite;
+	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
+
+	motion.render_layer = RENDER_LAYER::BG_DECOR;
+
+	Health& h = registry.healths.emplace(entity);
+	h.hp = 1;
+
+	registry.levelElements.emplace(entity);
+	return entity;
+}
+
+Entity createBackground(BackgroundData bg) {
+	Entity entity;
+
+	registry.backgrounds.insert(
+		entity,
+		{ bg.parallaxDistance,
+			bg.pos }
+	);
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = bg.pos;
+	motion.scale = bg.scale;
+
+	motion.visible = true;
+
+	motion.used_texture = bg.background;
+	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
+
+	motion.render_layer = RENDER_LAYER::BACKGROUND;
+
+	registry.levelElements.emplace(entity);
+	return entity;
+}
+
+Entity createForeground(BackgroundData bg) {
+	Entity entity;
+
+	registry.backgrounds.insert(
+		entity,
+		{ bg.parallaxDistance,
+			bg.pos }
+	);
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = bg.pos;
+	motion.scale = bg.scale;
+
+	motion.visible = true;
+
+	motion.used_texture = bg.background;
+	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
+
+	motion.render_layer = RENDER_LAYER::FOREGROUND;
+
+	registry.levelElements.emplace(entity);
+	return entity;
+}
+
 Entity createLine(vec2 position, vec2 scale)
 {
 	Entity entity = Entity();
-
-	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
-		 EFFECT_ASSET_ID::EGG,
-		 GEOMETRY_BUFFER_ID::DEBUG_LINE });
 
 	// Create motion
 	Motion& motion = registry.motions.emplace(entity);
@@ -200,12 +291,21 @@ Entity createLine(vec2 position, vec2 scale)
 	motion.position = position;
 	motion.scale = scale;
 
+
+	motion.visible = true;
+	motion.used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
+	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	motion.used_geometry = GEOMETRY_BUFFER_ID::DEBUG_LINE;
+
+	motion.render_layer = RENDER_LAYER::DEBUG;
+
 	registry.debugComponents.emplace(entity);
 	return entity;
 }
 
 // TODO: ADD SPRITES OR TYPING
-Entity createItem(vec2 pos, vec2 im_scale, vec2 collider_scale, bool needsInput) {
+Entity createItem(vec2 pos, vec2 im_scale, vec2 collider_scale, 
+	bool needsInput, TEXTURE_ASSET_ID sprite, ITEM_ID item) {
 	Entity entity = Entity();
 
 	registry.colliders.emplace(entity);
@@ -218,14 +318,15 @@ Entity createItem(vec2 pos, vec2 im_scale, vec2 collider_scale, bool needsInput)
 	i.boundsScale = collider_scale;
 	i.needsInput = needsInput;
 
-	registry.renderRequests.insert(
-		entity,
-		{
-			TEXTURE_ASSET_ID::DEFAULT,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		}
-	);
+	motion.visible = true;
+	motion.used_texture = sprite;
+	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
+
+	motion.render_layer = RENDER_LAYER::ITEMS;
+
+	registry.items.insert(entity, { item });
+	registry.tooltips.insert(entity, { "Pick up" });
 
 	registry.levelElements.emplace(entity);
 	return entity;
@@ -250,15 +351,14 @@ Entity createTransition(TransitionData& t) {
 			t.targetPosition
 		}
 	);
+	registry.tooltips.insert(entity, { "Go" });
 
-	registry.renderRequests.insert(
-		entity,
-		{
-			t.sprite,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		}
-	);
+	m.visible = true;
+	m.used_texture = t.sprite;
+	m.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	m.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
+
+	m.render_layer = RENDER_LAYER::BG_ELEMENTS;
 
 	registry.levelElements.emplace(entity);
 	return entity;

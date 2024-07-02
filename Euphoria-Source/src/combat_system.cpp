@@ -1,4 +1,5 @@
 #include "combat_system.hpp"
+#include "world_init.hpp"
 
 WeaponRegistry weapon;
 
@@ -10,21 +11,20 @@ Entity instantiateDamage(Entity source, vec2 position, vec2 scale,
 	motion.position = position;
 	motion.scale = scale;
 
+	motion.visible = false;
+	motion.used_texture = TEXTURE_ASSET_ID::HITBOX;
+	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
+
 	registry.colliders.emplace(entity);
 
 	DamageCollider& dmg = registry.damageColliders.emplace(entity);
 	dmg.source = source;
-	dmg.knockback = { knockback, -abs(knockback) };
+	dmg.knockback = { knockback, - 0.5f * abs(knockback)};
 	dmg.dmg = damage;
 	dmg.ttl = ttl;
 
 	registry.levelElements.emplace(entity);
-
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::HITBOX, // TEXTURE_COUNT indicates that no txture is needed
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
@@ -52,11 +52,101 @@ void CombatSystem::step(float elapsed_ms) {
 
 		int facing = (motion.scale.x > 0) - (motion.scale.x < 0);
 
+		if (mob.equipped_atk == WEAPON_ID::NO_WEAPON) continue;
+		Weapon* wpn = weapon.weapons[(int)mob.equipped_atk];
+		POINT_DIRS dir = getInputPointingDirection(input, motion, wpn->basic_dirl);
+
 		if (input.key_press[KEY::BASIC]) {
-			Weapon *wpn = weapon.weapons[(int) mob.equipped_atk];
-			instantiateDamage(entity, motion.position + vec2({ facing * wpn->basic_range, 0.f }), 
-				{2 * TILE_SIZE, TILE_SIZE}, facing * wpn->basic_kb, wpn->basic_dmg, 25);
-			phys.velocity.x = facing * wpn->basic_jolt;
+			Entity dmgEnt;
+
+			// do jolt dir
+			float angle = ((int)dir - 4) * (M_PI / 4);
+			float x = cos(angle);
+			float y = sin(angle);
+
+			phys.velocity.x = x * wpn->basic_jolt;
+			phys.targetVelocity.x = x * wpn->basic_jolt;
+
+			phys.velocity.y = y * wpn->basic_jolt;
+			phys.targetVelocity.y = y * wpn->basic_jolt;
+			mob.state = MOB_STATE::KNOCKBACK;
+			mob.stateTimer = wpn->basic_jolt_time;
+
+			switch (mob.equipped_atk) {
+			case WEAPON_ID::CROWBAR:
+				if (mob.state != MOB_STATE::ATTACK) {
+					mob.state = MOB_STATE::ATTACK;
+					dmgEnt = instantiateDamage(entity, motion.position + vec2({ facing * wpn->basic_range, 0.f }),
+						{ 2 * TILE_SIZE, TILE_SIZE }, facing * wpn->basic_kb, wpn->basic_dmg, 25);
+					if (registry.players.has(entity)) {
+						motion.scale.x = x * 2 * PLAYER_DIMS;
+						setAnimation(entity, TEXTURE_ASSET_ID::PLAYER_SWING_CROWBAR, 7, 0, 30);
+					}
+				}
+				break;
+			case WEAPON_ID::SHOTGUN:
+			{
+				dmgEnt = instantiateDamage(entity, motion.position + vec2({ 0.f, 0.f }),
+					{ 1.5 * TILE_SIZE, 1.5 * TILE_SIZE }, facing * wpn->basic_kb, wpn->basic_dmg, 250);
+				Physics& projectile = registry.physEntities.emplace(dmgEnt);
+				projectile.velocity = { 1600 * x, 1600 * y };
+				projectile.targetVelocity = { 100 * x, 100 * y };
+				break;
+			}
+			case WEAPON_ID::BASEBALL_BAT:
+				break;
+			case WEAPON_ID::BRASS_KNUCKLES:
+				break;
+			case WEAPON_ID::RAILGUN:
+				break;
+			case WEAPON_ID::POP_SICKLE:
+				break;
+			case WEAPON_ID::ARM_BLADES:
+				break;
+			}
+
+		}
+		else if (input.key_press[KEY::SPECIAL]) {
+			Entity dmgEnt;
+
+			// do jolt dir
+			float angle = ((int)dir - 4) * (M_PI / 4);
+			float x = cos(angle);
+			float y = sin(angle);
+
+			phys.velocity.x = x * wpn->special_jolt;
+			phys.targetVelocity.x = x * wpn->special_jolt;
+			phys.velocity.y = y * wpn->special_jolt;
+			phys.targetVelocity.y = y * wpn->special_jolt;
+			mob.state = MOB_STATE::KNOCKBACK;
+			mob.stateTimer = wpn->special_jolt_time;
+
+			switch (mob.equipped_atk) {
+			case WEAPON_ID::CROWBAR:
+				dmgEnt = instantiateDamage(entity, motion.position + vec2({ facing * wpn->special_range, 0.f }),
+					{ 2 * TILE_SIZE, TILE_SIZE }, facing * wpn->special_kb, wpn->special_dmg, 25);
+				break;
+			case WEAPON_ID::SHOTGUN:
+			{
+				dmgEnt = instantiateDamage(entity, motion.position + vec2({ 0.f, 0.f }),
+					{ 1.5 * TILE_SIZE, 1.5 * TILE_SIZE }, facing * wpn->special_kb, wpn->special_dmg, 250);
+				Physics& projectile = registry.physEntities.emplace(dmgEnt);
+				projectile.velocity = { 2000 * x, 2000 * y };
+				projectile.targetVelocity = { 100 * x, 100 * y };
+				break;
+			}
+			case WEAPON_ID::BASEBALL_BAT:
+				break;
+			case WEAPON_ID::BRASS_KNUCKLES:
+				break;
+			case WEAPON_ID::RAILGUN:
+				break;
+			case WEAPON_ID::POP_SICKLE:
+				break;
+			case WEAPON_ID::ARM_BLADES:
+				break;
+			}
+
 		}
 	}
 
@@ -65,63 +155,65 @@ void CombatSystem::step(float elapsed_ms) {
 		Entity eThis = registry.collisions.entities[i];
 		Entity eOther = registry.collisions.components[i].other;
 
-		if (registry.mobs.has(eThis) && registry.damageColliders.has(eOther) && registry.damageColliders.get(eOther).source != eThis) {
+		if (registry.healths.has(eThis) && registry.damageColliders.has(eOther) && registry.damageColliders.get(eOther).source != eThis) {
 			DamageCollider& dc = registry.damageColliders.get(eOther);
 			// take damage
 			Health& health = registry.healths.get(eThis);
-			Mob& mob = registry.mobs.get(eThis);
-			Input& i = registry.inputs.get(eThis);
-			Physics& phys = registry.physEntities.get(eThis);
-
-			i.key = {
-				{KEY::RIGHT, false},
-				{KEY::LEFT, false},
-				{KEY::UP, false},
-				{KEY::DOWN, false},
-
-				{KEY::JUMP, false},
-
-				{KEY::BASIC, false},
-				{KEY::SPECIAL, false},
-				{KEY::GRAB, false},
-				{KEY::ENHANCE, false},
-				{KEY::DASH, false},
-			};
-			i.key_press = {
-				{KEY::RIGHT, false},
-				{KEY::LEFT, false},
-				{KEY::UP, false},
-				{KEY::DOWN, false},
-
-				{KEY::JUMP, false},
-
-				{KEY::BASIC, false},
-				{KEY::SPECIAL, false},
-				{KEY::GRAB, false},
-				{KEY::ENHANCE, false},
-				{KEY::DASH, false},
-			};
-			i.key_release = {
-				{KEY::RIGHT, false},
-				{KEY::LEFT, false},
-				{KEY::UP, false},
-				{KEY::DOWN, false},
-
-				{KEY::JUMP, false},
-
-				{KEY::BASIC, false},
-				{KEY::SPECIAL, false},
-				{KEY::GRAB, false},
-				{KEY::ENHANCE, false},
-				{KEY::DASH, false},
-			};
-
 			health.hp -= dc.dmg;
-			phys.velocity = mob.knockbackSpeed * dc.knockback;
-			phys.targetVelocity = mob.knockbackSpeed * dc.knockback;
-			mob.state = MOB_STATE::KNOCKBACK;
+			if (registry.mobs.has(eThis)) {
+				Mob& mob = registry.mobs.get(eThis);
+				Input& i = registry.inputs.get(eThis);
+				Physics& phys = registry.physEntities.get(eThis);
 
-			registry.remove_all_components_of(eOther);
+				i.key = {
+					{KEY::RIGHT, false},
+					{KEY::LEFT, false},
+					{KEY::UP, false},
+					{KEY::DOWN, false},
+
+					{KEY::JUMP, false},
+
+					{KEY::BASIC, false},
+					{KEY::SPECIAL, false},
+					{KEY::GRAB, false},
+					{KEY::ENHANCE, false},
+					{KEY::DASH, false},
+				};
+				i.key_press = {
+					{KEY::RIGHT, false},
+					{KEY::LEFT, false},
+					{KEY::UP, false},
+					{KEY::DOWN, false},
+
+					{KEY::JUMP, false},
+
+					{KEY::BASIC, false},
+					{KEY::SPECIAL, false},
+					{KEY::GRAB, false},
+					{KEY::ENHANCE, false},
+					{KEY::DASH, false},
+				};
+				i.key_release = {
+					{KEY::RIGHT, false},
+					{KEY::LEFT, false},
+					{KEY::UP, false},
+					{KEY::DOWN, false},
+
+					{KEY::JUMP, false},
+
+					{KEY::BASIC, false},
+					{KEY::SPECIAL, false},
+					{KEY::GRAB, false},
+					{KEY::ENHANCE, false},
+					{KEY::DASH, false},
+				};
+
+				phys.velocity = mob.knockbackSpeed * dc.knockback;
+				phys.targetVelocity = 0.5f * mob.knockbackSpeed * dc.knockback;
+				mob.state = MOB_STATE::KNOCKBACK;
+				mob.stateTimer = 130.f;
+			}
+
 		}
 	}
 }

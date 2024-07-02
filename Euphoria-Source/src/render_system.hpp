@@ -53,8 +53,25 @@ class RenderSystem {
 			textures_path("spr_hitbox.png"),
 			textures_path("spr_solid.png"),
 			textures_path("spr_solid_tiles.png"),
+
+			textures_path("spr_breakable_box.png"),
+
+			level_path("tut_int_1/background.png"),
+
 			textures_path("spr_player.png"),
+			textures_path("player/spr_player_idle.png"),
+			textures_path("player/spr_player_idle_nohelm.png"),
+			textures_path("player/spr_player_run.png"),
+			textures_path("player/spr_player_jump.png"),
+
+			textures_path("player/spr_player_idle_crowbar.png"),
+			textures_path("player/spr_player_run_crowbar.png"),
+			textures_path("player/spr_player_jump_crowbar.png"),
+			textures_path("player/spr_player_crowbar_swing.png"),
+
 			textures_path("spr_enemy.png"),
+
+			textures_path("spr_crowbar_item.png"),
 	};
 
 	std::array<GLuint, effect_count> effects;
@@ -104,10 +121,19 @@ public:
 private:
 	// Internal drawing functions for each entity type
 	// void drawTexturedMesh(Entity entity, const mat3& projection);
-	void drawTexturedMesh(Entity entity, Motion& motion, RenderRequest& render_request, const mat3& projection);
+	void stepBackgrounds();
+
+	bool outOfView(Motion& motion);
+
+	void drawTexturedMesh(Entity entity, Motion& motion, const mat3& projection);
 	void drawToScreen();
 
 	void drawDebug(float elapsed_ms);
+
+	void drawTooltips();
+
+	vec2 worldToScreenSpace(vec2 world_space);
+	vec2 centerText(std::string text, float scale, vec2 coords);
 
 	// Window handle
 	GLFWwindow* window;

@@ -7,9 +7,32 @@
 
 #include "tiny_ecs_registry.hpp"
 
+vec2 RenderSystem::worldToScreenSpace(vec2 world_space) {
+	Camera& camera = registry.cameras.components[0];
+	// xx = camerax - width
+	// yy = cameray + height
+	// drawx = cTTx - xx
+	// drawy = cTTy + yy
+	vec2 origin = { camera.position.x - camera.dims.x / 2, camera.position.y + camera.dims.y / 2 };
+	return { (camera.screenSize.x / camera.dims.x) * camera.zoom * (world_space.x - origin.x), 
+		(camera.screenSize.y / camera.dims.y)* camera.zoom * (origin.y - world_space.y) };
+}
+
+vec2 RenderSystem::centerText(std::string text, float scale, vec2 coords) {
+	float wOffset = 0.0;
+	for (char c : text) {
+		Character ch = m_ftCharacters[c];
+
+		wOffset += scale * ch.Size.x;
+		if (c == ' ' || c == '\n') {
+			wOffset += scale * 0.846153 * m_ftCharacters['I'].Size.x;
+		}
+	}
+	return coords - vec2({ wOffset / 2.0, 0. });
+}
+
 void RenderSystem::drawTexturedMesh(Entity entity, 
 									Motion& motion, 
-									RenderRequest& render_request,
 									const mat3 &projection)
 {
 	glBindVertexArray(vao);
@@ -23,7 +46,7 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	// !!! TODO A1: add rotation to the chain of transformations, mind the order
 	// of transformations
 
-	const GLuint used_effect_enum = (GLuint)render_request.used_effect;
+	const GLuint used_effect_enum = (GLuint)motion.used_effect;
 	assert(used_effect_enum != (GLuint)EFFECT_ASSET_ID::EFFECT_COUNT);
 	const GLuint program = (GLuint)effects[used_effect_enum];
 
@@ -31,7 +54,7 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	glUseProgram(program);
 	gl_has_errors();
 
-	assert(render_request.used_geometry != GEOMETRY_BUFFER_ID::GEOMETRY_COUNT);
+	assert(motion.used_geometry != GEOMETRY_BUFFER_ID::GEOMETRY_COUNT);
 	GLuint vbo, ibo;
 	// const GLuint vbo = vertex_buffers[(GLuint)render_request.used_geometry];
 	// const GLuint ibo = index_buffers[(GLuint)render_request.used_geometry];
@@ -44,8 +67,8 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		vbo = anim.vertex_buffers[anim.index];
 		ibo = anim.indexBuffer;
 	} else {
-		vbo = vertex_buffers[(GLuint)render_request.used_geometry];
-		ibo = index_buffers[(GLuint)render_request.used_geometry];
+		vbo = vertex_buffers[(GLuint)motion.used_geometry];
+		ibo = index_buffers[(GLuint)motion.used_geometry];
 	}
 
 	// Setting vertex and index buffers
@@ -54,7 +77,7 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	gl_has_errors();
 
 	// Input data location as in the vertex buffer
-	if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED)
+	if (motion.used_effect == EFFECT_ASSET_ID::TEXTURED)
 	{
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
@@ -85,13 +108,13 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 				texture_gl_handles[(GLuint)registry.animations.get(entity).sheet];
 		} else {
 			texture_id =
-				texture_gl_handles[(GLuint)render_request.used_texture];
+				texture_gl_handles[(GLuint)motion.used_texture];
 		}
 
 		glBindTexture(GL_TEXTURE_2D, texture_id);
 		gl_has_errors();
 	}
-	else if (render_request.used_effect == EFFECT_ASSET_ID::CHICKEN || render_request.used_effect == EFFECT_ASSET_ID::EGG)
+	else if (motion.used_effect == EFFECT_ASSET_ID::CHICKEN || motion.used_effect == EFFECT_ASSET_ID::EGG)
 	{
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_color_loc = glGetAttribLocation(program, "in_color");
@@ -107,7 +130,7 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 							  sizeof(ColoredVertex), (void *)sizeof(vec3));
 		gl_has_errors();
 
-		if (render_request.used_effect == EFFECT_ASSET_ID::CHICKEN)
+		if (motion.used_effect == EFFECT_ASSET_ID::CHICKEN)
 		{
 			// Light up?
 			GLint light_up_uloc = glGetUniformLocation(program, "light_up");
@@ -210,10 +233,52 @@ void RenderSystem::drawToScreen()
 	gl_has_errors();
 }
 
+void RenderSystem::stepBackgrounds() {
+	Camera& playerCamera = registry.cameras.components[0];
+	auto& backgrounds = registry.backgrounds;
+
+	for (int i = 0; i < backgrounds.size(); ++i) {
+		Entity backgroundEntity = backgrounds.entities[i];
+
+		Background& background = backgrounds.get(backgroundEntity);
+		Motion& backgroundMotion = registry.motions.get(backgroundEntity);
+
+		backgroundMotion.position.x = (int) (background.parallaxDistance * (playerCamera.position.x - background.centre.x) + background.centre.x);
+		backgroundMotion.position.y = (int) (0.8 * background.parallaxDistance * (playerCamera.position.y - background.centre.y) + background.centre.y);
+
+	}
+}
+
+bool RenderSystem::outOfView(Motion& motion) {
+	Camera& cam = registry.cameras.components[0];
+	return motion.position.x > cam.position.x + (cam.dims.x / 2 + abs(motion.scale.x) / 2) ||
+		motion.position.x < cam.position.x - (cam.dims.x / 2 + abs(motion.scale.x) / 2) ||
+		motion.position.y > cam.position.y + (cam.dims.y / 2 + abs(motion.scale.y) / 2) ||
+		motion.position.y < cam.position.y - (cam.dims.y / 2 + abs(motion.scale.y) / 2);
+}
+
+void RenderSystem::drawTooltips() {
+	for (int i = 0; i < registry.tooltips.size(); ++i) {
+		Entity e = registry.tooltips.entities[i];
+		Tooltip& tooltip = registry.tooltips.components[i];
+		if (registry.collisions.has(e) &&
+			registry.collisions.get(e).other == registry.players.entities[0]) {
+			Motion& motion = registry.motions.get(e);
+			std::string tooltipText = "[I] " + tooltip.tooltipText;
+			float scale = 0.8f;
+			vec2 screenPos = worldToScreenSpace(motion.position - vec2({ 0., 16. }));
+			vec2 position = centerText(tooltipText, scale, screenPos);
+
+			renderText(tooltipText, position.x, position.y, scale, { 1, 1, 1 }, glm::mat4(1.0f));
+		}
+	}
+}
+
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 void RenderSystem::draw(float elapsed_ms)
 {
+	stepBackgrounds();
 	// Getting size of window
 	int w, h;
 	glfwGetFramebufferSize(window, &w, &h); // Note, this will be 2x the resolution given to glfwCreateWindow on retina displays
@@ -224,7 +289,7 @@ void RenderSystem::draw(float elapsed_ms)
 	// Clearing backbuffer
 	glViewport(0, 0, w, h);
 	glDepthRange(0.00001, 10);
-	glClearColor(0.8, 0.8, 0.8 , 1.0);
+	glClearColor(0.3, 0.3, 0.4 , 1.0);
 	glClearDepth(10.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_BLEND);
@@ -235,27 +300,109 @@ void RenderSystem::draw(float elapsed_ms)
 	gl_has_errors();
 	mat3 projection_2D = createProjectionMatrix();
 	// Draw all textured meshes that have a position and size component
-	for (uint i = 0; i < registry.renderRequests.size(); ++i)
+	for (uint i = 0; i < registry.motions.size(); ++i)
 	{
-		Entity entity = registry.renderRequests.entities[i];
-		RenderRequest& rr = registry.renderRequests.components[i];
+		Entity entity = registry.motions.entities[i];
+		Motion& motion = registry.motions.components[i];
 
-		if (!registry.motions.has(entity))
+		if (!motion.visible || outOfView(motion))
 			continue;
 
-		Motion& motion = registry.motions.get(entity);
+		switch (motion.render_layer) {
+		case RENDER_LAYER::BACKGROUND:
+			registry.rndr_backgrounds.push_back(i);
+			break;
+		case RENDER_LAYER::BG_DECOR:
+			registry.rndr_bg_decor.push_back(i);
+			break;
+		case RENDER_LAYER::BG_ELEMENTS:
+			registry.rndr_bg_elements.push_back(i);
+			break;
+		case RENDER_LAYER::ENTITIES:
+			registry.rndr_entities.push_back(i);
+			break;
+		case RENDER_LAYER::ITEMS:
+			registry.rndr_level_items.push_back(i);
+			break;
+		case RENDER_LAYER::FG_DECOR:
+			registry.rndr_fg_decor.push_back(i);
+			break;
+		case RENDER_LAYER::FOREGROUND:
+			registry.rndr_foreground.push_back(i);
+			break;
+		case RENDER_LAYER::DEBUG:
+			registry.rndr_debug.push_back(i);
+			break;
+		}
 
-		// check if motion in window
-		Camera& cam = registry.cameras.components[0];
-		if (motion.position.x > cam.position.x + (cam.dims.x / 2 + abs(motion.scale.x) / 2) ||
-			motion.position.x < cam.position.x - (cam.dims.x / 2 + abs(motion.scale.x) / 2) ||
-			motion.position.y > cam.position.y + (cam.dims.y / 2 + abs(motion.scale.y) / 2) ||
-			motion.position.y < cam.position.y - (cam.dims.y / 2 + abs(motion.scale.y) / 2)) continue;
-
-		// Note, its not very efficient to access elements indirectly via the entity
-		// albeit iterating through all Sprites in sequence. A good point to optimize
-		drawTexturedMesh(entity, motion, rr, projection_2D);
+		// drawTexturedMesh(entity, motion, projection_2D);
 	}
+
+	for (int ind : registry.rndr_backgrounds) {
+		Entity entity = registry.motions.entities[ind];
+		Motion& motion = registry.motions.components[ind];
+
+		drawTexturedMesh(entity, motion, projection_2D);
+	}
+
+	for (int ind : registry.rndr_bg_decor) {
+		Entity entity = registry.motions.entities[ind];
+		Motion& motion = registry.motions.components[ind];
+
+		drawTexturedMesh(entity, motion, projection_2D);
+	}
+
+	for (int ind : registry.rndr_bg_elements) {
+		Entity entity = registry.motions.entities[ind];
+		Motion& motion = registry.motions.components[ind];
+
+		drawTexturedMesh(entity, motion, projection_2D);
+	}
+
+	for (int ind : registry.rndr_entities) {
+		Entity entity = registry.motions.entities[ind];
+		Motion& motion = registry.motions.components[ind];
+
+		drawTexturedMesh(entity, motion, projection_2D);
+	}
+
+	for (int ind : registry.rndr_level_items) {
+		Entity entity = registry.motions.entities[ind];
+		Motion& motion = registry.motions.components[ind];
+
+		drawTexturedMesh(entity, motion, projection_2D);
+	}
+
+	for (int ind : registry.rndr_fg_decor) {
+		Entity entity = registry.motions.entities[ind];
+		Motion& motion = registry.motions.components[ind];
+
+		drawTexturedMesh(entity, motion, projection_2D);
+	}
+
+	for (int ind : registry.rndr_foreground) {
+		Entity entity = registry.motions.entities[ind];
+		Motion& motion = registry.motions.components[ind];
+
+		drawTexturedMesh(entity, motion, projection_2D);
+	}
+
+	for (int ind : registry.rndr_debug) {
+		Entity entity = registry.motions.entities[ind];
+		Motion& motion = registry.motions.components[ind];
+
+		drawTexturedMesh(entity, motion, projection_2D);
+	}
+
+	registry.rndr_backgrounds.clear();
+	registry.rndr_bg_decor.clear();
+	registry.rndr_bg_elements.clear();
+	registry.rndr_entities.clear();
+	registry.rndr_level_items.clear();
+	registry.rndr_fg_decor.clear();
+	registry.rndr_foreground.clear();
+	registry.rndr_debug.clear();
+
 	// Truely render to the screen
 	drawToScreen(); 
 	
@@ -268,6 +415,8 @@ void RenderSystem::draw(float elapsed_ms)
 	if (debugging.in_debug_mode) {
 		drawDebug(elapsed_ms);
 	}
+
+	drawTooltips();
 
 
 	// flicker-free display with a double buffer
@@ -308,18 +457,14 @@ void RenderSystem::drawDebug(float elapsed_ms) {
 	pos_str << "Position: " << debugging.px << ", " << debugging.py;
 
 	std::stringstream vel_str;
-	vel_str << "Speed: " << std::fixed << std::setprecision(2) << debugging.vx << ", " << std::fixed << std::setprecision(2) << debugging.vy;
+	vel_str << "Speed: " << (int) debugging.vx << ", " << std::fixed << std::setprecision(2) << debugging.vy;
 
-	std::stringstream dash_str;
-	dash_str << "Dash duration: " << std::fixed << std::setprecision(2) << debugging.dashDuration << " ms";
 
 	renderText("FPS: " + std::to_string(debugging.fps), sx, sy, 0.8f, { 1., 1., 1. }, glm::mat4(1.0f));
 	sy -= 24.f;
 	renderText(pos_str.str(), sx, sy, 0.8f, { 1., 1., 1. }, glm::mat4(1.0f));
 	sy -= 24.f;
 	renderText(vel_str.str(), sx, sy, 0.8f, { 1., 1., 1. }, glm::mat4(1.0f));
-	sy -= 24.f;
-	renderText(dash_str.str(), sx, sy, 0.8f, { 1., 1., 1. }, glm::mat4(1.0f));
 
 }
 
@@ -343,10 +488,10 @@ mat3 RenderSystem::createProjectionMatrix()
 	
 	camera.targetPosition.y -= camera.offset.y;
 
-	camera.targetPosition[0] = fmin(camera.targetPosition[0], gm.bounds[0] - halfWidth - 8);
-	camera.targetPosition[0] = fmax(camera.targetPosition[0], halfWidth - 8);
+	camera.targetPosition[0] = fmin(camera.targetPosition[0], gm.bounds[0] - halfWidth - 24);
+	camera.targetPosition[0] = fmax(camera.targetPosition[0], halfWidth + 8);
 	camera.targetPosition[1] = fmin(camera.targetPosition[1], gm.bounds[1] - halfHeight - 16);
-	camera.targetPosition[1] = fmax(camera.targetPosition[1], halfHeight - 8);
+	camera.targetPosition[1] = fmax(camera.targetPosition[1], halfHeight + 8);
 
 	camera.position += camera.interpSpeed * (camera.targetPosition - camera.position);
 
