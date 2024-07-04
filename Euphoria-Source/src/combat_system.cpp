@@ -39,7 +39,7 @@ void CombatSystem::step(float elapsed_ms) {
 
 		dc.ttl -= elapsed_ms;
 
-		if (dc.ttl < 0) {
+		if (dc.ttl < 0 && !dc._static) {
 			registry.remove_all_components_of(entity);
 		}
 	}
@@ -166,49 +166,6 @@ void CombatSystem::step(float elapsed_ms) {
 				Mob& mob = registry.mobs.get(eThis);
 				Input& i = registry.inputs.get(eThis);
 				Physics& phys = registry.physEntities.get(eThis);
-
-				i.key = {
-					{KEY::RIGHT, false},
-					{KEY::LEFT, false},
-					{KEY::UP, false},
-					{KEY::DOWN, false},
-
-					{KEY::JUMP, false},
-
-					{KEY::BASIC, false},
-					{KEY::SPECIAL, false},
-					{KEY::GRAB, false},
-					{KEY::ENHANCE, false},
-					{KEY::DASH, false},
-				};
-				i.key_press = {
-					{KEY::RIGHT, false},
-					{KEY::LEFT, false},
-					{KEY::UP, false},
-					{KEY::DOWN, false},
-
-					{KEY::JUMP, false},
-
-					{KEY::BASIC, false},
-					{KEY::SPECIAL, false},
-					{KEY::GRAB, false},
-					{KEY::ENHANCE, false},
-					{KEY::DASH, false},
-				};
-				i.key_release = {
-					{KEY::RIGHT, false},
-					{KEY::LEFT, false},
-					{KEY::UP, false},
-					{KEY::DOWN, false},
-
-					{KEY::JUMP, false},
-
-					{KEY::BASIC, false},
-					{KEY::SPECIAL, false},
-					{KEY::GRAB, false},
-					{KEY::ENHANCE, false},
-					{KEY::DASH, false},
-				};
 
 				phys.velocity = mob.knockbackSpeed * dc.knockback;
 				phys.targetVelocity = 0.5f * mob.knockbackSpeed * dc.knockback;

@@ -293,6 +293,7 @@ struct DamageCollider {
 	vec2 knockback;
 	int dmg;
 	int ttl;
+	bool _static = false;
 };
 
 // INTERACTABLES
@@ -463,6 +464,8 @@ enum class TEXTURE_ASSET_ID {
 	HITBOX,
 	SOLID,
 	SOLID_TILES,
+
+	DUMPSTER_FIRE,
 
 	BREAKABLE_BOX,
 

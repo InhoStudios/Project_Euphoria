@@ -308,7 +308,7 @@ void RenderSystem::draw(float elapsed_ms)
 		Motion& motion = registry.motions.components[i];
 
 		if (!motion.visible || outOfView(motion))
-			continue;
+			continue; 
 
 		switch (motion.render_layer) {
 		case RENDER_LAYER::BACKGROUND:
