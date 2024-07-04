@@ -54,9 +54,12 @@ class RenderSystem {
 			textures_path("spr_solid.png"),
 			textures_path("spr_solid_tiles.png"),
 
+			textures_path("spr_fire.png"),
+
 			textures_path("spr_breakable_box.png"),
 
 			level_path("tut_int_1/background.png"),
+			level_path("tutorial/tut_int_3/background2.png"),
 
 			textures_path("spr_player.png"),
 			textures_path("player/spr_player_idle.png"),

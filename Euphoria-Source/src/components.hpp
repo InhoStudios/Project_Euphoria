@@ -64,6 +64,8 @@ struct Player
 {
 	// put enhancements in player component? or in game manager?
 	MOVE_KIT_ID equipped_MK;
+
+	bool enhanced = true;
 };
 
 #define MID_AIR_DASH  0b00000001
@@ -291,6 +293,7 @@ struct DamageCollider {
 	vec2 knockback;
 	int dmg;
 	int ttl;
+	bool _static = false;
 };
 
 // INTERACTABLES
@@ -462,9 +465,12 @@ enum class TEXTURE_ASSET_ID {
 	SOLID,
 	SOLID_TILES,
 
+	DUMPSTER_FIRE,
+
 	BREAKABLE_BOX,
 
 	BG_TUT_INT_1,
+	BG_TUT_INT_3,
 
 	PLAYER,
 	PLAYER_IDLE,
@@ -490,7 +496,7 @@ enum class EFFECT_ASSET_ID {
 	EGG,
 	CHICKEN,
 	TEXTURED,
-	WIND,
+	SCREEN,
 	EFFECT_COUNT
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;

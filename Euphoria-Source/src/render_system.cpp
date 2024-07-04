@@ -181,7 +181,7 @@ void RenderSystem::drawToScreen()
 	glBindVertexArray(vao);
 	// Setting shaders
 	// get the wind texture, sprite mesh, and program
-	glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::WIND]);
+	glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::SCREEN]);
 	gl_has_errors();
 	// Clearing backbuffer
 	int w, h;
@@ -205,17 +205,19 @@ void RenderSystem::drawToScreen()
 		index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]); // Note, GL_ELEMENT_ARRAY_BUFFER associates
 																	 // indices to the bound GL_ARRAY_BUFFER
 	gl_has_errors();
-	const GLuint wind_program = effects[(GLuint)EFFECT_ASSET_ID::WIND];
+	const GLuint screen_program = effects[(GLuint)EFFECT_ASSET_ID::SCREEN];
 	// Set clock
-	GLuint time_uloc = glGetUniformLocation(wind_program, "time");
-	GLuint dead_timer_uloc = glGetUniformLocation(wind_program, "darken_screen_factor");
+	GLuint time_uloc = glGetUniformLocation(screen_program, "time");
+	GLuint dead_timer_uloc = glGetUniformLocation(screen_program, "darken_screen_factor");
+	GLuint enhanced_uloc = glGetUniformLocation(screen_program, "enhanced");
 	glUniform1f(time_uloc, (float)(glfwGetTime() * 10.0f));
+	glUniform1i(enhanced_uloc, (int)registry.players.components[0].enhanced);
 	ScreenState &screen = registry.screenStates.get(screen_state_entity);
 	glUniform1f(dead_timer_uloc, screen.darken_screen_factor);
 	gl_has_errors();
 	// Set the vertex position and vertex texture coordinates (both stored in the
 	// same VBO)
-	GLint in_position_loc = glGetAttribLocation(wind_program, "in_position");
+	GLint in_position_loc = glGetAttribLocation(screen_program, "in_position");
 	glEnableVertexAttribArray(in_position_loc);
 	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
 	gl_has_errors();
@@ -306,7 +308,7 @@ void RenderSystem::draw(float elapsed_ms)
 		Motion& motion = registry.motions.components[i];
 
 		if (!motion.visible || outOfView(motion))
-			continue;
+			continue; 
 
 		switch (motion.render_layer) {
 		case RENDER_LAYER::BACKGROUND:

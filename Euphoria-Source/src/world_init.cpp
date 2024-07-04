@@ -231,6 +231,37 @@ Entity createBreakableBox(vec2 pos, TEXTURE_ASSET_ID sprite) {
 	return entity;
 }
 
+Entity createDumpsterFire(vec2 pos) {
+	Entity entity;
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.scale = { TILE_SIZE, TILE_SIZE };
+
+	motion.visible = true;
+	// TO-DO: SPRITE ASSIGNMENT
+	motion.used_texture = TEXTURE_ASSET_ID::DUMPSTER_FIRE;
+	motion.used_effect = EFFECT_ASSET_ID::TEXTURED;
+	motion.used_geometry = GEOMETRY_BUFFER_ID::SPRITE;
+
+	setAnimation(entity, TEXTURE_ASSET_ID::DUMPSTER_FIRE, 8, rand() % 8, 12);
+
+	Collider& c = registry.colliders.emplace(entity);
+	c.spr_scale = { 1.0, 0.75 };
+	c.offset = { 0, 4 };
+
+	DamageCollider& dmg = registry.damageColliders.emplace(entity);
+	dmg.source = entity;
+	dmg.knockback = { 0, -2.f };
+	dmg.dmg = 1;
+	dmg.ttl = 0;
+	dmg._static = true;
+
+	registry.levelElements.emplace(entity);
+
+	return entity;
+}
+
 Entity createBackground(BackgroundData bg) {
 	Entity entity;
 

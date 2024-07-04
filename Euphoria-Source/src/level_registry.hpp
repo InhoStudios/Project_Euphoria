@@ -198,6 +198,14 @@ private:
                 TEXTURE_ASSET_ID::DEFAULT
             )
         );
+        tut_int_3.backgrounds.push_back(
+            {
+                { 240, 248 },
+                { 496, 512 },
+                0.0,
+                TEXTURE_ASSET_ID::BG_TUT_INT_3
+            }
+        );
         
         tut_ext_4.directory = "tutorial/tut_ext_4";
         tut_ext_4.startPos = { 240, 16 };

@@ -6,6 +6,7 @@ enum class Tiles {
     INTERACTABLE = 1,
 
     DESTRUCTABLE_BOX = 10,
+    DUMPSTER_FIRE = 11,
 
     CROWBAR = 60,
     BASEBALL_BAT = 61,
@@ -26,6 +27,11 @@ void loadLevel(LEVEL l) {
     // load level data
 
     Level& level = levels.get(l);
+
+    // load backgrounds
+    for (BackgroundData& bg : level.backgrounds) {
+        createBackground(bg);
+    }
 
     // temp: load geometry file
     loadGeometryFile(level_path(level.directory + "/geometry.png"));
@@ -278,6 +284,10 @@ void loadGeometryFile(std::string file_path) {
                     break;
                 case Tiles::DESTRUCTABLE_BOX:
                     createBreakableBox({ xTo, yTo }, TEXTURE_ASSET_ID::BREAKABLE_BOX);
+                    break;
+                case Tiles::DUMPSTER_FIRE:
+                    createDumpsterFire({ xTo, yTo });
+                    break;
                 }
             }
         }
