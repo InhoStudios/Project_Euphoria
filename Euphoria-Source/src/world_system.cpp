@@ -131,7 +131,7 @@ void WorldSystem::init_game() {
 	gameManager = createGameManager();
 	GameManager& gm = registry.gameManagers.get(gameManager);
 
-	gm.current_level = LEVEL::TUT_BRIDGE_1;
+	gm.current_level = LEVEL::TUT_INT_1;
 
 	Level& l = levels.get(gm.current_level);
 	player = createPlayer(l.startPos);
